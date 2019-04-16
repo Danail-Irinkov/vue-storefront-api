@@ -12,8 +12,6 @@ const resolver = {
 };
 
 async function list(filter, sort, currentPage, pageSize, search, context, rootValue, _sourceInclude, _sourceExclude) {
-  const { req, res } = context;
-
   let query = buildQuery({
     filter: filter,
     sort: sort,
@@ -23,7 +21,7 @@ async function list(filter, sort, currentPage, pageSize, search, context, rootVa
     type: 'product'
   });
 
-  let esIndex  = getIndexName(req.url)
+  let esIndex  = getIndexName(context.req.url)
 
   let esResponse = await client.search({
     index: esIndex,
@@ -35,7 +33,15 @@ async function list(filter, sort, currentPage, pageSize, search, context, rootVa
 
   if (esResponse && esResponse.hits && esResponse.hits.hits) {
     // process response result (caluclate taxes etc...)
-    esResponse.hits.hits = await esResultsProcessor(esResponse, config.elasticsearch.indexTypes[0], esIndex, req, res);
+
+    let _req = {
+      query: {
+        _source_exclude: _sourceExclude,
+        _source_include: _sourceInclude,
+      }
+    }
+
+    esResponse.hits.hits = await esResultsProcessor(esResponse, _req, config.elasticsearch.indexTypes[0], esIndex);
   }
 
   let response = {}
