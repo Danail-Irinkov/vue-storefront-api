@@ -1,12 +1,10 @@
-const _ = require('lodash')
 const program = require('commander')
 const config = require('config')
 const spawn = require('child_process').spawn
 
 function multiStoreConfig(apiConfig, storeCode) {
   let confCopy = Object.assign({}, apiConfig)
-console.log('multiStoreConfig config', config)
-console.log('multiStoreConfig config')
+
   if (storeCode && config.availableStores.indexOf(storeCode) >= 0)
   {
       if (config.magento2['api_' + storeCode]) {
@@ -85,7 +83,6 @@ program
     magentoConfig.INDEX_META_PATH = '.lastIndex.json'
 
     if (cmd.storeCode) {
-      console.log('config', config)
       const storeView = config.storeViews[cmd.storeCode]
       if (!storeView) {
         console.error('Wrong storeCode provided - no such store in the config.storeViews[storeCode]', cmd.storeCode)
@@ -94,7 +91,7 @@ program
         magentoConfig.INDEX_NAME = storeView.elasticsearch.index
         magentoConfig.INDEX_META_PATH = '.lastIndex-' + cmd.storeCode + '.json'
         magentoConfig.MAGENTO_STORE_ID = storeView.storeId
-        magentoConfig.MAGENTO_MSI_STOCK_ID = storeView.msi && storeView.msi.stockId ? storeView.msi.stockId : 1
+        magentoConfig.MAGENTO_MSI_STOCK_ID = storeView.msi.stockId
         if (storeView.i18n && storeView.i18n.currencyCode) {
           magentoConfig.MAGENTO_CURRENCY_CODE = storeView.i18n.currencyCode;
         }
@@ -131,8 +128,7 @@ program
   .option('--skip-products <skipProducts>', 'skip import of products', false)
   .option('--skip-pages <skipPages>', 'skip import of cms pages', false)
   .option('--skip-blocks <skipBlocks>', 'skip import of cms blocks', false)
-  // Modified by Dan 30-11-2019 -> to allow syncing of only specific product SKUs
-  .option('--skus <SKUs>', 'import specific SKUs, comma-delimited list', false)
+  .option('--generate-unique-url-keys <generateUniqueUrlKeys>', 'generate unique url keys for categories', false)
   .action((cmd) => {
     let magentoConfig = getMagentoDefaultConfig(cmd.storeCode)
 
@@ -174,17 +170,9 @@ program
     if (cmd.skipBlocks) {
       magentoConfig.SKIP_BLOCKS = true;
     }
-
-    // Modified by Dan 30-11-2019 -> to allow syncing of only specific product SKUs
-    if (cmd.skus) {
-      magentoConfig.SKUs = cmd.skus;
-    }
-    console.log('magentoConfig.SKUs', magentoConfig.SKUs)
-    // added by Dan 30-11-2019 //TODO: enable reviews to work
-    magentoConfig.SKIP_REVIEWS = true;
-    magentoConfig.SKIP_PAGES = true;
-    magentoConfig.SKIP_BLOCKS = true;
-
+    
+    magentoConfig.GENERATE_UNIQUE_URL_KEYS = cmd.generateUniqueUrlKeys;
+    
     const env = Object.assign({}, magentoConfig, process.env)  // use process env as well
     console.log('=== The mage2vuestorefront full reindex is about to start. Using the following Magento2 config ===', magentoConfig)
 
@@ -223,9 +211,9 @@ program
           '--harmony',
           'node_modules/mage2vuestorefront/src/cli.js',
           'categories',
-          '--generateUniqueUrlKeys=false', // Added by Dan 30-11-2019, prevent random category names
           '--removeNonExistent=true',
-          '--extendedCategories=true'
+          '--extendedCategories=true',
+          `--generateUniqueUrlKeys=${magentoConfig.GENERATE_UNIQUE_URL_KEYS}`
         ], { env: env, shell: true })
       }
     }
@@ -280,20 +268,13 @@ program
       }
       else {
         console.log(' == PRODUCTS IMPORTER ==');
-        // Modified by Dan 30-11-2019 -> to allow syncing of only specific product SKUs
-        let args = [
+        return exec('node', [
           '--harmony',
           'node_modules/mage2vuestorefront/src/cli.js',
           'products',
           '--removeNonExistent=true',
           '--partitions=1'
-        ]
-        if(magentoConfig.SKUs && _.isString(magentoConfig.SKUs) && _.size(magentoConfig.SKUs) > 3){
-          console.log('PUSHED SKUs to Config')
-          args.push('--skus='+magentoConfig.SKUs)
-        }
-        console.log(' == PRODUCTS IMPORTER args == ', args);
-        return exec('node', args, { env: env, shell: true })
+        ], { env: env, shell: true })
       }
     }
 
@@ -312,7 +293,7 @@ program
       }
       else {
         console.log(' == CMS PAGES IMPORTER ==');
-
+        
         try {
           return exec('node', [
             '--harmony',
@@ -333,7 +314,7 @@ program
       else {
         console.log(' == CMS BLOCKS IMPORTER ==');
 
-        try {
+        try {  
           return exec('node', [
             '--harmony',
             'node_modules/mage2vuestorefront/src/cli.js',
