@@ -34,6 +34,7 @@ export default ({config, db}) => function (req, res, body) {
 	if (req.method === 'GET') {
 		if (req.query.request) { // this is in fact optional
 			requestBody = JSON.parse(decodeURIComponent(req.query.request))
+			console.log(requestBody)
 		}
 	} else {
 		requestBody = req.body
@@ -52,8 +53,6 @@ export default ({config, db}) => function (req, res, body) {
 			entityType = urlSegments[2]
 
 		if (config.elasticsearch.indices.indexOf(indexName) < 0) {
-      console.log('config.elasticsearch', config.elasticsearch)
-      console.log('config.elasticsearch')
 			throw new Error('Invalid / inaccessible index name given in the URL. Please do use following URL format: /api/catalog/<index_name>/_search')
 		}
 
@@ -69,18 +68,18 @@ export default ({config, db}) => function (req, res, body) {
 		url = config.elasticsearch.protocol + '://' + url
 	}
 
-	// Check price tiers
-	if (config.usePriceTiers) {
-		const userToken = requestBody.groupToken
+  const userToken = requestBody.groupToken
 
-		// Decode token and get group id
-        if (userToken && userToken.length > 10) {
-			const decodeToken = jwt.decode(userToken, config.authHashSecret ? config.authHashSecret : config.objHashSecret)
-			groupId = decodeToken.group_id || groupId
-		}
+  // Decode token and get group id
+  if (userToken && userToken.length > 10) {
+    const decodeToken = jwt.decode(userToken, config.authHashSecret ? config.authHashSecret : config.objHashSecret)
+    groupId = decodeToken.group_id || groupId
+  } else if (requestBody.groupId) {
+    groupId = requestBody.groupId || groupId
+  }
 
-		delete requestBody.groupToken
-	}
+  delete requestBody.groupToken
+  delete requestBody.groupId
 
   let auth = null;
 
@@ -92,12 +91,6 @@ export default ({config, db}) => function (req, res, body) {
 		};
   }
 
-  console.log('ES requestURL: ', req.method+' - ')
-  console.log(url)
-  console.log('ES requestURL: ', req.method+' - ')
-  // console.log('ES requestBody', '\n'+require('util').inspect(req.body, false, null, true /* enable colors */))
-  // console.log('ES requestBody', '\n'+require('util').inspect(requestBody, false, null, true /* enable colors */))
-  // console.log(JSON.stringify(requestBody))
 	request({ // do the elasticsearch request
 		uri: url,
 		method: req.method,
@@ -105,11 +98,7 @@ export default ({config, db}) => function (req, res, body) {
 		json: true,
 		auth: auth,
 	}, function (_err, _res, _resBody) { // TODO: add caching layer to speed up SSR? How to invalidate products (checksum on the response BEFORE processing it)
-    // console.log('ES _resBody.hits._resBody: ', _resBody)
-    console.log('ES _resBody.hits.total: ', _resBody.hits && _resBody.hits.total ? _resBody.hits.total : _resBody.hits)
-    // console.log('ES _resBody\n', require('util').inspect(_resBody, false, null, true /* enable colors */))
-
-    if (_resBody && _resBody.hits && _resBody.hits.hits) { // we're signing up all objects returned to the client to be able to validate them when (for example order)
+		if (_resBody && _resBody.hits && _resBody.hits.hits) { // we're signing up all objects returned to the client to be able to validate them when (for example order)
 
 			const factory = new ProcessorFactory(config)
 			let resultProcessor = factory.getAdapter(entityType, indexName, req, res)
@@ -120,7 +109,6 @@ export default ({config, db}) => function (req, res, body) {
       if (entityType === 'product') {
         resultProcessor.process(_resBody.hits.hits, groupId).then((result) => {
           _resBody.hits.hits = result
-          // console.log('ES _resBody.product: ', _resBody.hits)
           res.json(_resBody);
         }).catch((err) => {
           console.error(err)
@@ -128,7 +116,6 @@ export default ({config, db}) => function (req, res, body) {
       } else {
         resultProcessor.process(_resBody.hits.hits).then((result) => {
           _resBody.hits.hits = result
-          // console.log('ES _resBody.default: ', _resBody.hits) // Show results from query
           res.json(_resBody);
         }).catch((err) => {
           console.error(err)
@@ -136,8 +123,7 @@ export default ({config, db}) => function (req, res, body) {
       }
 
 		} else {
-      console.log('ES _err', require('util').inspect(_err, false, null, true /* enable colors */))
-      res.json(_resBody);
+			res.json(_resBody);
 		}
 	});
 }
