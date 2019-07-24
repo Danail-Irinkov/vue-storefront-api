@@ -72,9 +72,7 @@
         "deprecatedPriceFieldsSupport": true,
         "calculateServerSide": true,
         "sourcePriceIncludesTax": false,
-        "finalPriceIncludesTax": true,
-        "userGroupId": null,
-        "useOnlyDefaultUserGroupId": false
+		    "finalPriceIncludesTax": true
       },
       "i18n": {
         "fullCountryName": "Germany",
@@ -106,9 +104,7 @@
         "calculateServerSide": true,
         "sourcePriceIncludesTax": false,
         "deprecatedPriceFieldsSupport": true,
-        "finalPriceIncludesTax": true,
-        "userGroupId": null,
-        "useOnlyDefaultUserGroupId": false
+        "finalPriceIncludesTax": true
       },
       "i18n": {
         "fullCountryName": "Italy",
@@ -136,9 +132,7 @@
     "setConfigurableProductOptions": true,
     "sourcePriceIncludesTax": false,
     "deprecatedPriceFieldsSupport": true,
-    "finalPriceIncludesTax": true,
-    "userGroupId": null,
-    "useOnlyDefaultUserGroupId": false
+    "finalPriceIncludesTax": true
   },
   "bodyLimit": "100kb",
   "corsHeaders": [
@@ -229,7 +223,17 @@
       "process": 4
     },
     "simd": true,
-    "keepDownloads": true
+    "keepDownloads": true,
+    "caching": {
+      "active": false,
+      "type": "file",
+      "file": {
+        "path": "/tmp/vue-storefront-api"
+      }
+    },
+    "action": {
+      "type": "local"
+    }
   },
   "entities": {
       "category": {
