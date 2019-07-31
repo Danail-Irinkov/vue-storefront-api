@@ -1,10 +1,10 @@
 import PlatformFactory from '../platform/factory'
+import { sgnSrc } from '../lib/util'
 const jwa = require('jwa');
 const hmac = jwa('HS256');
-import { sgnSrc } from '../lib/util'
 
 class ProductProcessor {
-  constructor(config, entityType, indexName, req, res) {
+  constructor (config, entityType, indexName, req, res) {
     this._config = config
     this._entityType = entityType
     this._indexName = indexName
@@ -36,23 +36,19 @@ class ProductProcessor {
           processorChain.push(extProcessor.process(items))
         } catch (err) {
           // Additional processor not found or failed
-          console.log('Additional processor not found or failed', err)
+          console.log(err)
         }
       }
     }
-console.log('processorChain.length', processorChain[0])
-    return Promise.all(processorChain).then(((resultSet) => {
-      console.log('resultSet.length', resultSet[0].length)
-      // console.log('resultSet.', resultSet)
 
+    return Promise.all(processorChain).then((resultSet) => {
       if (!resultSet || resultSet.length === 0) {
         throw Error('error with resultset for processor chaining')
       }
 
       if (this._req.query._source_exclude && this._req.query._source_exclude.indexOf('sgn') < 0) {
-        const rs = resultSet[0].map(((item) => {
-          if (!item._source)
-            return item
+        const rs = resultSet[0].map((item) => {
+          if (!item._source) { return item }
 
           const config = this._config
           let sgnObj = (config.tax.calculateServerSide === true) ? { priceInclTax: item._source.priceInclTax } : { price: item._source.price }
@@ -65,23 +61,19 @@ console.log('processorChain.length', processorChain[0])
                 subItem.sgn = hmac.sign(sgnSrc(sgnObj, subItem), config.objHashSecret);
               }
 
-              console.log('return 00 subItem.0')
               return subItem
             })
           }
 
-          console.log('return 00 resultSet.0')
           return item
-        }).bind(this))
+        })
 
         // return first resultSet
-        console.log('return first resultSet.')
         return rs
       } else {
-        console.log('return first resultSet2 [0]')
         return resultSet[0]
       }
-    }).bind(this))
+    })
   }
 }
 
