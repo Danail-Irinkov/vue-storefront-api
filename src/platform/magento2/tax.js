@@ -1,8 +1,8 @@
 import AbstractTaxProxy from '../abstract/tax'
-import { calculateProductTax } from '../../lib/taxcalc'
+import { calculateProductTax, checkIfTaxWithUserGroupIsActive, getUserGroupIdToUse } from '../../lib/taxcalc';
 import TierHelper from '../../helpers/priceTiers'
-import es from '../../lib/elastic'
-import bodybuilder from 'bodybuilder'
+const es = require('elasticsearch')
+const bodybuilder = require('bodybuilder')
 
 class TaxProxy extends AbstractTaxProxy {
   constructor (config, entityType, indexName, taxCountry, taxRegion = '', sourcePriceInclTax = null, finalPriceInclTax = null) {
@@ -11,6 +11,8 @@ class TaxProxy extends AbstractTaxProxy {
     this._indexName = indexName
     this._sourcePriceInclTax = sourcePriceInclTax
     this._finalPriceInclTax = finalPriceInclTax
+    this._userGroupId = this._config.tax.userGroupId
+    this._storeConfigTax = this._config.tax
 
     if (this._config.storeViews && this._config.storeViews.multistore) {
       for (let storeCode in this._config.storeViews) {
@@ -22,6 +24,7 @@ class TaxProxy extends AbstractTaxProxy {
               taxCountry = store.tax.defaultCountry
               sourcePriceInclTax = store.tax.sourcePriceIncludesTax
               finalPriceInclTax = store.tax.finalPriceIncludesTax
+              this._storeConfigTax = store.tax
               break;
             }
           }
@@ -50,8 +53,18 @@ class TaxProxy extends AbstractTaxProxy {
     this.taxFor = this.taxFor.bind(this)
   }
 
-  taxFor (product) {
-    return calculateProductTax(product, this._taxClasses, this._taxCountry, this._taxRegion, this._sourcePriceInclTax, this._deprecatedPriceFieldsSupport, this._finalPriceInclTax)
+  taxFor (product, groupId) {
+    return calculateProductTax({
+      product,
+      taxClasses: this._taxClasses,
+      taxCountry: this._taxCountry,
+      taxRegion: this._taxRegion,
+      sourcePriceInclTax: this._sourcePriceInclTax,
+      deprecatedPriceFieldsSupport: this._deprecatedPriceFieldsSupport,
+      finalPriceInclTax: this._finalPriceInclTax,
+      userGroupId: groupId,
+      isTaxWithUserGroupIsActive: checkIfTaxWithUserGroupIsActive(this._storeConfigTax) && typeof groupId === 'number'
+    })
   }
 
   applyTierPrices (productList, groupId) {
@@ -68,7 +81,21 @@ class TaxProxy extends AbstractTaxProxy {
       inst.applyTierPrices(productList, groupId)
 
       if (this._config.tax.calculateServerSide) {
-        const client = es.getClient(this._config)
+        const esConfig = { // as we're runing tax calculation and other data, we need a ES indexer
+          host: {
+            host: this._config.elasticsearch.host,
+            port: this._config.elasticsearch.port,
+            protocol: this._config.elasticsearch.protocol
+          },
+          log: 'debug',
+          apiVersion: this._config.elasticsearch.apiVersion,
+          requestTimeout: 5000
+        }
+        if (this._config.elasticsearch.user) {
+          esConfig.httpAuth = this._config.elasticsearch.user + ':' + this._config.elasticsearch.password
+        }
+
+        let client = new es.Client(esConfig)
         const esQuery = {
           index: this._indexName,
           type: 'taxrule',
@@ -77,7 +104,14 @@ class TaxProxy extends AbstractTaxProxy {
         client.search(esQuery).then((taxClasses) => { // we're always trying to populate cache - when online
           inst._taxClasses = taxClasses.hits.hits.map(el => { return el._source })
           for (let item of productList) {
-            inst.taxFor(item._source)
+            const isActive = checkIfTaxWithUserGroupIsActive(inst._storeConfigTax)
+            if (isActive) {
+              groupId = getUserGroupIdToUse(inst._userGroupId, inst._storeConfigTax)
+            } else {
+              groupId = null
+            }
+
+            inst.taxFor(item._source, groupId)
           }
 
           resolve(productList)
