@@ -141,6 +141,9 @@
     "deprecatedPriceFieldsSupport": true,
     "finalPriceIncludesTax": true
   },
+  "review": {
+    "defaultReviewStatus": 2 
+  },
   "bodyLimit": "100kb",
   "corsHeaders": [
     "Link"
