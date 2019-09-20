@@ -1,6 +1,7 @@
 import jwt from 'jwt-simple';
 import request from 'request';
 import ProcessorFactory from '../processor/factory';
+import { adjustBackendProxyUrl } from '../lib/elastic'
 import cache from '../lib/cache-instance'
 import { sha3_224 } from 'js-sha3'
 
@@ -13,25 +14,6 @@ function _cacheStorageHandler (config, result, hash, tags) {
     ).catch((err) => {
       console.error(err)
     })
-  }
-}
-
-function _updateQueryStringParameter (uri, key, value) {
-  var re = new RegExp('([?&])' + key + '=.*?(&|#|$)', 'i');
-  if (uri.match(re)) {
-    if (value) {
-      return uri.replace(re, '$1' + key + '=' + value + '$2');
-    } else {
-      return uri.replace(re, '$1' + '$2');
-    }
-  } else {
-    var hash = '';
-    if (uri.indexOf('#') !== -1) {
-      hash = uri.replace(/.*#/, '#');
-      uri = uri.replace(/#.*/, '');
-    }
-    var separator = uri.indexOf('?') !== -1 ? '&' : '?';
-    return uri + separator + key + '=' + value + hash;
   }
 }
 
@@ -72,36 +54,19 @@ export default ({config, db}) => function (req, res, body) {
   }
 
   // pass the request to elasticsearch
-  let url
-  if (parseInt(config.elasticsearch.apiVersion) < 6) { // legacy for ES 5
-    url = config.elasticsearch.host + ':' + config.elasticsearch.port + (req.query.request ? _updateQueryStringParameter(req.url, 'request', null) : req.url)
-  } else {
-    const queryString = require('query-string');
-    const parsedQuery = queryString.parseUrl(req.url).query
-    parsedQuery._source_includes = parsedQuery._source_include
-    parsedQuery._source_excludes = parsedQuery._source_exclude
-    delete parsedQuery._source_exclude
-    delete parsedQuery._source_include
-    delete parsedQuery.request
-    url = config.elasticsearch.host + ':' + config.elasticsearch.port + '/' + `${indexName}_${entityType}` + '/_search?' + queryString.stringify(parsedQuery)
+  const elasticBackendUrl = adjustBackendProxyUrl(req, indexName, entityType, config)
+  const userToken = requestBody.groupToken
+
+  // Decode token and get group id
+  if (userToken && userToken.length > 10) {
+    const decodeToken = jwt.decode(userToken, config.authHashSecret ? config.authHashSecret : config.objHashSecret)
+    groupId = decodeToken.group_id || groupId
+  } else if (requestBody.groupId) {
+    groupId = requestBody.groupId || groupId
   }
 
-  if (!url.startsWith('http')) {
-    url = config.elasticsearch.protocol + '://' + url
-  }
-
-  // Check price tiers
-  if (config.usePriceTiers) {
-    const userToken = requestBody.groupToken
-
-    // Decode token and get group id
-    if (userToken && userToken.length > 10) {
-      const decodeToken = jwt.decode(userToken, config.authHashSecret ? config.authHashSecret : config.objHashSecret)
-      groupId = decodeToken.group_id || groupId
-    }
-
-    delete requestBody.groupToken
-  }
+  delete requestBody.groupToken
+  delete requestBody.groupId
 
   let auth = null;
 
@@ -113,10 +78,10 @@ export default ({config, db}) => function (req, res, body) {
     };
   }
   const s = Date.now()
-  const reqHash = sha3_224(`${JSON.stringify(requestBody)}${req.url}`)
+  const reqHash = sha3_224(JSON.stringify(requestBody))
   const dynamicRequestHandler = () => {
     request({ // do the elasticsearch request
-      uri: url,
+      uri: elasticBackendUrl,
       method: req.method,
       body: requestBody,
       json: true,
