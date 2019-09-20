@@ -1,4 +1,4 @@
-version: '3.0'
+version: '2.0'
 services:
   es1:
     container_name: elasticsearch
@@ -7,6 +7,7 @@ services:
       memlock:
         soft: -1
         hard: -1    
+    mem_limit: 1g
     volumes:
       - ./docker/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
       - ./docker/elasticsearch/data:/usr/share/elasticsearch/data
@@ -14,9 +15,10 @@ services:
       - '9200:9200'
       - '9300:9300'
     environment:
-      ES_JAVA_OPTS: "-Xmx512m -Xms512m"
-    networks:
-      - procc_network
+      - discovery.type=single-node
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xmx512m -Xms512m"
 
   kibana:
     build: docker/kibana/
@@ -26,40 +28,11 @@ services:
       - '5601:5601'
     depends_on:
       - es1
-    networks:
-      - procc_network
 
   redis:
     image: 'redis:4-alpine'
     ports:
       - '6379:6379'
-    networks:
-      - procc_network
-  api:
-    container_name: storefront_api
-    build:
-      context: .
-      dockerfile: ./docker/vue-storefront-api/Dockerfile
-    volumes:
-      - ./:/var/www
-    ports:
-      - '8080:8080'
-    command: "/bin/sh"
-    stdin_open: true
-    tty: true
-    depends_on:
-      - es1
-      - redis
-    networks:
-      - procc_network
-
-# networks:
-#   procc_network:
-#     driver: bridge
-
-networks:
-  procc_network:
-    external: true
 
 volumes:
   esdat1:
