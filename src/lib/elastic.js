@@ -70,6 +70,16 @@ function _updateQueryStringParameter (uri, key, value) {
   }
 }
 
+
+function adjustIndexName (indexName, entityType, config) {
+  if (parseInt(config.elasticsearch.apiVersion) < 6) {
+    return indexName
+  } else {
+    return `${indexName}_${entityType}`
+  }  
+}
+
+
 function adjustBackendProxyUrl (req, indexName, entityType, config) {
   let url
   if (parseInt(config.elasticsearch.apiVersion) < 6) { // legacy for ES 5
@@ -82,7 +92,7 @@ function adjustBackendProxyUrl (req, indexName, entityType, config) {
     delete parsedQuery._source_exclude
     delete parsedQuery._source_include
     delete parsedQuery.request
-    url = config.elasticsearch.host + ':' + config.elasticsearch.port + '/' + `${indexName}_${entityType}` + '/_search?' + queryString.stringify(parsedQuery)
+    url = config.elasticsearch.host + ':' + config.elasticsearch.port + '/' + adjustIndexName(indexName, entityType, config) + '/_search?' + queryString.stringify(parsedQuery)
   }
   if (!url.startsWith('http')) {
     url = config.elasticsearch.protocol + '://' + url
