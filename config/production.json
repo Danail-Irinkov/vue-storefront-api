@@ -1,6 +1,6 @@
 {
   "server": {
-    "host": "localhost",
+    "host": "vue-storefront-api",
     "port": 8080,
     "searchEngine": "elasticsearch"
   },
@@ -11,7 +11,7 @@
     "excludeDisabledProducts": false
   },
   "elasticsearch": {
-    "host": "localhost",
+    "host": "elasticsearch",
     "port": 9200,
     "protocol": "http",
     "user": "elastic",
@@ -34,7 +34,7 @@
     "apiVersion": "5.6"
   },
   "redis": {
-    "host": "localhost",
+    "host": "redis",
     "port": 6379,
     "db": 0
   },
@@ -357,6 +357,6 @@
     "configurable_children.sku": 1
   },
   "PROCC": {
-    "API": "https://procc.co/api"
+    "API": "procc-dash-api:8081"
   }
 }
