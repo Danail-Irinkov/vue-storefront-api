@@ -4,7 +4,7 @@ metadata:
   name: vue-storefront-api-config
 data:
   BIND_HOST: 0.0.0.0
-  ELASTICSEARCH_HOST: magento-pre-req-elasticsearch-coordinating-only
+  ELASTICSEARCH_HOST: elasticsearch
   ELASTICSEARCH_PORT: "9200"
   REDIS_HOST: redis
   REDIS_PORT: "6379"

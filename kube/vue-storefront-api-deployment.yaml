@@ -3,12 +3,6 @@ kind: Deployment
 metadata:
   name: vue-storefront-api
 spec:
-  replicas: 1
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: 0
-      maxSurge: 2
   selector:
     matchLabels:
       app: vue-storefront-api
@@ -25,43 +19,7 @@ spec:
             name: vue-storefront-api-config
         ports:
         - containerPort: 8080
-        volumeMounts:
-          - mountPath: /var/www/dist
-            name: build-cache
-          - mountPath: /var/www/config
-            name: nfs-drive
-            subPath: vsf_api_config
-          - mountPath: /var/www/nfs
-            name: nfs-drive
-        readinessProbe:
-          httpGet:
-            path: /api/ext/procc/health-core
-            port: 8080
-          initialDelaySeconds: 32
-          periodSeconds: 33
-          timeoutSeconds: 25
-          successThreshold: 2
-          failureThreshold: 5
-        livenessProbe:
-          httpGet:
-            path: /api/
-            port: 8080
-          initialDelaySeconds: 200
-          periodSeconds: 10
-          timeoutSeconds: 2
-          successThreshold: 1
-          failureThreshold: 10
-        resources:
-          limits:
-            cpu: 400m
-            memory: 1024Mi
-          requests:
-            cpu: 200m
-            memory: 512Mi
-      volumes:
-        - name: build-cache
-          emptyDir:
-            medium: Memory
-        - name: nfs-drive
-          persistentVolumeClaim:
-            claimName: nfs-drive-pvc
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", 'ls', '-a']
