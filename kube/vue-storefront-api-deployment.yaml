@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vue-storefront-api
+spec:
+  selector:
+    matchLabels:
+      app: vue-storefront-api
+  template:
+    metadata:
+      labels:
+        app: vue-storefront-api
+    spec:
+      containers:
+      - name: vue-storefront-api
+        image: gcr.io/advance-anvil-247513/vue-storefront-api
+        envFrom:
+        - configMapRef:
+            name: vue-storefront-api-config
+        ports:
+        - containerPort: 8080
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", 'ls', '-a']
