@@ -12,6 +12,19 @@ RUN apk add --no-cache --virtual .build-deps ca-certificates wget && \
     yarn install --no-cache && \
     apk del .build-deps
 
-COPY docker/vue-storefront-api/vue-storefront-api.sh /usr/local/bin/
+COPY ./ecosystem.json ./ecosystem.json
+COPY ./tsconfig.json ./tsconfig.json
+COPY ./nodemon.json ./nodemon.json
+COPY ./babel.config.js ./babel.config.js
 
-CMD ["vue-storefront-api.sh"]
+COPY ./config ./config
+COPY ./migrations ./migrations
+COPY ./scripts ./scripts
+COPY ./src ./src
+COPY ./var ./var
+COPY ./docker ./docker
+
+CMD ["start-kube"]
+#COPY docker/vue-storefront-api/vue-storefront-api.sh /usr/local/bin/
+#
+#CMD ["vue-storefront-api.sh"]
