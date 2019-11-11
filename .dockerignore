@@ -1,0 +1,16 @@
+.DS_Store
+node_modules/
+dist/
+npm-debug.log
+.vscode/
+.idea/
+api_start.sh
+api_test.sh
+package-lock.json
+src/config.json
+config/local.json
+var/magento2-sample-data/
+.migrate
+*.iml
+/docker/elasticsearch/data/
+!/docker/elasticsearch/data/.gitkeep
