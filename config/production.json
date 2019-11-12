@@ -11,7 +11,7 @@
     "excludeDisabledProducts": false
   },
   "elasticsearch": {
-    "host": "elasticsearch",
+    "host": "magento-pre-req-elasticsearch-coordinating-only",
     "port": 9200,
     "protocol": "http",
     "user": "elastic",
@@ -181,7 +181,7 @@
     }
   },
   "magento2": {
-    "url": "http://m2.procc.co",
+    "url": "magento-bitnami:80",
     "imgUrl": "https://storage.googleapis.com/procc/vendor/product/optimized",
     "assetPath": "/../var/magento2-sample-data/pub/media",
     "api": {
