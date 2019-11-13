@@ -184,7 +184,7 @@
     "imgUrl": "https://storage.googleapis.com/procc/vendor/product/optimized",
     "assetPath": "/../var/magento2-sample-data/pub/media",
     "api": {
-      "url": "magento-bitnami:80/rest",
+      "url": "http://magento-bitnami:80/rest",
       "consumerKey": "mwzh12h32j51j20i6zzls0jtar1qzwcv",
       "consumerSecret": "zz19k7okvazn9j4a8vwx8gjj4b4q79bn",
       "accessToken": "g0mtpkkdo3d8w46tykpmih5ruylktid0",
