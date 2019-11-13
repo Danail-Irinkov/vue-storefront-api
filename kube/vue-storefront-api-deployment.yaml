@@ -20,8 +20,15 @@ spec:
             name: vue-storefront-api-config
         ports:
         - containerPort: 8080
+        volumeMounts:
+          - mountPath: /var/www/dist
+            name: build-cache
         resources:
           limits:
             memory: 1024Mi
           requests:
             memory: 256Mi
+      volumes:
+        - name: build-cache
+          emptyDir:
+            medium: Memory
