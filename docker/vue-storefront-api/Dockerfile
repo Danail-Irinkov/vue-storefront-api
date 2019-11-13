@@ -18,15 +18,14 @@ COPY ./ecosystem.json ./ecosystem.json
 COPY ./tsconfig.json ./tsconfig.json
 COPY ./nodemon.json ./nodemon.json
 COPY ./babel.config.js ./babel.config.js
-#
+
 COPY ./config ./config
 COPY ./migrations ./migrations
 COPY ./scripts ./scripts
 COPY ./src ./src
 COPY ./var ./var
 COPY ./docker ./docker
-
-RUN ["yarn", "build"]
+#COPY ./dist ./dist
 
 CMD ["yarn", "start-kube"]
 #COPY docker/vue-storefront-api/vue-storefront-api.sh /usr/local/bin/

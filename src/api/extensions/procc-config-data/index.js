@@ -1,13 +1,28 @@
 import { apiStatus } from '../../../lib/util';
 import { Router } from 'express';
+
 import Store from 'data-store';
 import _ from 'lodash';
 import path from 'path';
-import { rebuildElasticSearchIndex, dumpStoreIndex, restoreStoreIndex, createNewElasticSearchIndex, deleteElasticSearchIndex, buildAndRestartVueStorefront, startVueStorefrontAPI } from '../../../../scripts/storeManagement';
+
+let appDir = path.dirname(require.main.filename);
+appDir = path.dirname(appDir)
+console.log('appDir appDirappDir - ', appDir)
+
+import { rebuildElasticSearchIndex, dumpStoreIndex, restoreStoreIndex,
+  createNewElasticSearchIndex, deleteElasticSearchIndex, buildAndRestartVueStorefront,
+  startVueStorefrontAPI } from '../../../../scripts/storeManagement';
+
 import request from 'request';
 
-const storefront = new Store({path: path.resolve('../vue-storefront/config/local.json') });
-const storefrontApi = new Store({path: path.resolve('../vue-storefront-api/config/local.json')});
+// TODO: Get the storefront config via api?
+const storefront = {};
+// const storefront = new Store({path: path.resolve('../vue-storefront/config/production.json') });
+
+const storefrontApi = new Store({path: path.resolve('../../../../config/production.json')});
+console.log('path.resolve', path.resolve('../vue-storefront/config/production.json') )
+console.log('storefront', storefront)
+console.log('storefrontApi', storefrontApi)
 
 module.exports = ({ config, db }) => {
   let mcApi = Router();
@@ -161,15 +176,19 @@ module.exports = ({ config, db }) => {
    * POST create an user
    */
 
-  mcApi.post('/test', (req, res) => {
-    let storeCode = req.body.storeCode;
-    setCategoryBanner(storeCode).then( () => {
-      setProductBanner(config,storeCode).then( () => {
-        console.log('Done! Bye Bye!');
-      });
-    });
+  mcApi.get('/health', (req, res) => {
     return apiStatus(res, 200);
   })
+
+  // mcApi.post('/test', (req, res) => {
+  //   let storeCode = req.body.storeCode;
+  //   setCategoryBanner(storeCode).then( () => {
+  //     setProductBanner(config,storeCode).then( () => {
+  //       console.log('Done! Bye Bye!');
+  //     });
+  //   });
+  //   return apiStatus(res, 200);
+  // })
 
   mcApi.post('/create-store-index', async (req, res) => {
     try {

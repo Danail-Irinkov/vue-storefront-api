@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: vue-storefront-api
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: vue-storefront-api
@@ -19,7 +20,15 @@ spec:
             name: vue-storefront-api-config
         ports:
         - containerPort: 8080
-        lifecycle:
-          postStart:
-            exec:
-              command: ["/bin/sh", "-c", 'ls', '-a']
+        volumeMounts:
+          - mountPath: /var/www/dist
+            name: build-cache
+        resources:
+          limits:
+            memory: 1024Mi
+          requests:
+            memory: 256Mi
+      volumes:
+        - name: build-cache
+          emptyDir:
+            medium: Memory

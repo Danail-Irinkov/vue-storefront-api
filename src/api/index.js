@@ -41,6 +41,7 @@ export default ({ config, db }) => {
     res.json({ version });
   });
 
+  console.log('Loading EXTENSIONS', config.registeredExtensions)
   /** Register the custom extensions */
   for (let ext of config.registeredExtensions) {
     let entryPoint
