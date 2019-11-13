@@ -42,6 +42,7 @@ export default ({ config, db }) => {
 	});
 
 	/** Register the custom extensions */
+	console.log('config.registeredExtensions', config.registeredExtensions)
 	for(let ext of config.registeredExtensions) {
     let entryPoint
 
