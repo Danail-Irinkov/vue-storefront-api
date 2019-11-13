@@ -185,10 +185,10 @@
     "assetPath": "/../var/magento2-sample-data/pub/media",
     "api": {
       "url": "magento-bitnami:80/rest",
-      "consumerKey": "gqb4dlqh2ggdjshx4k7hshfgcoakbphc",
-      "consumerSecret": "nnggh06ciivoiylyn2reeewhn70skqdj",
-      "accessToken": "924xjbdx76rvbc7qff3zbzvaggnqruhu",
-      "accessTokenSecret": "ehxpj9cb5frvje6uygpj7xd7p9fpvksu"
+      "consumerKey": "mwzh12h32j51j20i6zzls0jtar1qzwcv",
+      "consumerSecret": "zz19k7okvazn9j4a8vwx8gjj4b4q79bn",
+      "accessToken": "g0mtpkkdo3d8w46tykpmih5ruylktid0",
+      "accessTokenSecret": "qh71c1brwv2qev0qcj83nln4j16amhuz"
     }
   },
   "imageable": {
