@@ -25,6 +25,8 @@ const storefrontApi = new Store({path: path.resolve('./config/production.json')}
 module.exports = ({ config, db }) => {
   let mcApi = Router();
 
+  console.log('appDir config - ', config)
+
   mcApi.get('/health', async (req, res) => {
     let health
     try{
