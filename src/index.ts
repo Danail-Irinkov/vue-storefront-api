@@ -90,4 +90,5 @@ app.use(bodyParser.json());
 
 // app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
 
+console.log('VSF-API LOADED')
 export default app;

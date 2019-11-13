@@ -10,23 +10,18 @@
   "catalog": {
     "excludeDisabledProducts": false
   },
-  "vsf": {
-    "host": "localhost",
-    "port": 3000
-  },
   "elasticsearch": {
-    "host": "elastic5",
+    "host": "localhost",
     "port": 9200,
     "protocol": "http",
     "user": "elastic",
-    "password": "myElasticPass11",
+    "password": "changeme",
     "min_score": 0.01,
     "indices": [
       "vue_storefront_catalog",
       "vue_storefront_catalog_de",
       "vue_storefront_catalog_it",
-      "vue_storefront_catalog_volkky",
-      "vue_storefront_catalog_qqq"
+      "vue_storefront_catalog_volkky"
     ],
     "indexTypes": [
       "product",
@@ -38,19 +33,23 @@
     ],
     "apiVersion": "5.6"
   },
+  "redis": {
+    "host": "localhost",
+    "port": 6379,
+    "db": 0
+  },
+  "kue": {},
   "availableStores": [
     "de",
     "it",
-    "volkky",
-    "qqq"
+    "volkky"
   ],
   "storeViews": {
     "multistore": true,
     "mapStoreUrlsFor": [
       "de",
       "it",
-      "volkky",
-      "qqq"
+      "volkky"
     ],
     "de": {
       "storeCode": "de",
@@ -133,34 +132,6 @@
         "currencySign": "EUR",
         "dateFormat": "HH:mm D-M-YYYY"
       }
-    },
-    "qqq": {
-      "storeCode": "qqq",
-      "storeName": "Volkyyz Store",
-      "disabled": false,
-      "storeId": 34,
-      "name": "Volkyyz Store",
-      "url": "/qqq",
-      "elasticsearch": {
-        "host": "https://store.procc.co/api/catalog",
-        "index": "vue_storefront_catalog_qqq"
-      },
-      "tax": {
-        "defaultCountry": "BG",
-        "defaultRegion": "",
-        "calculateServerSide": true,
-        "sourcePriceIncludesTax": false
-      },
-      "i18n": {
-        "fullCountryName": "Bulgaria",
-        "fullLanguageName": "Bulgarian",
-        "defaultCountry": "BG",
-        "defaultLanguage": "EN",
-        "defaultLocale": "en-US",
-        "currencyCode": "EUR",
-        "currencySign": "EUR",
-        "dateFormat": "HH:mm D-M-YYYY"
-      }
     }
   },
   "authHashSecret": "__SECRET_CHANGE_ME__",
@@ -187,7 +158,7 @@
     "example-magento-api",
     "cms-data",
     "mail-service",
-    "procc"
+    "procc-config-data"
   ],
   "extensions": {
     "mailchimp": {
@@ -210,10 +181,11 @@
     }
   },
   "magento2": {
+    "url": "magento-bitnami:80",
     "imgUrl": "https://storage.googleapis.com/procc/vendor/product/optimized",
     "assetPath": "/../var/magento2-sample-data/pub/media",
     "api": {
-      "url": "http://magento-bitnami:80/rest",
+      "url": "http://m2.procc.co/rest",
       "consumerKey": "gqb4dlqh2ggdjshx4k7hshfgcoakbphc",
       "consumerSecret": "nnggh06ciivoiylyn2reeewhn70skqdj",
       "accessToken": "924xjbdx76rvbc7qff3zbzvaggnqruhu",
