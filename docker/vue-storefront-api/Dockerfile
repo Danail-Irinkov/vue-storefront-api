@@ -27,7 +27,7 @@ COPY ./var ./var
 COPY ./docker ./docker
 #COPY ./dist ./dist
 
-CMD ["yarn", "start-kube"]
+#CMD ["yarn", "start-kube"]
 #COPY docker/vue-storefront-api/vue-storefront-api.sh /usr/local/bin/
 #
-#CMD ["vue-storefront-api.sh"]
+CMD ["vue-storefront-api.sh"]
