@@ -4,8 +4,8 @@
     "port": "BIND_PORT"
   },
   "elasticsearch": {
-    "host": "ELASTICSEARCH_HOST",
-    "port": "ELASTICSEARCH_PORT"
+    "host": "magento-pre-req-elasticsearch-coordinating-only",
+    "port": "9200"
   },
   "redis": {
     "host": "REDIS_HOST",
