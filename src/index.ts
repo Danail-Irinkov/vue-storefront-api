@@ -61,4 +61,5 @@ app.use('/graphql', graphqlExpress(req => ({
 
 app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
 
+console.log('VSF-API LOADED')
 export default app;

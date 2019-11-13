@@ -8,7 +8,7 @@ steps:
   # Pull Repo Code
   - name: 'gcr.io/cloud-builders/git'
     id: 'cloning-git-repo'
-    args: ['clone', 'https://github.com/Danail-Irinkov/vue-storefront-api']
+    args: ['clone', 'https://github.com/Danail-Irinkov/vue-storefront-api', '--config', 'core.autocrlf=input']
 
   # Build the vsf containers
   - name: 'gcr.io/cloud-builders/docker'

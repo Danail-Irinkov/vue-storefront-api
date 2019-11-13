@@ -14,18 +14,27 @@ import { rebuildElasticSearchIndex, dumpStoreIndex, restoreStoreIndex,
   startVueStorefrontAPI } from '../../../../scripts/storeManagement';
 
 import request from 'request';
+import request_async from 'request-promise-native';
 
 // TODO: Get the storefront config via api?
-const storefront = {};
-// const storefront = new Store({path: path.resolve('../vue-storefront/config/production.json') });
+const storefront = new Store({path: path.resolve('./vsf-config.json') });
 
-const storefrontApi = new Store({path: path.resolve('../../../../config/production.json')});
-console.log('path.resolve', path.resolve('../vue-storefront/config/production.json') )
-console.log('storefront', storefront)
-console.log('storefrontApi', storefrontApi)
+const storefrontApi = new Store({path: path.resolve('./config/production.json')});
+// console.log('path.resolve', path.resolve('./config/production.json') )
 
 module.exports = ({ config, db }) => {
   let mcApi = Router();
+
+  mcApi.get('/health', async (req, res) => {
+    let health
+    try{
+      health = await healthCheck(config)
+      return apiStatus(res, 'ProCC VSF-API Online', 200);
+    }catch (e) {
+      return apiStatus(res, {error: e, health: health}, 502);
+      // return apiStatus(res, 'ERROR ProCC VSF-API Not Connected', 502);
+    }
+  })
 
   mcApi.post('/settings',(req,res) =>{
     let storeData = req.body;
@@ -175,11 +184,6 @@ module.exports = ({ config, db }) => {
   /**
    * POST create an user
    */
-
-  mcApi.get('/health', (req, res) => {
-    return apiStatus(res, 200);
-  })
-
   // mcApi.post('/test', (req, res) => {
   //   let storeCode = req.body.storeCode;
   //   setCategoryBanner(storeCode).then( () => {
@@ -329,7 +333,7 @@ module.exports = ({ config, db }) => {
     apiStatus(res,200);
     return;
   });
-
+  healthCheck(config)
   return mcApi;
 };
 
@@ -458,4 +462,76 @@ function setCategoryBanner(storeCode){
       });
     });
   });
+}
+
+async function healthCheck(config){
+  const asyncFunctions = [
+    healthCheckMagento2(config),
+    healthCheckRedis(config),
+    healthCheckES(config),
+  ];
+  return await Promise.all(asyncFunctions);
+}
+function healthCheckMagento2(config){
+  return new Promise((resolve, reject)=>{
+    const Magento2Client = require('magento2-rest-client').Magento2Client
+    const client = Magento2Client(config.magento2.api);
+
+    client.categories.list()
+      .then(function (categories) {
+        console.log('M2 is running');
+        resolve('M2 is running')
+      })
+      .catch((e)=>{
+        console.log('ERROR MAGENTO2 CONNECTION')
+        reject({message: 'ERROR MAGENTO2 CONNECTION', error: e})
+      })
+  })
+}
+function healthCheckRedis(config){
+  return new Promise((resolve, reject)=>{
+    const Redis = require('redis');
+    let redisClient = Redis.createClient(config.redis); // redis client
+
+    if (config.redis.auth) {
+      redisClient.auth(config.redis.auth);
+    }
+    redisClient.on('ready', function() {
+      console.log('redis is running');
+      resolve('redis is running')
+    });
+    redisClient.on('error', function(e) {
+      console.log('ERROR REDIS CONNECTION')
+      reject(e)
+    });
+  })
+}
+function healthCheckES(config){
+  return new Promise((resolve, reject)=>{
+    const elasticsearch = require('elasticsearch');
+    const esConfig = {
+      host: {
+        host: config.elasticsearch.host,
+        port: config.elasticsearch.port
+      },
+      log: 'debug',
+      apiVersion: config.elasticsearch.apiVersion,
+      requestTimeout: 1000 * 60 * 60,
+      keepAlive: false
+    }
+    if (config.elasticsearch.user) {
+      esConfig.httpAuth = config.elasticsearch.user + ':' +  config.elasticsearch.password
+    }
+    const esClient = new elasticsearch.Client(esConfig);
+    esClient.ping({
+    }, function (e) {
+      if (e) {
+        console.log('ERROR ELASTICSEARCH CONNECTION')
+        reject(e)
+      } else {
+        console.log('elasticsearch is running');
+        resolve('elasticsearch is running')
+      }
+    });
+  })
 }

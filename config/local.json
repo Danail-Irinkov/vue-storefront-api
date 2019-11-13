@@ -11,7 +11,7 @@
     "excludeDisabledProducts": false
   },
   "elasticsearch": {
-    "host": "magento-pre-req-elasticsearch-coordinating-only",
+    "host": "localhost",
     "port": 9200,
     "protocol": "http",
     "user": "elastic",
@@ -34,7 +34,7 @@
     "apiVersion": "5.6"
   },
   "redis": {
-    "host": "redis",
+    "host": "localhost",
     "port": 6379,
     "db": 0
   },
@@ -181,10 +181,11 @@
     }
   },
   "magento2": {
+    "url": "magento-bitnami:80",
     "imgUrl": "https://storage.googleapis.com/procc/vendor/product/optimized",
     "assetPath": "/../var/magento2-sample-data/pub/media",
     "api": {
-      "url": "http://magento-bitnami:80/rest",
+      "url": "http://m2.procc.co/rest",
       "consumerKey": "gqb4dlqh2ggdjshx4k7hshfgcoakbphc",
       "consumerSecret": "nnggh06ciivoiylyn2reeewhn70skqdj",
       "accessToken": "924xjbdx76rvbc7qff3zbzvaggnqruhu",

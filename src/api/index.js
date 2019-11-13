@@ -41,16 +41,6 @@ export default ({ config, db }) => {
 		res.json({ version });
 	});
 
-  console.log('GETTING EXTENSIONS', config.registeredExtensions)
-  var fs = require('fs');
-  fs.readdir('./extensions', function(err, items) {
-    console.log(items);
-
-    for (var i=0; i<items.length; i++) {
-      console.log(items[i]);
-    }
-  })
-
 	/** Register the custom extensions */
 	for(let ext of config.registeredExtensions) {
     let entryPoint
@@ -70,6 +60,5 @@ export default ({ config, db }) => {
       console.log('Extension ' + ext + ' registered under /ext/' + ext +' base URL')
     }
 	}
-
 	return api;
 }
