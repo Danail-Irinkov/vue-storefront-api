@@ -10,6 +10,10 @@
   "catalog": {
     "excludeDisabledProducts": false
   },
+  "vsf": {
+    "host": "localhost",
+    "port": 3000
+  },
   "elasticsearch": {
     "host": "localhost",
     "port": 9200,
@@ -158,7 +162,7 @@
     "example-magento-api",
     "cms-data",
     "mail-service",
-    "procc-config-data"
+    "procc"
   ],
   "extensions": {
     "mailchimp": {

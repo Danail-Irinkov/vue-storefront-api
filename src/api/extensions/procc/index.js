@@ -16,9 +16,6 @@ import { rebuildElasticSearchIndex, dumpStoreIndex, restoreStoreIndex,
 import request from 'request';
 import request_async from 'request-promise-native';
 
-// TODO: Get the storefront config via api?
-const storefront = new Store({path: path.resolve('./vsf-config.json') });
-
 const storefrontApi = new Store({path: path.resolve('./config/production.json')});
 // console.log('path.resolve', path.resolve('./config/production.json') )
 
@@ -46,7 +43,7 @@ module.exports = ({ config, db }) => {
       name: _.startCase(storeData.magento_store_name),
       url: `/${storeData.storefront_url}`,
       elasticsearch: {
-        host: "https://store.procc.co/api/catalog",
+        host: "https://store.procc.co/api/catalog", // NEED to be with domain, it is sent to the frontend
         index: `vue_storefront_catalog_${_.snakeCase(storeData.storefront_url)}`
       },
       tax: {
@@ -66,29 +63,7 @@ module.exports = ({ config, db }) => {
         dateFormat: "HH:mm D-M-YYYY"
       }
     }
-    /*let storefront_setting=storeData.storefront_setting
-    let storeMainImage = {
-      "working_hours": storefront_setting.working_hours,
-      "title": storefront_setting.banner.title,
-      "subtitle": storefront_setting.banner.subtitle,
-      "logo":storefront_setting.store_logo.original,
-      "link": storefront_setting.banner.link,
-      "image":  storefront_setting.banner.banner_photo.optimized,
-      "contact_information": storefront_setting.contact_information,
-      "about_text": storefront_setting.about_text,
-      "brand": storeData.brand._id,
-      "is_cc_store": storeData.brand.is_cc
-    };*/
-    //banners file
-    /*const mainImage = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/banners/${store_data.storeCode}_main-image.json`)});
-    const StoreCategories = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/banners/${store_data.storeCode}_store_categories.json`)});
-    const storePolicies = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/policies/${store_data.storeCode}_store_policies.json`)});
-    if ((storefront.has(`storeViews.${store_data.storeCode}`)) || (storefrontApi.has(`storeViews.${store_data.storeCode}`))) {
-       storefront.del(`storeViews.${store_data.storeCode}`);
-       storefrontApi.del(`storeViews.${store_data.storeCode}`);
-       mainImage.unlink();
-       StoreCategories.unlink();
-    }*/
+
     if (storefrontApi.has(`storeViews.${store_data.storeCode}`)) {
       storefrontApi.del(`storeViews.${store_data.storeCode}`);
     }
@@ -121,71 +96,12 @@ module.exports = ({ config, db }) => {
         // storefront.set(`storeViews.${store_data.storeCode}`, store_data);
       }
     }
-    //StoreCategories.set(defaultStoreCategories.clone())
-    /*let magentoStoreCategories = _.take(_.orderBy(_.filter(storeData.store_categories,{"isCategoryCreatedInMagento":true}),'createdAt','desc'),3);
-    let countCategories = magentoStoreCategories.length;
-    let mainBanners = [];
-    let smallBanners = [];
-    if(countCategories >= 1) {
-         mainBanners = [
-          {
-            "title": magentoStoreCategories[0].name,
-            "subtitle": magentoStoreCategories[0].description,
-            "image": magentoStoreCategories[0].cover_photo.optimized,
-            "link": '/'+_.kebabCase(magentoStoreCategories[0].name),
-            "storeCode": storeData.storefront_url,
-            "productCount": magentoStoreCategories[0].products.length,
-            "category_id": parseInt(magentoStoreCategories[0].magento_category_id)
-          }
-        ];
-        if (countCategories >= 2){
-           smallBanners = [
-            {
-              "title": magentoStoreCategories[1].name,
-              "subtitle": magentoStoreCategories[1].description,
-              "image": magentoStoreCategories[1].cover_photo.optimized,
-              "link": '/'+_.kebabCase(magentoStoreCategories[1].name),
-              "storeCode": storeData.storefront_url,
-              "productCount": magentoStoreCategories[1].products.length,
-              "category_id": parseInt(magentoStoreCategories[1].magento_category_id)
-            }
-            ]
-          if(countCategories >=3){
-            smallBanners.push({
-              "title": magentoStoreCategories[2].name,
-              "subtitle": magentoStoreCategories[2].description,
-              "image": magentoStoreCategories[2].cover_photo.optimized,
-              "link": '/'+_.kebabCase(magentoStoreCategories[2].name),
-              "storeCode": storeData.storefront_url,
-              "productCount": magentoStoreCategories[2].products.length,
-              "category_id": parseInt(magentoStoreCategories[2].magento_category_id)
-            });
-          }
-      }
-      StoreCategories.set('mainBanners',mainBanners);
-      StoreCategories.set('smallBanners',smallBanners);
-   }
-    mainImage.set("image", storeMainImage)
 
-    let policies = []
-
-    if(!_.isUndefined(storefront_setting.privacy_policy) && !_.isNull(storefront_setting.privacy_policy)){
-      policies.push(storefront_setting.privacy_policy.policy);
-    }
-
-    if(!_.isUndefined(storefront_setting.shipping_policy) && !_.isNull(storefront_setting.shipping_policy)){
-      policies.push(storefront_setting.shipping_policy.policy);
-    }
-
-    if(!_.isUndefined(storefront_setting.warranty_policy) && !_.isNull(storefront_setting.warranty_policy)){
-      policies.push(storefront_setting.warranty_policy.policy);
-    }
-
-    storePolicies.set('policy', policies);*/
+    backupConfig(storefrontApi)
 
     request({
         // create store in vs
-        uri:'http://localhost:3000/create-store',
+        uri:'http://'+config.vsf.host+':'+config.vsf.port+'/create-store',
         method:'POST',
         body: req.body,
         json: true
@@ -196,21 +112,12 @@ module.exports = ({ config, db }) => {
     return apiStatus(res, 200);
   });
   /**
-   * POST create an user
+   * POST TEST api
    */
-  // mcApi.post('/test', (req, res) => {
-  //   let storeCode = req.body.storeCode;
-  //   setCategoryBanner(storeCode).then( () => {
-  //     setProductBanner(config,storeCode).then( () => {
-  //       console.log('Done! Bye Bye!');
-  //     });
-  //   });
-  //   return apiStatus(res, 200);
-  // })
   mcApi.post('/test', (req, res) => {
       request({
         //store url with custom function
-        uri:'http://localhost:3000/create-store',
+        uri:'http://'+config.vsf.host+':'+config.vsf.port+'/create-store',
         method:'POST',
         body: req.body,
         json: true
@@ -299,7 +206,7 @@ function (_err, _res, _resBody) {
         message_type: "error",
         message: e
       });
-    };
+    }
   });
 
   /**
@@ -312,17 +219,10 @@ function (_err, _res, _resBody) {
       storeCode: userData.store_code,
       index: `vue_storefront_catalog_${_.snakeCase(userData.store_code)}`
     }
-    // const mainImage = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/banners/${storeData.storeCode}_main-image.json`)});
-    // const StoreCategories = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/banners/${storeData.storeCode}_store_categories.json`)});
-    // const storePolicies = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/policies/${storeData.storeCode}_store_policies.json`)});
+
     const catalogFile = new Store({path: path.resolve(`../vue-storefront-api/var/catalog_${storeData.storeCode}.json`)});
 
     if (storefrontApi.has(`storeViews.${storeData.storeCode}`)) {
-
-      //remove storeview data from the storefront
-      // storefront.del(`storeViews.${storeData.storeCode}`)
-      // storefront.set("storeViews.mapStoreUrlsFor", _.pull(storefront.get("storeViews.mapStoreUrlsFor"),storeData.storeCode))
-
       //remove storeview data from the storefront-api
       storefrontApi.set("elasticsearch.indices", _.pull(storefrontApi.get("elasticsearch.indices"),storeData.index))
       storefrontApi.set("availableStores", _.pull(storefrontApi.get("availableStores"),storeData.storeCode))
@@ -335,7 +235,7 @@ function (_err, _res, _resBody) {
       // storePolicies.unlink()
       request({
           // delete store in vs
-          uri:'http://localhost:3000/delete-store',
+          uri:'http://'+config.vsf.host+':'+config.vsf.port+'/delete-store',
           method:'POST',
           body: storeData,
           json: true
@@ -343,6 +243,7 @@ function (_err, _res, _resBody) {
         function (_err, _res, _resBody) {
           console.log('Response', _resBody)
         })
+
       catalogFile.unlink()
       deleteElasticSearchIndex(storeData.storeCode);
       console.log("Store view data deleted")
@@ -352,7 +253,7 @@ function (_err, _res, _resBody) {
       console.log(storeData)
       apiStatus(res, 500);
     }
-    return;
+    return
   });
 
   /**
@@ -369,7 +270,7 @@ function (_err, _res, _resBody) {
     }
     request({
         // disable store in vs
-        uri:'http://localhost:3000/disable-store',
+        uri:'http://'+config.vsf.host+':'+config.vsf.port+'/disable-store',
         method:'POST',
         body: {"storeData": storeData, "status": status},
         json: true
@@ -377,8 +278,9 @@ function (_err, _res, _resBody) {
       function (_err, _res, _resBody) {
         console.log('Response', _resBody)
       })
+
     apiStatus(res,200);
-    return;
+    return
   });
   healthCheck(config)
   return mcApi;
@@ -400,7 +302,7 @@ function parse_resBody(_resBody) {
 }
 function getTotalHits(storeCode,search) {
   return new Promise((resolve, reject) => {
-    request({uri: `https://store.procc.co/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?filter_path=hits.total`, method: 'GET'},
+    request({uri: `http://localhost:8080/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?filter_path=hits.total`, method: 'GET'},
         function (_err, _res, _resBody) {
           console.log('_resBody', _resBody)
           if(_resBody.indexOf('Error') === -1) {
@@ -408,10 +310,9 @@ function getTotalHits(storeCode,search) {
             resolve(_resBody.hits);
           } else {
             console.log('getTotalHits FAILED -> unaddressable index')
-            console.log(`https://store.procc.co/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?filter_path=hits.total`)
+            console.log(`http://localhost:8080/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?filter_path=hits.total`)
             resolve(0)
           }
-
         });
   });
 }
@@ -419,9 +320,9 @@ function searchCatalogUrl(storeCode,search) {
   return new Promise((resolve, reject) => {
     getTotalHits(storeCode, search).then((res) => {
           if(res.total){
-            resolve(`https://store.procc.co/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?size=${res.total}`); //limiting results, not filtering by product size
+            resolve(`http://localhost:8080/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?size=${res.total}`); //limiting results, not filtering by product size
           }else{
-            resolve(`https://store.procc.co/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search`);
+            resolve(`http://localhost:8080/catalog/vue_storefront_catalog_${storeCode}/${search}/_search`);
           }
         }
     );
@@ -430,7 +331,7 @@ function searchCatalogUrl(storeCode,search) {
 
 
 // function searchCatalogUrl(storeCode,search) {
-//   return `https://store.procc.co/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search`;
+//   return `http://localhost:8080/catalog/vue_storefront_catalog_${storeCode}/${search}/_search`;
 // }
 
 function setProductBanner(config, storeCode) {
@@ -444,34 +345,8 @@ function setProductBanner(config, storeCode) {
         let products = [];
         if (_resBody && _resBody.hits && catalogProducts) { // we're signing up all objects returned to the client to be able to validate them when (for example order)
           products = _.take(_.filter(catalogProducts, ["_source.type_id", "configurable"]), 6);
-          // start set to product banners link in vue storefront pass with store code { 'products': products, 'storeCode': storeCode }
-         /* let productBanners = [];
-          let category_ids =[];
-          if(StoreCategories.has("mainBanners")) {
-            category_ids.push(StoreCategories.get("mainBanners.0.category_id"));
-          }
-          if(StoreCategories.has("smallBanners")) {
-            category_ids.push(StoreCategories.get("smallBanners.0.category_id"));
-          }
-          if(StoreCategories.has("smallBanners")) {
-            category_ids.push(StoreCategories.get("smallBanners.1.category_id"));
-          }
-          _.forEach(products, (product) => {
-            if(_.includes(category_ids, _.get(_.find(_.get(product,'_source.category'),'category_id'),'category_id'))) {
-              let link = !_.isUndefined(product._source.url_path) ? product._source.url_path : product._source.url_key;
-              let Banner = {
-                'title': product._source.name,
-                'subtitle': product._source.description,
-                'image': config.magento2.imgUrl + product._source.image,
-                'link': `/p/${product._source.sku}/${link}`,
-                'category': product._source.category
-              };
-              productBanners.push(Banner);
-            }
-          });
-          StoreCategories.set("productBanners",productBanners);*/
          request({
-           uri:'http://localhost:3000/product-link',
+           uri:'http://'+config.vsf.host+':'+config.vsf.port+'/product-link',
            method:'POST',
            body: { 'products': products, 'storeCode': storeCode },
            json: true
@@ -499,23 +374,9 @@ function setCategoryBanner(storeCode){
         console.log('_resBody', _resBody)
         if (_resBody && _resBody.hits && categoryData) { // we're signing up all objects returned to the client to be able to validate them when (for example order)
           let children_data = !_.isUndefined(_.get(_.get(categoryData, '_source'), 'children_data')) ? _.get(_.get(categoryData, '_source'), 'children_data') : [];
-          // start with in Vue storefront side pass the store code { 'childrenData': children_data, 'storeCode': storeCode }
-          /*let MainBanners = !_.isUndefined(StoreCategories.get('mainBanners')) ? StoreCategories.get('mainBanners') : [];
-          let TopAndBottomSideBanners = _.isUndefined(StoreCategories.get('smallBanners')) ? StoreCategories.get('smallBanners') : [];
-          if (children_data.length >= 1 && MainBanners.length > 0) {
-            MainBanners[0].link = `/${_.get(_.find(children_data, ['name', _.get(_.find(MainBanners, 'title'), 'title')]), 'url_path')}`;
-            StoreCategories.set('mainBanners', MainBanners);
-            if (children_data.length >= 2 && TopAndBottomSideBanners.length > 0) {
-              TopAndBottomSideBanners[0].link = `/${_.get(_.find(children_data, ['name', _.get(_.find(TopAndBottomSideBanners, 'title'), 'title')]), 'url_path')}`;
-              StoreCategories.set('smallBanners', TopAndBottomSideBanners);
-              if (children_data.length >= 3 && TopAndBottomSideBanners.length > 1) {
-                TopAndBottomSideBanners[1].link = `/${_.get(_.find(children_data, ['name', _.get(_.find(TopAndBottomSideBanners, 'title'), 'title')]), 'url_path')}`;
-                StoreCategories.set('smallBanners', TopAndBottomSideBanners);
-              }
-            }
-          }*/
+
           request({
-            uri:'http://localhost:3000/category-link',
+            uri:'http://'+config.vsf.host+':'+config.vsf.port+'/category-link',
             method:'POST',
             body: { 'childrenData': children_data, 'storeCode': storeCode },
             json: true
@@ -535,11 +396,31 @@ function setCategoryBanner(storeCode){
 
 async function healthCheck(config){
   const asyncFunctions = [
+    healthCheckVSF(config),
     healthCheckMagento2(config),
     healthCheckRedis(config),
     healthCheckES(config),
   ];
   return await Promise.all(asyncFunctions);
+}
+
+function healthCheckVSF(config){
+  return new Promise((resolve, reject)=>{
+    request({
+        //store url with custom function
+        uri:'http://'+config.vsf.host+':'+config.vsf.port+'/health',
+        method:'GET'
+      },
+      function (_err, _res, _resBody) {
+        if (_err) {
+          console.log('ERROR VSF-FRONTEND CONNECTION')
+          reject(_err)
+        } else {
+          console.log('VSF-FRONTEND is running');
+          resolve('VSF-FRONTEND is running')
+        }
+      })
+  })
 }
 function healthCheckMagento2(config){
   return new Promise((resolve, reject)=>{
@@ -603,4 +484,8 @@ function healthCheckES(config){
       }
     });
   })
+}
+
+function backupConfig(config){
+  //TODO: connect with proCC api -> send config -> push to MongoDB from procc
 }
