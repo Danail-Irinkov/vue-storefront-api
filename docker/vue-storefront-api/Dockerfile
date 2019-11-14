@@ -19,7 +19,7 @@ COPY ./tsconfig.json ./tsconfig.json
 COPY ./nodemon.json ./nodemon.json
 COPY ./babel.config.js ./babel.config.js
 
-COPY ./config ./config
+#COPY ./config ./config
 COPY ./config ./config_repo
 COPY ./migrations ./migrations
 COPY ./scripts ./scripts

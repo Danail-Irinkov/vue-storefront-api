@@ -23,7 +23,7 @@ spec:
         volumeMounts:
           - mountPath: /var/www/dist
             name: build-cache
-          - mountPath: /var/www/config
+          - mountPath: /var/www/config2
             name: vsf-api-config-pvc
         resources:
           limits:
