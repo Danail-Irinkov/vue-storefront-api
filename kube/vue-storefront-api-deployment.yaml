@@ -24,7 +24,7 @@ spec:
           - mountPath: /var/www/dist
             name: build-cache
           - mountPath: /var/www/config2
-            name: persistent-config
+            name: vsf-api-config-pvc
         resources:
           limits:
             memory: 678Mi
