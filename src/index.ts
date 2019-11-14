@@ -39,6 +39,8 @@ console.log('AFTER process.env.NODE_ENV: ', process.env.NODE_ENV);
 // Added by dan-29-11-2019
 const timeout = require('connect-timeout');
 
+console.log('config Loaded - ', config)
+
 const app = express();
 // timeout middleware
 app.use(timeout(600000));
