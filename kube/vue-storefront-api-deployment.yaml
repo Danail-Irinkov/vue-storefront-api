@@ -34,6 +34,6 @@ spec:
         - name: build-cache
           emptyDir:
             medium: Memory
-        - name: persistent-config
+        - name: vsf-api-config-pvc
           persistentVolumeClaim:
             claimName: vsf-api-config-pvc
