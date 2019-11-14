@@ -511,7 +511,6 @@ function healthCheckRedis(config){
 function healthCheckES(config){
   return new Promise((resolve, reject)=>{
     const elasticsearch = require('elasticsearch');
-    console.log('config.elasticsearch', config.elasticsearch)
     const esConfig = {
       host: {
         host: config.elasticsearch.host,
