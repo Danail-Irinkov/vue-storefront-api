@@ -9,7 +9,7 @@ spec:
     - ReadWriteMany
   nfs:
     server: nfs-server.default.svc.cluster.local
-    path: "/"
+    path: "/vsf-api-config-pv"
 
 ---
 kind: PersistentVolumeClaim
