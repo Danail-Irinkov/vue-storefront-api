@@ -68,7 +68,7 @@ module.exports = ({ config, db }) => {
         dateFormat: "HH:mm D-M-YYYY"
       }
     }
-    let storefront_setting=storeData.storefront_setting
+    /*let storefront_setting=storeData.storefront_setting
     let storeMainImage = {
       "working_hours": storefront_setting.working_hours,
       "title": storefront_setting.banner.title,
@@ -80,9 +80,9 @@ module.exports = ({ config, db }) => {
       "about_text": storefront_setting.about_text,
       "brand": storeData.brand._id,
       "is_cc_store": storeData.brand.is_cc
-    };
+    };*/
     //banners file
-    const mainImage = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/banners/${store_data.storeCode}_main-image.json`)});
+    /*const mainImage = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/banners/${store_data.storeCode}_main-image.json`)});
     const StoreCategories = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/banners/${store_data.storeCode}_store_categories.json`)});
     const storePolicies = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/policies/${store_data.storeCode}_store_policies.json`)});
     if ((storefront.has(`storeViews.${store_data.storeCode}`)) || (storefrontApi.has(`storeViews.${store_data.storeCode}`))) {
@@ -90,9 +90,12 @@ module.exports = ({ config, db }) => {
        storefrontApi.del(`storeViews.${store_data.storeCode}`);
        mainImage.unlink();
        StoreCategories.unlink();
+    }*/
+    if (storefrontApi.has(`storeViews.${store_data.storeCode}`)) {
+      storefrontApi.del(`storeViews.${store_data.storeCode}`);
     }
-    if ((!storefront.has(`storeViews.${store_data.storeCode}`)) || (!storefrontApi.has(`storeViews.${store_data.storeCode}`))) {
-      let mapStoreUrlsFor = storefront.get("storeViews.mapStoreUrlsFor");
+    if ((!storefrontApi.has(`storeViews.${store_data.storeCode}`))) {
+      let mapStoreUrlsFor = storefrontApi.get("storeViews.mapStoreUrlsFor");
 
       if (!_.includes(storefrontApi.get("availableStores"), store_data.storeCode)) {
         //set available stores
@@ -111,17 +114,17 @@ module.exports = ({ config, db }) => {
         // set value in mapStoreUrlsFor
         mapStoreUrlsFor = _.concat(mapStoreUrlsFor, store_data.storeCode)
         storefrontApi.set("storeViews.mapStoreUrlsFor", _.concat(storefrontApi.get("storeViews.mapStoreUrlsFor"),store_data.storeCode));
-        storefront.set("storeViews.mapStoreUrlsFor", mapStoreUrlsFor);
+        // storefront.set("storeViews.mapStoreUrlsFor", mapStoreUrlsFor);
       }
 
-      if ((!(storefront.get(`storeViews.${store_data.storeCode}`))) || (!(storefrontApi.get(`storeViews.${store_data.storeCode}`)))) {
+      if (!(storefrontApi.get(`storeViews.${store_data.storeCode}`))) {
         //set obj of store
         storefrontApi.set(`storeViews.${store_data.storeCode}`, store_data);
-        storefront.set(`storeViews.${store_data.storeCode}`, store_data);
+        // storefront.set(`storeViews.${store_data.storeCode}`, store_data);
       }
     }
     //StoreCategories.set(defaultStoreCategories.clone())
-    let magentoStoreCategories = _.take(_.orderBy(_.filter(storeData.store_categories,{"isCategoryCreatedInMagento":true}),'createdAt','desc'),3);
+    /*let magentoStoreCategories = _.take(_.orderBy(_.filter(storeData.store_categories,{"isCategoryCreatedInMagento":true}),'createdAt','desc'),3);
     let countCategories = magentoStoreCategories.length;
     let mainBanners = [];
     let smallBanners = [];
@@ -180,7 +183,18 @@ module.exports = ({ config, db }) => {
       policies.push(storefront_setting.warranty_policy.policy);
     }
 
-    storePolicies.set('policy', policies);
+    storePolicies.set('policy', policies);*/
+
+    request({
+        // create store in vs
+        uri:'http://localhost:3000/create-store',
+        method:'POST',
+        body: req.body,
+        json: true
+      },
+      function (_err, _res, _resBody) {
+        console.log('Response', _resBody)
+      })
     return apiStatus(res, 200);
   });
   /**
@@ -195,6 +209,19 @@ module.exports = ({ config, db }) => {
   //   });
   //   return apiStatus(res, 200);
   // })
+  mcApi.post('/test', (req, res) => {
+      request({
+        //store url with custom function
+        uri:'http://localhost:3000/create-store',
+        method:'POST',
+        body: req.body,
+        json: true
+      },
+function (_err, _res, _resBody) {
+       console.log('Response', _resBody)
+      })
+    return apiStatus(res, 200);
+  });
 
   mcApi.post('/create-store-index', async (req, res) => {
     try {
@@ -287,16 +314,16 @@ module.exports = ({ config, db }) => {
       storeCode: userData.store_code,
       index: `vue_storefront_catalog_${_.snakeCase(userData.store_code)}`
     }
-    const mainImage = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/banners/${storeData.storeCode}_main-image.json`)});
-    const StoreCategories = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/banners/${storeData.storeCode}_store_categories.json`)});
-    const storePolicies = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/policies/${storeData.storeCode}_store_policies.json`)});
+    // const mainImage = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/banners/${storeData.storeCode}_main-image.json`)});
+    // const StoreCategories = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/banners/${storeData.storeCode}_store_categories.json`)});
+    // const storePolicies = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/policies/${storeData.storeCode}_store_policies.json`)});
     const catalogFile = new Store({path: path.resolve(`../vue-storefront-api/var/catalog_${storeData.storeCode}.json`)});
 
-    if ((storefront.has(`storeViews.${storeData.storeCode}`)) || (storefrontApi.has(`storeViews.${storeData.storeCode}`))) {
+    if (storefrontApi.has(`storeViews.${storeData.storeCode}`)) {
 
       //remove storeview data from the storefront
-      storefront.del(`storeViews.${storeData.storeCode}`)
-      storefront.set("storeViews.mapStoreUrlsFor", _.pull(storefront.get("storeViews.mapStoreUrlsFor"),storeData.storeCode))
+      // storefront.del(`storeViews.${storeData.storeCode}`)
+      // storefront.set("storeViews.mapStoreUrlsFor", _.pull(storefront.get("storeViews.mapStoreUrlsFor"),storeData.storeCode))
 
       //remove storeview data from the storefront-api
       storefrontApi.set("elasticsearch.indices", _.pull(storefrontApi.get("elasticsearch.indices"),storeData.index))
@@ -305,9 +332,19 @@ module.exports = ({ config, db }) => {
       storefrontApi.del(`storeViews.${storeData.storeCode}`)
 
       // remove the banners, policies, main image and catalog files
-      mainImage.unlink()
-      StoreCategories.unlink()
-      storePolicies.unlink()
+      // mainImage.unlink()
+      // StoreCategories.unlink()
+      // storePolicies.unlink()
+      request({
+          // delete store in vs
+          uri:'http://localhost:3000/delete-store',
+          method:'POST',
+          body: storeData,
+          json: true
+        },
+        function (_err, _res, _resBody) {
+          console.log('Response', _resBody)
+        })
       catalogFile.unlink()
       deleteElasticSearchIndex(storeData.storeCode);
       console.log("Store view data deleted")
@@ -328,10 +365,20 @@ module.exports = ({ config, db }) => {
     let storeData = req.body.storeData;
     let status = !storeData.status;       //current store status
 
-    if ((storefront.has(`storeViews.${storeData.store_code}.disabled`)) && (storefrontApi.has(`storeViews.${storeData.store_code}.disabled`))) {
-      storefront.set(`storeViews.${storeData.store_code}.disabled`,status)
+    if (storefrontApi.has(`storeViews.${storeData.store_code}.disabled`)) {
+      // storefront.set(`storeViews.${storeData.store_code}.disabled`,status)
       storefrontApi.set(`storeViews.${storeData.store_code}.disabled`,status)
     }
+    request({
+        // disable store in vs
+        uri:'http://localhost:3000/disable-store',
+        method:'POST',
+        body: {"storeData": storeData, "status": status},
+        json: true
+      },
+      function (_err, _res, _resBody) {
+        console.log('Response', _resBody)
+      })
     apiStatus(res,200);
     return;
   });
@@ -395,10 +442,12 @@ function setProductBanner(config, storeCode) {
       request({uri: res, method: 'POST'}, function (_err, _res, _resBody) {
         _resBody = parse_resBody(_resBody)
         let catalogProducts = _.get(_.get(_resBody,'hits'),'hits');
+        // depend upon the synced product with category ids
         let products = [];
         if (_resBody && _resBody.hits && catalogProducts) { // we're signing up all objects returned to the client to be able to validate them when (for example order)
           products = _.take(_.filter(catalogProducts, ["_source.type_id", "configurable"]), 6);
-          let productBanners = [];
+          // start set to product banners link in vue storefront pass with store code { 'products': products, 'storeCode': storeCode }
+         /* let productBanners = [];
           let category_ids =[];
           if(StoreCategories.has("mainBanners")) {
             category_ids.push(StoreCategories.get("mainBanners.0.category_id"));
@@ -422,7 +471,16 @@ function setProductBanner(config, storeCode) {
               productBanners.push(Banner);
             }
           });
-          StoreCategories.set("productBanners",productBanners);
+          StoreCategories.set("productBanners",productBanners);*/
+         request({
+           uri:'http://localhost:3000/product-link',
+           method:'POST',
+           body: { 'products': products, 'storeCode': storeCode },
+           json: true
+         },function (_err, _res, _resBody) {
+           resolve();
+         })
+          //end set to product banners
         }
         resolve();
       });
@@ -443,7 +501,8 @@ function setCategoryBanner(storeCode){
         console.log('_resBody', _resBody)
         if (_resBody && _resBody.hits && categoryData) { // we're signing up all objects returned to the client to be able to validate them when (for example order)
           let children_data = !_.isUndefined(_.get(_.get(categoryData, '_source'), 'children_data')) ? _.get(_.get(categoryData, '_source'), 'children_data') : [];
-          let MainBanners = !_.isUndefined(StoreCategories.get('mainBanners')) ? StoreCategories.get('mainBanners') : [];
+          // start with in Vue storefront side pass the store code { 'childrenData': children_data, 'storeCode': storeCode }
+          /*let MainBanners = !_.isUndefined(StoreCategories.get('mainBanners')) ? StoreCategories.get('mainBanners') : [];
           let TopAndBottomSideBanners = _.isUndefined(StoreCategories.get('smallBanners')) ? StoreCategories.get('smallBanners') : [];
           if (children_data.length >= 1 && MainBanners.length > 0) {
             MainBanners[0].link = `/${_.get(_.find(children_data, ['name', _.get(_.find(MainBanners, 'title'), 'title')]), 'url_path')}`;
@@ -456,7 +515,17 @@ function setCategoryBanner(storeCode){
                 StoreCategories.set('smallBanners', TopAndBottomSideBanners);
               }
             }
-          }
+          }*/
+          request({
+            uri:'http://localhost:3000/category-link',
+            method:'POST',
+            body: { 'childrenData': children_data, 'storeCode': storeCode },
+            json: true
+          },function (_err, _res, _resBody) {
+            resolve();
+          })
+
+          // end with vue storefront side
           console.log('mainBanners', StoreCategories.get('mainBanners'))
           console.log('smallBanners', StoreCategories.get('smallBanners'))
         }
