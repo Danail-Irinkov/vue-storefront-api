@@ -346,6 +346,10 @@
       }
     }
   },
+  "msi": {
+    "enabled": false,
+    "defaultStockId": 1
+  },
   "usePriceTiers": false,
   "boost": {
     "name": 3,
