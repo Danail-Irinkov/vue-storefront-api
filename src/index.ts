@@ -12,6 +12,8 @@ import { makeExecutableSchema } from 'graphql-tools';
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/schema';
 
+console.log('config Loaded - ', config)
+
 const app = express();
 
 // logger
