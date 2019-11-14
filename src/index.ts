@@ -15,6 +15,8 @@ import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/schema';
 import * as path from 'path'
 
+console.log('config Loaded - ', config)
+
 const app = express();
 
 // logger
