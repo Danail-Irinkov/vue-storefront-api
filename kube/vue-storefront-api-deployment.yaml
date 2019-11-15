@@ -26,6 +26,8 @@ spec:
           - mountPath: /var/www/config2
             name: nfs-drive
             subPath: vsf_api_config
+          - mountPath: /var/www/nfs
+            name: nfs-drive
         resources:
           limits:
             memory: 678Mi
