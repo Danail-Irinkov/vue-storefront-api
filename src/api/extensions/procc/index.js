@@ -127,6 +127,19 @@ function (_err, _res, _resBody) {
       })
     return apiStatus(res, 200);
   });
+  mcApi.post('/backup-config', (req, res) => {
+    request({
+        //store url with custom function
+        uri:'http://'+config.vsf.host+':'+config.vsf.port+'/backup-config',
+        method:'POST',
+        body: req.body,
+        json: true
+      },
+      function (_err, _res, _resBody) {
+        let backupConfigFiles = {"vsf_config_data":_resBody,"vsf_api_config_data": config}
+        return apiStatus(res, backupConfigFiles, 200);
+      })
+  });
 
   mcApi.post('/create-store-index', async (req, res) => {
     try {
@@ -487,5 +500,6 @@ function healthCheckES(config){
 }
 
 function backupConfig(config){
+  console.log('config', config)
   //TODO: connect with proCC api -> send config -> push to MongoDB from procc
 }
