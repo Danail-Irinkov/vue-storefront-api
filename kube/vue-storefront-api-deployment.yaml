@@ -23,11 +23,9 @@ spec:
         volumeMounts:
           - mountPath: /var/www/dist
             name: build-cache
-          - mountPath: /var/www/config2
+          - mountPath: /var/www/config
             name: nfs-drive
             subPath: vsf_api_config
-          - mountPath: /var/www/nfs
-            name: nfs-drive
         resources:
           limits:
             memory: 678Mi
