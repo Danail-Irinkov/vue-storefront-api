@@ -24,7 +24,8 @@ spec:
           - mountPath: /var/www/dist
             name: build-cache
           - mountPath: /var/www/config2
-            name: vsf-api-config-pvc
+            name: nfs-drive
+            subPath: vsf_api_config
         resources:
           limits:
             memory: 678Mi
@@ -34,6 +35,6 @@ spec:
         - name: build-cache
           emptyDir:
             medium: Memory
-        - name: vsf-api-config-pvc
+        - name: nfs-drive
           persistentVolumeClaim:
-            claimName: vsf-api-config-pvc
+            claimName: nfs-drive-pvc
