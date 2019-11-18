@@ -26,7 +26,7 @@
       "vue_storefront_catalog_de",
       "vue_storefront_catalog_it",
       "vue_storefront_catalog_volkky",
-      "vue_storefront_catalog_rrr"
+      "vue_storefront_catalog_qqq"
     ],
     "indexTypes": [
       "product",
@@ -48,7 +48,7 @@
     "de",
     "it",
     "volkky",
-    "rrr"
+    "qqq"
   ],
   "storeViews": {
     "multistore": true,
@@ -56,7 +56,7 @@
       "de",
       "it",
       "volkky",
-      "rrr"
+      "qqq"
     ],
     "de": {
       "storeCode": "de",
@@ -140,16 +140,16 @@
         "dateFormat": "HH:mm D-M-YYYY"
       }
     },
-    "rrr": {
-      "storeCode": "rrr",
+    "qqq": {
+      "storeCode": "qqq",
       "storeName": "Volkyyz Store",
       "disabled": false,
-      "storeId": 17,
+      "storeId": 34,
       "name": "Volkyyz Store",
-      "url": "/rrr",
+      "url": "/qqq",
       "elasticsearch": {
         "host": "https://store.procc.co/api/catalog",
-        "index": "vue_storefront_catalog_rrr"
+        "index": "vue_storefront_catalog_qqq"
       },
       "tax": {
         "defaultCountry": "BG",
