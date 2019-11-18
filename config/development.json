@@ -1,6 +1,6 @@
 {
   "server": {
-    "host": "vue-storefront-api",
+    "host": "localhost",
     "port": 8080,
     "searchEngine": "elasticsearch"
   },
@@ -15,18 +15,17 @@
     "port": 3000
   },
   "elasticsearch": {
-    "host": "magento-pre-req-elasticsearch-coordinating-only",
+    "host": "localhost",
     "port": 9200,
     "protocol": "http",
     "user": "elastic",
-    "password": "myElasticPass11",
+    "password": "changeme",
     "min_score": 0.01,
     "indices": [
       "vue_storefront_catalog",
       "vue_storefront_catalog_de",
       "vue_storefront_catalog_it",
-      "vue_storefront_catalog_volkky",
-      "vue_storefront_catalog_rrr"
+      "vue_storefront_catalog_volkky"
     ],
     "indexTypes": [
       "product",
@@ -39,7 +38,7 @@
     "apiVersion": "5.6"
   },
   "redis": {
-    "host": "redis",
+    "host": "localhost",
     "port": 6379,
     "db": 0
   },
@@ -47,16 +46,14 @@
   "availableStores": [
     "de",
     "it",
-    "volkky",
-    "rrr"
+    "volkky"
   ],
   "storeViews": {
     "multistore": true,
     "mapStoreUrlsFor": [
       "de",
       "it",
-      "volkky",
-      "rrr"
+      "volkky"
     ],
     "de": {
       "storeCode": "de",
@@ -139,34 +136,6 @@
         "currencySign": "EUR",
         "dateFormat": "HH:mm D-M-YYYY"
       }
-    },
-    "rrr": {
-      "storeCode": "rrr",
-      "storeName": "Volkyyz Store",
-      "disabled": false,
-      "storeId": 17,
-      "name": "Volkyyz Store",
-      "url": "/rrr",
-      "elasticsearch": {
-        "host": "https://store.procc.co/api/catalog",
-        "index": "vue_storefront_catalog_rrr"
-      },
-      "tax": {
-        "defaultCountry": "BG",
-        "defaultRegion": "",
-        "calculateServerSide": true,
-        "sourcePriceIncludesTax": false
-      },
-      "i18n": {
-        "fullCountryName": "Bulgaria",
-        "fullLanguageName": "Bulgarian",
-        "defaultCountry": "BG",
-        "defaultLanguage": "EN",
-        "defaultLocale": "en-US",
-        "currencyCode": "EUR",
-        "currencySign": "EUR",
-        "dateFormat": "HH:mm D-M-YYYY"
-      }
     }
   },
   "authHashSecret": "__SECRET_CHANGE_ME__",
@@ -221,10 +190,10 @@
     "assetPath": "/../var/magento2-sample-data/pub/media",
     "api": {
       "url": "http://m2.procc.co/rest",
-      "consumerKey": "cur0oo3wy76o57kwrmdoj0feqzo23tym",
-      "consumerSecret": "5skvb8e3slvk8fsr3xnzlz9ctldram8z",
-      "accessToken": "k5gfzr7drnh9f3ha4st28ku8vvzj0dem",
-      "accessTokenSecret": "fza4e4qqh9gi0ob0ytp9oixeh93x9yj2"
+      "consumerKey": "gqb4dlqh2ggdjshx4k7hshfgcoakbphc",
+      "consumerSecret": "nnggh06ciivoiylyn2reeewhn70skqdj",
+      "accessToken": "924xjbdx76rvbc7qff3zbzvaggnqruhu",
+      "accessTokenSecret": "ehxpj9cb5frvje6uygpj7xd7p9fpvksu"
     }
   },
   "imageable": {

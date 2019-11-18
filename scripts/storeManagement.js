@@ -95,16 +95,14 @@ export function restoreStoreIndex(storeCode){
 
 export function buildVueStorefrontAPI(){
   console.log(' == Building Vuestorefront API ==');
-  return exec('sudo', [
-    'yarn',
+  return exec('yarn', [
     'build'
   ], { shell: true });
 }
 
 export function startVueStorefrontAPI(){
   console.log(' == Building Vuestorefront API ==');
-  return exec('sudo', [
-    'yarn',
+  return exec('yarn', [
     'start'
   ], { shell: true });
 }
@@ -114,14 +112,13 @@ export function buildVueStorefront(){
   return exec('cd', [
     '../vue-storefront',
     '&&',
-    'sudo yarn build'
+    'yarn build'
   ], { shell: true }, true, true);
 }
 
 export function restartPM2Server(){
   console.log(' == Restarting PM2 server ==');
-  return exec('sudo', [
-    'pm2',
+  return exec('pm2', [
     'restart',
     'all',
   ], { shell: true });
