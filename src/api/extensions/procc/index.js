@@ -143,6 +143,7 @@ function (_err, _res, _resBody) {
 
   mcApi.post('/create-store-index', async (req, res) => {
     try {
+      console.log('/create-store-index', req.body.storeCode)
       let storeCode = req.body.storeCode;
       let storeCodeForElastic = _.snakeCase(storeCode)
       let storeIndex = `vue_storefront_catalog_${storeCodeForElastic}`
@@ -173,9 +174,14 @@ function (_err, _res, _resBody) {
     try {
       let storeCode = req.body.storeCode;
       let enableVSFRebuild = req.body.enableVSFRebuild
-      const mainImage = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/banners/${storeCode}_main-image.json`)});
-      let image = mainImage.get('image')
-      let brand_id = !_.isUndefined(_.get(image, 'brand')) ? _.get(image, 'brand') : 0
+      let brand_id = req.body.brand_id
+
+      // TODO: Get brand_id via API param, not like this..
+      // const mainImage = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/banners/${storeCode}_main-image.json`)});
+      // let image = mainImage.get('image')
+      // let brand_id = !_.isUndefined(_.get(image, 'brand')) ? _.get(image, 'brand') : 0
+      // TODO: Get brand_id via API param, not like this..
+
       let storeCodeForElastic = _.snakeCase(storeCode)
 
       console.time('rebuildElasticSearchIndex')
@@ -196,7 +202,7 @@ function (_err, _res, _resBody) {
       console.timeEnd('restoreStoreIndex')
 
       console.time('setCategoryBanner')
-      await setCategoryBanner(storeCodeForElastic)
+      await setCategoryBanner(config, storeCodeForElastic)
       console.timeEnd('setCategoryBanner')
 
       console.time('setProductBanner')
@@ -349,9 +355,8 @@ function searchCatalogUrl(storeCode,search) {
 
 function setProductBanner(config, storeCode) {
   return new Promise((resolve, reject) => {
-    const StoreCategories = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/banners/${storeCode}_store_categories.json`)});
     searchCatalogUrl(storeCode, 'product').then((res) => {
-      request({uri: res, method: 'POST'}, function (_err, _res, _resBody) {
+      request({uri: res, method: 'GET'}, function (_err, _res, _resBody) {
         _resBody = parse_resBody(_resBody)
         let catalogProducts = _.get(_.get(_resBody,'hits'),'hits');
         // depend upon the synced product with category ids
@@ -374,13 +379,12 @@ function setProductBanner(config, storeCode) {
   });
 }
 
-function setCategoryBanner(storeCode){
+function setCategoryBanner(config, storeCode){
   return new Promise((resolve, reject) => {
-    const StoreCategories = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/banners/${storeCode}_store_categories.json`)});
     searchCatalogUrl(storeCode, 'category').then((res) => {
       request({ // do the elasticsearch request
         uri: res,
-        method: 'POST',
+        method: 'GET',
       }, function (_err, _res, _resBody) { // TODO: add caching layer to speed up SSR? How to invalidate products (checksum on the response BEFORE processing it)
         _resBody = parse_resBody(_resBody)
         let categoryData = !_.isUndefined(_.first(_.get(_.get(_resBody, 'hits'), 'hits'))) ? _.first(_.get(_.get(_resBody, 'hits'), 'hits')) : {};
@@ -396,10 +400,6 @@ function setCategoryBanner(storeCode){
           },function (_err, _res, _resBody) {
             resolve();
           })
-
-          // end with vue storefront side
-          console.log('mainBanners', StoreCategories.get('mainBanners'))
-          console.log('smallBanners', StoreCategories.get('smallBanners'))
         }
         resolve();
       });
@@ -500,6 +500,6 @@ function healthCheckES(config){
 }
 
 function backupConfig(config){
-  console.log('config', config)
+  console.log('backupConfig config', config)
   //TODO: connect with proCC api -> send config -> push to MongoDB from procc
 }
