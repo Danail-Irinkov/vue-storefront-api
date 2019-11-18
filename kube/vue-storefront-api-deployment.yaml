@@ -28,23 +28,23 @@ spec:
             subPath: vsf_api_config
           - mountPath: /var/www/nfs
             name: nfs-drive
-        livenessProbe:
-          httpGet:
-            path: /api/health
-            port: 8080
-          initialDelaySeconds: 200
-          periodSeconds: 60
-          timeoutSeconds: 15
-          failureThreshold: 10
-        readinessProbe:
-          httpGet:
-            path: /api/health
-            port: 8080
-          initialDelaySeconds: 40
-          periodSeconds: 15
-          timeoutSeconds: 5
-          successThreshold: 1
-          failureThreshold: 3
+#        livenessProbe:
+#          httpGet:
+#            path: /api/health
+#            port: 8080
+#          initialDelaySeconds: 200
+#          periodSeconds: 60
+#          timeoutSeconds: 15
+#          failureThreshold: 10
+#        readinessProbe:
+#          httpGet:
+#            path: /api/health
+#            port: 8080
+#          initialDelaySeconds: 40
+#          periodSeconds: 15
+#          timeoutSeconds: 5
+#          successThreshold: 1
+#          failureThreshold: 3
         resources:
           limits:
             memory: 678Mi
