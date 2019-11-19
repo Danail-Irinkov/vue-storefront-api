@@ -25,4 +25,6 @@ COPY ./src ./src
 COPY ./var ./var
 COPY ./docker ./docker
 
+COPY docker/vue-storefront-api/vue-storefront-api.sh /usr/local/bin/
+
 CMD ["vue-storefront-api.sh"]
