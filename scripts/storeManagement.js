@@ -101,7 +101,7 @@ export function buildVueStorefrontAPI(){
 }
 
 export function startVueStorefrontAPI(){
-  console.log(' == Building Vuestorefront API ==');
+  console.log(' == Starting Vuestorefront API ==');
   return exec('yarn', [
     'start'
   ], { shell: true });
