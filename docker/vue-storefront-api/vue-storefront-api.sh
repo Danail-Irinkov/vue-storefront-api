@@ -10,5 +10,7 @@ yarn install || exit $?
 if [ "$VS_ENV" = 'dev' ]; then
   yarn dev
 else
-  yarn start
+  npm install pm2 -g
+  npm run build
+  yarn startK
 fi
