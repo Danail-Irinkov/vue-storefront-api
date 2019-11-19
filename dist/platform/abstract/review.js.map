@@ -1,1 +1,0 @@
-{"version":3,"file":"review.js","sourceRoot":"","sources":["../../../src/platform/abstract/review.js"],"names":[],"mappings":";;AAAA,MAAM,mBAAmB;IACvB,YAAY,MAAM,EAAE,GAAG;QACrB,IAAI,CAAC,OAAO,GAAG,MAAM,CAAA;QACrB,IAAI,CAAC,QAAQ,GAAG,GAAG,CAAA;IACrB,CAAC;IAED,MAAM,CAAC,UAAU;QACf,MAAM,IAAI,KAAK,CAAC,8DAA8D,CAAC,CAAA;IACjF,CAAC;CACF;AAED,kBAAe,mBAAmB,CAAA"}

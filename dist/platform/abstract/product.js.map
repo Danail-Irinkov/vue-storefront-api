@@ -1,1 +1,0 @@
-{"version":3,"file":"product.js","sourceRoot":"","sources":["../../../src/platform/abstract/product.js"],"names":[],"mappings":";;AAAA,MAAM,oBAAoB;IACxB,YAAY,MAAM,EAAE,GAAG;QACrB,IAAI,CAAC,OAAO,GAAG,MAAM,CAAA;QACrB,IAAI,CAAC,QAAQ,GAAG,GAAG,CAAA;IACrB,CAAC;IAED,IAAI,CAAE,IAAI;QACR,MAAM,IAAI,KAAK,CAAC,8DAA8D,CAAC,CAAA;IACjF,CAAC;CACF;AAED,kBAAe,oBAAoB,CAAA"}
