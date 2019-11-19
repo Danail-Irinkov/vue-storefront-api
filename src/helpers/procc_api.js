@@ -1,10 +1,9 @@
 import axios from 'axios'
-import Config from '../../config/default.json'
+import jwt from 'jsonwebtoken'
+import jwtPrivateKey from '../../config/jwt.json'
+import config from 'config';
 
-const jwt = require('jsonwebtoken')
-const jwtPrivateKey = require('../../config/jwt')
-
-const CreateProCcAPI = (baseURL = `${Config.PROCC.API}/`) => {
+export default (baseURL = config.PROCC.API+'/') => {
   // ------
   // STEP 1
   // ------
@@ -28,17 +27,17 @@ const CreateProCcAPI = (baseURL = `${Config.PROCC.API}/`) => {
     algorithm: 'RS256'
   })
 
-  const config = (brandId = 0) => ({
+  const getHeader = (brandId = 0) => ({
     headers: {
       'Authorization': `Bearer ${createToken(brandId)}`
     }
   })
 
-  const addNewOrder = (orderData, brandId) => api.post('order/addNewOrder', orderData, config(brandId))
-  const mangoPayCheckIn = (data, brandId) => api.post('mangopay/VSFOrderPayment', data, config(brandId))
-  const updateTransactionStatus = (data, brandId) => api.post('mangopay/updateTransactionStatus', data, config(brandId))
-  const getSizeChart = (product, brandId) => api.get(`sizeChart/getVSFSizeChartById/${product}?brand_id=${brandId}`, config(brandId))
-  const updateVsfSyncStatus = (brandData) => api.post('vsf/updateSyncStatusVsf', {brandData}, config(brandData.brand_id))
+  const addNewOrder = (orderData, brandId) => api.post('order/addNewOrder', orderData, getHeader(brandId))
+  const mangoPayCheckIn = (data, brandId) => api.post('mangopay/VSFOrderPayment', data, getHeader(brandId))
+  const updateTransactionStatus = (data, brandId) => api.post('mangopay/updateTransactionStatus', data, getHeader(brandId))
+  const getSizeChart = (product, brandId) => api.get(`sizeChart/getVSFSizeChartById/${product}?brand_id=${brandId}`, getHeader(brandId))
+  const updateVsfSyncStatus = (brandData) => api.post('vsf/updateSyncStatusVsf', {brandData}, getHeader(brandData.brand_id))
   const getProductDeliveryPolicy = () => api.get('policy/getProductDeliveryPolicy')
 
   return {
@@ -49,8 +48,4 @@ const CreateProCcAPI = (baseURL = `${Config.PROCC.API}/`) => {
     updateTransactionStatus,
     updateVsfSyncStatus
   }
-}
-
-export default {
-  CreateProCcAPI
 }
