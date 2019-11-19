@@ -13,6 +13,8 @@ RUN apk add --no-cache --virtual .build-deps ca-certificates wget && \
     yarn install --no-cache && \
     apk del .build-deps
 
+RUN npm install -g typescript@3.3.3
+
 COPY ./ecosystem.json ./ecosystem.json
 COPY ./tsconfig.json ./tsconfig.json
 COPY ./nodemon.json ./nodemon.json
