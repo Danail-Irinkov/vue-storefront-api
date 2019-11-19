@@ -11,7 +11,7 @@ console.log('appDir appDirappDir - ', appDir)
 
 import { rebuildElasticSearchIndex, dumpStoreIndex, restoreStoreIndex,
   createNewElasticSearchIndex, deleteElasticSearchIndex, buildAndRestartVueStorefront,
-  startVueStorefrontAPI } from '../../../../scripts/storeManagement';
+  startVueStorefrontAPI } from './storeManagement';
 
 import request from 'request';
 
