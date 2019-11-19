@@ -4,33 +4,20 @@ import { Router } from 'express';
 import Store from 'data-store';
 import _ from 'lodash';
 import path from 'path';
-// import jwtPrivateKey from '../../config/jwt.js'
 
 let appDir = path.dirname(require.main.filename);
 appDir = path.dirname(appDir)
 console.log('appDir appDirappDir - ', appDir)
 
-// console.log('jwtPrivateKey jwtPrivateKey - ')
-
-import { rebuildElasticSearchIndex, storewiseImportProductsDifference,
+import { rebuildElasticSearchIndex, dumpStoreIndex, restoreStoreIndex,
   createNewElasticSearchIndex, deleteElasticSearchIndex, buildAndRestartVueStorefront,
-  startVueStorefrontAPI, deleteVueStorefrontStoreConfig, storewiseImport } from './storeManagement';
+  startVueStorefrontAPI } from './storeManagement';
 
 import request from 'request';
-// TODO: we should use await/async/try/catch instead of request
 import request_async from 'request-promise-native';
 
-let storefrontApiConfig
-if(process.env.NODE_ENV === 'development'){
-  storefrontApiConfig = new Store({path: path.resolve('./config/local.json')});
-}else
-  storefrontApiConfig = new Store({path: path.resolve('./config/production.json')});
-
-import fs from 'fs';
-console.log('START process.env.NODE_ENV: ', process.env.NODE_ENV)
-// console.log('START storefrontApiConfig: ', storefrontApiConfig.clone())
-// console.log('START storefrontApiConfig: ', path.resolve('./config/production.json'))
-console.log('END storefrontApiConfig! ')
+const storefrontApi = new Store({path: path.resolve('./config/production.json')});
+// console.log('path.resolve', path.resolve('./config/production.json') )
 
 module.exports = ({ config, db }) => {
   let mcApi = Router();
@@ -46,18 +33,7 @@ module.exports = ({ config, db }) => {
     }
   })
 
-  mcApi.get('/health-core', async (req, res) => {
-    let health
-    try{
-      health = await healthCheckCore(config)
-      return apiStatus(res, 'ProCC VSF-API Online', 200);
-    }catch (e) {
-      return apiStatus(res, {error: e, health: health}, 502);
-      // return apiStatus(res, 'ERROR ProCC VSF-API Not Connected', 502);
-    }
-  })
-
-  mcApi.post('/updateStorefrontSettings',(req,res) =>{
+  mcApi.post('/settings',(req,res) =>{
     let storeData = req.body;
     let store_data = {
       storeCode: storeData.storefront_url,
@@ -67,7 +43,7 @@ module.exports = ({ config, db }) => {
       name: _.startCase(storeData.magento_store_name),
       url: `/${storeData.storefront_url}`,
       elasticsearch: {
-        host: config.server.url+"/api/catalog", // NEED to be with domain, it is sent to the frontend
+        host: "https://store.procc.co/api/catalog", // NEED to be with domain, it is sent to the frontend
         index: `vue_storefront_catalog_${_.snakeCase(storeData.storefront_url)}`
       },
       tax: {
@@ -87,91 +63,103 @@ module.exports = ({ config, db }) => {
         dateFormat: "HH:mm D-M-YYYY"
       }
     }
-    // console.log('storefrontApiConfig: ', storefrontApiConfig.clone())
 
-    if (storefrontApiConfig.has(`storeViews.${store_data.storeCode}`)) {
-      storefrontApiConfig.del(`storeViews.${store_data.storeCode}`);
+    if (storefrontApi.has(`storeViews.${store_data.storeCode}`)) {
+      storefrontApi.del(`storeViews.${store_data.storeCode}`);
     }
-    if ((!storefrontApiConfig.has(`storeViews.${store_data.storeCode}`))) {
-      let mapStoreUrlsFor = storefrontApiConfig.get("storeViews.mapStoreUrlsFor");
+    if ((!storefrontApi.has(`storeViews.${store_data.storeCode}`))) {
+      let mapStoreUrlsFor = storefrontApi.get("storeViews.mapStoreUrlsFor");
 
-      if (!_.includes(storefrontApiConfig.get("availableStores"), store_data.storeCode)) {
+      if (!_.includes(storefrontApi.get("availableStores"), store_data.storeCode)) {
         //set available stores
-        storefrontApiConfig.set("availableStores", (_.concat(storefrontApiConfig.get("availableStores"), store_data.storeCode)));
+        storefrontApi.set("availableStores", (_.concat(storefrontApi.get("availableStores"), store_data.storeCode)));
       }
 
-      console.log('storefrontApiConfig.get("elasticsearch.indices")0', storefrontApiConfig.get("elasticsearch.indices"))
-      if (!_.includes(storefrontApiConfig.get("elasticsearch.indices"), store_data.elasticsearch.index)) {
+      if (!_.includes(storefrontApi.get("elasticsearch.indices"), store_data.elasticsearch.index)) {
         //set indices of the store
-        storefrontApiConfig.set("elasticsearch.indices", _.concat(storefrontApiConfig.get("elasticsearch.indices"), store_data.elasticsearch.index));
-        console.log('storefrontApiConfig.get("elasticsearch.indices")1', storefrontApiConfig.get("elasticsearch.indices"))
+        storefrontApi.set("elasticsearch.indices", (_.concat(storefrontApi.get("elasticsearch.indices"), store_data.elasticsearch.index)));
+
+        config.elasticsearch.indices = storefrontApi.get("elasticsearch.indices")
+        // console.log('//procc index.js store_data.config.elasticsearch.indices ', config.elasticsearch.indices )
       }
 
-      if ((!_.includes(mapStoreUrlsFor, store_data.storeCode)) || (!_.includes(storefrontApiConfig.get("storeViews.mapStoreUrlsFor"), store_data.storeCode)) ) {
+      if ((!_.includes(mapStoreUrlsFor, store_data.storeCode)) || (!_.includes(storefrontApi.get("storeViews.mapStoreUrlsFor"), store_data.storeCode)) ) {
         // set value in mapStoreUrlsFor
-        storefrontApiConfig.set("storeViews.mapStoreUrlsFor", _.concat(storefrontApiConfig.get("storeViews.mapStoreUrlsFor"),store_data.storeCode));
+        mapStoreUrlsFor = _.concat(mapStoreUrlsFor, store_data.storeCode)
+        storefrontApi.set("storeViews.mapStoreUrlsFor", _.concat(storefrontApi.get("storeViews.mapStoreUrlsFor"),store_data.storeCode));
+        // storefront.set("storeViews.mapStoreUrlsFor", mapStoreUrlsFor);
       }
 
-      if (!(storefrontApiConfig.get(`storeViews.${store_data.storeCode}`))) {
+      if (!(storefrontApi.get(`storeViews.${store_data.storeCode}`))) {
         //set obj of store
-        storefrontApiConfig.set(`storeViews.${store_data.storeCode}`, store_data);
+        storefrontApi.set(`storeViews.${store_data.storeCode}`, store_data);
         // storefront.set(`storeViews.${store_data.storeCode}`, store_data);
       }
     }
-    console.log('updateStorefrontSettings req.body', req.body.brand={})
-    console.log('updateStorefrontSettings req.body  END')
-    return request({
+
+    backupConfig(storefrontApi)
+
+    request({
         // create store in vs
-        uri:config.vsf.host+':'+config.vsf.port+'/updateStorefrontSettings',
+        uri:'http://'+config.vsf.host+':'+config.vsf.port+'/create-store',
         method:'POST',
         body: req.body,
         json: true
       },
       function (_err, _res, _resBody) {
-        console.log('/updateStorefrontSettings Response', _resBody)
-        return apiStatus(res, 200);
+        console.log('Response', _resBody)
       })
+    return apiStatus(res, 200);
   });
   /**
    * POST TEST api
    */
-  mcApi.get('/test', async (req, res) => {
-    let storeCodeForElastic = 'aa'
-    console.time(' setCategoryBanners')
-    console.log(' setCategoryBanners')
-    await  setCategoryBanners(config, storeCodeForElastic)
-    console.timeEnd(' setCategoryBanners')
-
-    console.time('setProductBanners')
-    console.log('setProductBanners')
-    await setProductBanners(config, storeCodeForElastic)
-    console.timeEnd('setProductBanners')
+  mcApi.post('/test', (req, res) => {
+      request({
+        //store url with custom function
+        uri:'http://'+config.vsf.host+':'+config.vsf.port+'/create-store',
+        method:'POST',
+        body: req.body,
+        json: true
+      },
+function (_err, _res, _resBody) {
+       console.log('Response', _resBody)
+      })
     return apiStatus(res, 200);
   });
-  mcApi.get('/backup-config', (req, res) => {
+  mcApi.post('/backup-config', (req, res) => {
     request({
         //store url with custom function
-        uri:config.vsf.host+':'+config.vsf.port+'/backup-config',
+        uri:'http://'+config.vsf.host+':'+config.vsf.port+'/backup-config',
         method:'POST',
         body: req.body,
         json: true
       },
       function (_err, _res, _resBody) {
-      // console.log(req.body, 'req.body')
-      // console.log(_resBody, '_resBody')
-      // console.log(_err, '_err')
-        let backupConfigFiles = {"vsf_config_data": _resBody, "vsf_api_config_data": config}
+        let backupConfigFiles = {"vsf_config_data":_resBody,"vsf_api_config_data": config}
         return apiStatus(res, backupConfigFiles, 200);
       })
-    // let backupConfigFiles = {"vsf_config_data": 'sdfsf', "vsf_api_config_data": 'sdfsdf'}
-    // return apiStatus(res, backupConfigFiles, 200);
   });
 
   mcApi.post('/create-store-index', async (req, res) => {
     try {
       console.log('/create-store-index', req.body.storeCode)
       let storeCode = req.body.storeCode;
-      await createStoreIndexInBothServers(storeCode)
+      let storeCodeForElastic = _.snakeCase(storeCode)
+      let storeIndex = `vue_storefront_catalog_${storeCodeForElastic}`
+
+      if (!_.includes(storefrontApi.get("elasticsearch.indices"), storeIndex)) {
+        storefrontApi.set("elasticsearch.indices", (_.concat(storefrontApi.get("elasticsearch.indices"), storeIndex)));
+      }
+
+      console.time('createNewElasticSearchIndex')
+      await createNewElasticSearchIndex(storeCodeForElastic)
+      console.timeEnd('createNewElasticSearchIndex')
+
+      console.time('startVueStorefrontAPI')
+      await startVueStorefrontAPI()
+      console.timeEnd('startVueStorefrontAPI')
+      console.log('Done! You can start Selling!');
 
       return apiStatus(res, 200);
     }catch (e) {
@@ -182,135 +170,55 @@ module.exports = ({ config, db }) => {
     }
   });
 
-  mcApi.post('/populateM2StoreToES', async (req, res) => {
+  mcApi.post('/manage-store', async (req, res) => {
     try {
-      console.log('/populateM2StoreToES Starting')
       let storeCode = req.body.storeCode;
-      let skus = req.body.skus;
-      let force_all_skus = req.body.force_all_skus;
-      let storeCodeForElastic = _.snakeCase(storeCode)
-      let brand_id = req.body.brand_id
-      if(!storeCode || !brand_id){
-        return Promise.reject('Insufficient Parameters')
-      }
-      // console.log('populateM2StoreToES storefrontApiConfig', storefrontApiConfig.clone())
-      console.log('storefrontApiConfig')
-      // Check if store exists in configs TODO: add creation for all parts of the store related configs, if missing any part
-      // if(!storefrontApiConfig.get('storeViews') || !storefrontApiConfig.get('storeViews.'+storeCode)
-      //   || !storefrontApiConfig.get('storeViews.mapStoreUrlsFor') || ![...storefrontApiConfig.get('storeViews.mapStoreUrlsFor')].indexOf(storeCode) === -1
-      //   || !storefrontApiConfig.get('elasticsearch.indices') || ![...storefrontApiConfig.get('elasticsearch.indices')].indexOf(storeCode) === -1
-      //   || !storefrontApiConfig.get('availableStores') || ![...storefrontApiConfig.get('availableStores')].indexOf(storeCode) === -1
-      // ){
-      //   // Creating New Store Configs
-      //   await createStoreIndexInBothServers(storeCode)
-      // }
-
-      if(!storeCode)return Promise.reject('Missing store code')
-      if(skus && _.isString(skus) && _.size(skus) > 3){ //Simple check for available SKUs (comma-delimited list)
-        console.time('storewiseImport')
-        console.log('storewiseImport')
-        if(force_all_skus){
-          await storewiseImport(storeCodeForElastic, skus)
-        }else{
-          await storewiseImport(storeCodeForElastic, null)
-          console.log('skus', skus)
-          console.log('_.size(skus)', _.size(skus))
-          console.log('_.isString(skus)', _.isString(skus))
-          await storewiseImportProductsDifference(storeCodeForElastic, skus)
-        }
-        console.timeEnd('storewiseImport')
-      }
-      else{
-        console.time('rebuildElasticSearchIndex')
-        console.log('rebuildElasticSearchIndex')
-        await rebuildElasticSearchIndex(storeCodeForElastic)
-        let time_ms = 2000
-        console.log('Sleeping for '+time_ms+' ms to avoid sync bug' )
-        await sleep(time_ms) // Needed to avoid issues with subsequent  setCategoryBanners ES queries
-        console.timeEnd('rebuildElasticSearchIndex')
-
-        // return Promise.reject('Missing SKUs') // SKUs are needed, to avoid importing all products from all stores
-      }
-      // Dump elastic Index to local
-      // console.time('catalogFile.unlink')
-      // console.log('catalogFile.unlink')
-      // console.log('path.resolve(`/var/catalog_${storeCodeForElastic}.json`)', path.resolve(`./var/catalog_${storeCodeForElastic}.json`))
-      // const catalogFile = new Store({path: path.resolve(`./var/catalog_${storeCodeForElastic}.json`)});
-      // catalogFile.unlink();
-      // console.timeEnd('catalogFile.unlink')
-
-      // Not needed when we are importing the store directly from M2
-      // console.time('dumpStoreIndex')
-      // console.log('dumpStoreIndex')
-      // await dumpStoreIndex(storeCodeForElastic)
-      // console.timeEnd('dumpStoreIndex')
-      //
-      // Restore dumped index to ES
-      // console.time('restoreStoreIndex')
-      // console.log('restoreStoreIndex')
-      // await restoreStoreIndex(storeCodeForElastic)
-      // console.timeEnd('restoreStoreIndex')
-      console.log('store_wise_import_done - brand_id: ', brand_id)
-      ProCcAPI.store_wise_import_done({success: true, brand_id}, brand_id)
-
-      res.status(200);
-      res.end();
-    }catch (e) {
-      console.log('----------------------------')
-      console.log('----------------------------')
-      console.log('/import Store ERROR', e)
-      console.log('----------------------------')
-      console.log('----------------------------')
-      res.send({
-        message_type: "error",
-        message: e
-      });
-    }
-  })
-
-  mcApi.post('/setupVSFConfig', async (req, res) => {
-    try {
-      console.log('/setupVSFConfig Starting')
-      console.log('/setupVSFConfig Starting')
-      let storeData = req.body.storeData;
-      let storeCode = req.body.storeCode;
-      let storeCodeForElastic = _.snakeCase(storeCode)
       let enableVSFRebuild = req.body.enableVSFRebuild
       let brand_id = req.body.brand_id
 
-      // TODO: ON FIRST STORE CREATE
-      // TODO:  setCategoryBanners is searching for a non-existent index in ES
-      // TODO: WE NEED TO MAKE SURE THE INDEX EXISTS AND IS ACCESSIBLE BEFORE THIS FUNC
-      console.time(' setCategoryBanners')
-      console.log(' setCategoryBanners')
-      await  setCategoryBanners(config, storeCodeForElastic)
-      console.timeEnd(' setCategoryBanners')
+      // TODO: Get brand_id via API param, not like this..
+      // const mainImage = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/banners/${storeCode}_main-image.json`)});
+      // let image = mainImage.get('image')
+      // let brand_id = !_.isUndefined(_.get(image, 'brand')) ? _.get(image, 'brand') : 0
+      // TODO: Get brand_id via API param, not like this..
 
-      console.time('setProductBanners')
-      console.log('setProductBanners')
-      await setProductBanners(config, storeCodeForElastic)
-      console.timeEnd('setProductBanners')
+      let storeCodeForElastic = _.snakeCase(storeCode)
+
+      console.time('rebuildElasticSearchIndex')
+      await rebuildElasticSearchIndex(storeCodeForElastic)
+      console.timeEnd('rebuildElasticSearchIndex')
+
+      console.time('catalogFile.unlink')
+      const catalogFile = new Store({path: path.resolve(`../vue-storefront-api/var/catalog_${storeCodeForElastic}.json`)});
+      catalogFile.unlink();
+      console.timeEnd('catalogFile.unlink')
+
+      console.time('dumpStoreIndex')
+      await dumpStoreIndex(storeCodeForElastic)
+      console.timeEnd('dumpStoreIndex')
+
+      console.time('restoreStoreIndex')
+      await restoreStoreIndex(storeCodeForElastic)
+      console.timeEnd('restoreStoreIndex')
+
+      console.time('setCategoryBanner')
+      await setCategoryBanner(config, storeCodeForElastic)
+      console.timeEnd('setCategoryBanner')
+
+      console.time('setProductBanner')
+      await setProductBanner(config, storeCodeForElastic)
+      console.timeEnd('setProductBanner')
 
       console.time('buildAndRestartVueStorefront')
-      console.log('buildAndRestartVueStorefront')
-      let brand_data = await buildAndRestartVueStorefront(req, res, brand_id, enableVSFRebuild, config);
+      await buildAndRestartVueStorefront(req, res, brand_id, enableVSFRebuild);
       console.timeEnd('buildAndRestartVueStorefront')
-      console.log('buildAndRestartVueStorefront Done! Store is ready to function! StoreCode: ', storeCodeForElastic);
+      console.log('buildAndRestartVueStorefront Done! Store is ready to function!');
 
-      // TODO: send info to ProCC about success and error as part of the queue procedures -> update the queue object status
-      console.time('updateVsfSyncStatusToProCC')
-      console.log('updateVsfSyncStatusToProCC brand_id: ', brand_id)
-      if(!enableVSFRebuild || process.env.NODE_ENV === 'development')
-        ProCcAPI.updateStoreSyncQueWaiting({success: true, brand_id}, brand_id)
-      // await ProCcAPI.updateVsfSyncStatus(brand_data, brand_id); // DEPRECATED
-      console.timeEnd('updateVsfSyncStatusToProCC')
-
-      res.status(200);
-      res.end();
+      return apiStatus(res, 200);
     }catch(e) {
       console.log('----------------------------')
       console.log('----------------------------')
-      console.log('/setupVSFConfig ERROR', e)
+      console.log('/manage-store ERROR', e)
       console.log('----------------------------')
       console.log('----------------------------')
       res.send({
@@ -323,34 +231,45 @@ module.exports = ({ config, db }) => {
   /**
    *  Delete a store
    */
-  mcApi.post('/delete-store', async (req, res) => {
-    console.log("Here in delete store", req.body);
-    let store_code = req.body.storeData.storefront_url;
-    let store_index = `vue_storefront_catalog_${_.snakeCase(store_code)}`;
+  mcApi.post('/delete-store', (req, res) => {
+    console.log("Here in delete store",req.body);
+    let userData = req.body.storeData;
+    let storeData = {
+      storeCode: userData.store_code,
+      index: `vue_storefront_catalog_${_.snakeCase(userData.store_code)}`
+    }
 
-    const catalogFile = new Store({path: path.resolve(`var/catalog_${store_code}.json`)});
-    console.log("Config path.resolve", path.resolve(`var/catalog_${store_code}.json`));
-    console.log("Config path.resolve", path.resolve(`./var/catalog_${store_code}.json`));
+    const catalogFile = new Store({path: path.resolve(`../vue-storefront-api/var/catalog_${storeData.storeCode}.json`)});
 
-    if (storefrontApiConfig.has(`storeViews.${store_code}`)) {
+    if (storefrontApi.has(`storeViews.${storeData.storeCode}`)) {
       //remove storeview data from the storefront-api
-      storefrontApiConfig.set("elasticsearch.indices", _.pull(storefrontApiConfig.get("elasticsearch.indices"),store_index))
-      console.log('storefrontApiConfig.get("elasticsearch.indices")2', storefrontApiConfig.get("elasticsearch.indices"))
+      storefrontApi.set("elasticsearch.indices", _.pull(storefrontApi.get("elasticsearch.indices"),storeData.index))
+      storefrontApi.set("availableStores", _.pull(storefrontApi.get("availableStores"),storeData.storeCode))
+      storefrontApi.set("storeViews.mapStoreUrlsFor", _.pull(storefrontApi.get("storeViews.mapStoreUrlsFor"),storeData.storeCode))
+      storefrontApi.del(`storeViews.${storeData.storeCode}`)
 
-      storefrontApiConfig.set("availableStores", _.pull(storefrontApiConfig.get("availableStores"),store_code))
-      storefrontApiConfig.set("storeViews.mapStoreUrlsFor", _.pull(storefrontApiConfig.get("storeViews.mapStoreUrlsFor"),store_code))
-      storefrontApiConfig.del(`storeViews.${store_code}`)
-
-      // remove the banners, policies, main image and catalog files in Vue-storefront configs
-      await deleteVueStorefrontStoreConfig({storeCode: store_code, index: store_index}, config);
+      // remove the banners, policies, main image and catalog files
+      // mainImage.unlink()
+      // StoreCategories.unlink()
+      // storePolicies.unlink()
+      request({
+          // delete store in vs
+          uri:'http://'+config.vsf.host+':'+config.vsf.port+'/delete-store',
+          method:'POST',
+          body: storeData,
+          json: true
+        },
+        function (_err, _res, _resBody) {
+          console.log('Response', _resBody)
+        })
 
       catalogFile.unlink()
-      await deleteElasticSearchIndex(store_index, config);
+      deleteElasticSearchIndex(storeData.storeCode);
       console.log("Store view data deleted")
       apiStatus(res, 200);
     }
     else{
-      console.log('/delete-store ERROR', store_code, store_index)
+      console.log(storeData)
       apiStatus(res, 500);
     }
     return
@@ -364,19 +283,19 @@ module.exports = ({ config, db }) => {
     let storeData = req.body.storeData;
     let status = !storeData.status;       //current store status
 
-    if (storefrontApiConfig.has(`storeViews.${storeData.store_code}.disabled`)) {
+    if (storefrontApi.has(`storeViews.${storeData.store_code}.disabled`)) {
       // storefront.set(`storeViews.${storeData.store_code}.disabled`,status)
-      storefrontApiConfig.set(`storeViews.${storeData.store_code}.disabled`,status)
+      storefrontApi.set(`storeViews.${storeData.store_code}.disabled`,status)
     }
     request({
         // disable store in vs
-        uri:config.vsf.host+':'+config.vsf.port+'/disable-store',
+        uri:'http://'+config.vsf.host+':'+config.vsf.port+'/disable-store',
         method:'POST',
         body: {"storeData": storeData, "status": status},
         json: true
       },
       function (_err, _res, _resBody) {
-        console.log('/disable-store Response', _resBody)
+        console.log('Response', _resBody)
       })
 
     apiStatus(res,200);
@@ -386,36 +305,6 @@ module.exports = ({ config, db }) => {
   return mcApi;
 };
 
-async function createStoreIndexInBothServers (storeCode) {
-  try {
-    let storeCodeForElastic = _.snakeCase(storeCode)
-    let storeIndex = `vue_storefront_catalog_${storeCodeForElastic}`
-
-    console.log('storefrontApiConfig', storefrontApiConfig.clone())
-    console.log('storeIndex', storeIndex)
-    console.log('createStoreIndexInBothServers')
-
-    if (!_.includes(storefrontApiConfig.get("elasticsearch.indices"), storeIndex)) {
-      storefrontApiConfig.set("elasticsearch.indices", _.concat(storefrontApiConfig.get("elasticsearch.indices"), storeIndex));
-      console.log('storefrontApiConfig.get("elasticsearch.indices")3', storefrontApiConfig.get("elasticsearch.indices"))
-    }
-
-    console.time('createNewElasticSearchIndex')
-    await createNewElasticSearchIndex(storeCodeForElastic)
-    console.timeEnd('createNewElasticSearchIndex')
-
-    // TODO: configure all indices in one command for the store code if error was found
-
-    console.time('startVueStorefrontAPI')
-    await startVueStorefrontAPI()
-    console.timeEnd('startVueStorefrontAPI')
-    console.log('Done! You can start Selling!');
-
-    return Promise.resolve(true)
-  }catch (e) {
-    return Promise.reject(e)
-  }
-}
 
 function parse_resBody(_resBody) {
   if(_resBody.indexOf('Error') === -1 && _resBody.charAt(0) == '{'){
@@ -430,35 +319,29 @@ function parse_resBody(_resBody) {
     return 0
   }
 }
-function getTotalHits(config, storeCode,search) {
+function getTotalHits(storeCode,search) {
   return new Promise((resolve, reject) => {
-    request({uri: `${config.server.url}/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?filter_path=hits.total`, method: 'GET'},
+    request({uri: `http://localhost:8080/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?filter_path=hits.total`, method: 'GET'},
         function (_err, _res, _resBody) {
-          if(_err){
-            console.log('getTotalHits Error', _err)
-            console.log('config.server.url:', config.server.url)
-            reject(_err)
-          }
           console.log('_resBody', _resBody)
           if(_resBody.indexOf('Error') === -1) {
             _resBody = parse_resBody(_resBody)
             resolve(_resBody.hits);
           } else {
-            console.log('getTotalHits FAILED ->  _err', _err)
-            console.log('getTotalHits FAILED ->  _resBody', _resBody)
-            console.log(`${config.server.url}/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?filter_path=hits.total`)
+            console.log('getTotalHits FAILED -> unaddressable index')
+            console.log(`http://localhost:8080/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?filter_path=hits.total`)
             resolve(0)
           }
         });
   });
 }
-function searchCatalogUrl(config, storeCode, search) {
+function searchCatalogUrl(storeCode,search) {
   return new Promise((resolve, reject) => {
-    getTotalHits(config, storeCode, search).then((res) => {
+    getTotalHits(storeCode, search).then((res) => {
           if(res.total){
-            resolve(`${config.server.url}/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?size=${res.total}`); //limiting results, not filtering by product size
+            resolve(`http://localhost:8080/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?size=${res.total}`); //limiting results, not filtering by product size
           }else{
-            resolve(`${config.server.url}/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search`);
+            resolve(`http://localhost:8080/catalog/vue_storefront_catalog_${storeCode}/${search}/_search`);
           }
         }
     );
@@ -467,37 +350,23 @@ function searchCatalogUrl(config, storeCode, search) {
 
 
 // function searchCatalogUrl(storeCode,search) {
-//   return `${config.server.url}/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search`;
+//   return `http://localhost:8080/catalog/vue_storefront_catalog_${storeCode}/${search}/_search`;
 // }
 
-function setProductBanners(config, storeCode) {
+function setProductBanner(config, storeCode) {
   return new Promise((resolve, reject) => {
-    searchCatalogUrl(config, storeCode, 'product').then((URL) => {
-      request({
-        uri: URL,
-        method: 'GET',
-        body: { '_source': { 'type_id': 'configurable' } },
-        json: true
-      }, function (_err, _res, _resBody) {
-        if(_err){
-          console.log('setProductBanners Error', _err)
-          console.log('config.server.url:', URL)
-          reject(_err)
-        }
-        // console.log('setProductBanners _resBody', _resBody)
-        // _resBody = parse_resBody(_resBody)
-        let catalogProducts = _.get(_.get(_resBody, 'hits'), 'hits');
+    searchCatalogUrl(storeCode, 'product').then((res) => {
+      request({uri: res, method: 'GET'}, function (_err, _res, _resBody) {
+        _resBody = parse_resBody(_resBody)
+        let catalogProducts = _.get(_.get(_resBody,'hits'),'hits');
         // depend upon the synced product with category ids
         let products = [];
         if (_resBody && _resBody.hits && catalogProducts) { // we're signing up all objects returned to the client to be able to validate them when (for example order)
-          // TODO: sort by updatedAt and get 6 most recent
-          // products = _.take(_.filter(catalogProducts, ["_source.type_id", "configurable"]), 6);
-          // console.log('setProductBanners products - ', products)
-          console.log('setProductBanners products.length - ', products.length)
+          products = _.take(_.filter(catalogProducts, ["_source.type_id", "configurable"]), 6);
          request({
-           uri:config.vsf.host+':'+config.vsf.port+'/product-link',
+           uri:'http://'+config.vsf.host+':'+config.vsf.port+'/product-link',
            method:'POST',
-           body: { 'products': products, 'storeCode': storeCode, 'imagesRootURL': config.magento2.imgUrl },
+           body: { 'products': products, 'storeCode': storeCode },
            json: true
          },function (_err, _res, _resBody) {
            resolve();
@@ -510,104 +379,57 @@ function setProductBanners(config, storeCode) {
   });
 }
 
-function  setCategoryBanners(config, storeCode){
+function setCategoryBanner(config, storeCode){
   return new Promise((resolve, reject) => {
-            request({
-              uri:config.vsf.host+':'+config.vsf.port+'/category-link',
-              method:'POST',
-              body: { 'storeCode': storeCode },
-              json: true
-            },function (_err, _res, _resBody) {
-              resolve();
-            })
-        resolve()
+    searchCatalogUrl(storeCode, 'category').then((res) => {
+      request({ // do the elasticsearch request
+        uri: res,
+        method: 'GET',
+      }, function (_err, _res, _resBody) { // TODO: add caching layer to speed up SSR? How to invalidate products (checksum on the response BEFORE processing it)
+        _resBody = parse_resBody(_resBody)
+        let categoryData = !_.isUndefined(_.first(_.get(_.get(_resBody, 'hits'), 'hits'))) ? _.first(_.get(_.get(_resBody, 'hits'), 'hits')) : {};
+        console.log('_resBody', _resBody)
+        if (_resBody && _resBody.hits && categoryData) { // we're signing up all objects returned to the client to be able to validate them when (for example order)
+          let children_data = !_.isUndefined(_.get(_.get(categoryData, '_source'), 'children_data')) ? _.get(_.get(categoryData, '_source'), 'children_data') : [];
+
+          request({
+            uri:'http://'+config.vsf.host+':'+config.vsf.port+'/category-link',
+            method:'POST',
+            body: { 'childrenData': children_data, 'storeCode': storeCode },
+            json: true
+          },function (_err, _res, _resBody) {
+            resolve();
+          })
+        }
+        resolve();
+      });
+    });
   });
 }
-// DEPRECATED OLD FUNCTION WITH WIERD ES CATEGORY SEARCH WHICH I REPLACED WITH QUERY TO PROCC API
-// function  setCategoryBanners(config, storeCode){
-//   return new Promise((resolve, reject) => {
-//     searchCatalogUrl(config, storeCode, 'category')
-//       .then((search_url) => {
-//         request({ // do the elasticsearch request
-//           uri: search_url,
-//           method: 'GET',
-//         }, function (_err, _res, _resBody) { // TODO: add caching layer to speed up SSR? How to invalidate products (checksum on the response BEFORE processing it)
-//           if(_err){
-//             console.log(' setCategoryBanners Error', _err)
-//             console.log('config.server.url:', search_url)
-//             reject(_err)
-//           }
-//           _resBody = parse_resBody(_resBody)
-//           // TODO: add filter by category.level = 1 in ES query -> refactor "_.last"
-//           let categoryData = !_.isUndefined(_.last(_.get(_.get(_resBody, 'hits'), 'hits'))) ? _.last(_.get(_.get(_resBody, 'hits'), 'hits')) : {};
-//           // console.log(' setCategoryBanners _resBody', _resBody)
-//           console.log(' setCategoryBanners categoryData', categoryData)
-//
-//           if (_resBody && _resBody.hits && categoryData) { // we're signing up all objects returned to the client to be able to validate them when (for example order)
-//             let children_data = !_.isUndefined(_.get(_.get(categoryData, '_source'), 'children_data')) ? _.get(_.get(categoryData, '_source'), 'children_data') : [];
-//             console.log(' setCategoryBanners children_categories of the main category: \n', children_data)
-//
-//             request({
-//               uri:config.vsf.host+':'+config.vsf.port+'/category-link',
-//               method:'POST',
-//               body: { 'store_categories': children_data, 'storeCode': storeCode },
-//               json: true
-//             },function (_err, _res, _resBody) {
-//               resolve();
-//             })
-//           }
-//         resolve();
-//       });
-//     });
-//   });
-// }
 
 async function healthCheck(config){
-  try{
-    const asyncFunctions = [
-      healthCheckVSF(config),
-      healthCheckMagento2(config),
-      healthCheckRedis(config),
-      healthCheckES(config),
-    ];
-    let result = await Promise.all(asyncFunctions)
-    console.log('VSF-API IS HEALTHY')
-    return result;
-  }catch (e) {
-    console.log('VSF-API IS DOWN', e)
-    return Promise.reject(e)
-  }
-}
-
-async function healthCheckCore(config){
-  try{
-    const asyncFunctions = [
-      healthCheckVSF(config),
-      healthCheckRedis(config),
-      healthCheckES(config),
-    ];
-    let result = await Promise.all(asyncFunctions)
-    console.log('VSF-API IS HEALTHY')
-    return result;
-  }catch (e) {
-    console.log('VSF-API IS DOWN', e)
-    return Promise.reject(e)
-  }
+  const asyncFunctions = [
+    healthCheckVSF(config),
+    healthCheckMagento2(config),
+    healthCheckRedis(config),
+    healthCheckES(config),
+  ];
+  return await Promise.all(asyncFunctions);
 }
 
 function healthCheckVSF(config){
   return new Promise((resolve, reject)=>{
     request({
         //store url with custom function
-        uri: config.vsf.host+':'+config.vsf.port+'/health',
+        uri:'http://'+config.vsf.host+':'+config.vsf.port+'/health',
         method:'GET'
       },
       function (_err, _res, _resBody) {
         if (_err) {
-          console.log('ERROR VSF-API CANNOT CONNECT WITH VSF-FRONTEND', _err)
-          reject({error: _err, message: 'ERROR VSF-API CANNOT CONNECT WITH VSF-FRONTEND'})
+          console.log('ERROR VSF-FRONTEND CONNECTION')
+          reject(_err)
         } else {
-          // console.log('VSF-FRONTEND is running');
+          console.log('VSF-FRONTEND is running');
           resolve('VSF-FRONTEND is running')
         }
       })
@@ -620,11 +442,11 @@ function healthCheckMagento2(config){
 
     client.categories.list()
       .then(function (categories) {
-        // console.log('M2 is running');
+        console.log('M2 is running');
         resolve('M2 is running')
       })
       .catch((e)=>{
-        console.log('ERROR MAGENTO2 CONNECTION config.magento2: ', config.magento2 && config.magento2.api ? config.magento2.api : config.magento2)
+        console.log('ERROR MAGENTO2 CONNECTION')
         reject({message: 'ERROR MAGENTO2 CONNECTION', error: e})
       })
   })
@@ -638,7 +460,7 @@ function healthCheckRedis(config){
       redisClient.auth(config.redis.auth);
     }
     redisClient.on('ready', function() {
-      // console.log('redis is running');
+      console.log('redis is running');
       resolve('redis is running')
     });
     redisClient.on('error', function(e) {
@@ -655,7 +477,7 @@ function healthCheckES(config){
         host: config.elasticsearch.host,
         port: config.elasticsearch.port
       },
-      // log: 'debug',
+      log: 'debug',
       apiVersion: config.elasticsearch.apiVersion,
       requestTimeout: 1000 * 60 * 60,
       keepAlive: false
@@ -670,9 +492,14 @@ function healthCheckES(config){
         console.log('ERROR ELASTICSEARCH CONNECTION')
         reject(e)
       } else {
-        // console.log('elasticsearch is running');
+        console.log('elasticsearch is running');
         resolve('elasticsearch is running')
       }
     });
   })
+}
+
+function backupConfig(config){
+  console.log('backupConfig config', config)
+  //TODO: connect with proCC api -> send config -> push to MongoDB from procc
 }
