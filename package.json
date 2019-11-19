@@ -12,6 +12,7 @@
     "build:copy:graphql": "cpx src/**/*.graphqls dist",
     "build:copy:schema": "cpx 'src/**/*.schema*.json' dist",
     "start": "pm2 start ecosystem.json $PM2_ARGS",
+    "startK": "pm2-runtime start ecosystem.json $PM2_ARGS",
     "stop": "pm2 stop ecosystem.json",
     "start2": "pm2 start ecosystem.json --no-daemon",
     "start-kube": "yarn build && pm2 start ecosystem.json --no-daemon",
