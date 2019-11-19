@@ -12,8 +12,6 @@ import { makeExecutableSchema } from 'graphql-tools';
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/schema';
 
-console.log('config Loaded - ', config)
-
 const app = express();
 
 // logger
@@ -63,5 +61,4 @@ app.use('/graphql', graphqlExpress(req => ({
 
 app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
 
-console.log('VSF-API LOADED')
 export default app;
