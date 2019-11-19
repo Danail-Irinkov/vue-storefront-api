@@ -1,5 +1,4 @@
-#FROM node:10-alpine
-FROM divante/vue-storefront-api:latest
+FROM node:10-alpine
 
 ENV VS_ENV prod
 
