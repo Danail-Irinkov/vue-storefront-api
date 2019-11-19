@@ -136,7 +136,7 @@ function (_err, _res, _resBody) {
         json: true
       },
       function (_err, _res, _resBody) {
-        let backupConfigFiles = {"vsf_config_data":_resBody,"vsf_api_config_data": config}
+        let backupConfigFiles = {"vsf_config_data": _resBody,"vsf_api_config_data": config}
         return apiStatus(res, backupConfigFiles, 200);
       })
   });

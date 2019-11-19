@@ -1,7 +1,8 @@
 import axios from 'axios'
 import jwt from 'jsonwebtoken'
-import jwtPrivateKey from '../../config/jwt.json'
+import jwtPrivateKey from '../../config/jwt.js'
 import config from 'config';
+import {breakStatement} from "babel-types";
 
 export default (baseURL = config.PROCC.API+'/') => {
   // ------
