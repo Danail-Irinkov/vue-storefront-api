@@ -16,6 +16,10 @@ import { makeExecutableSchema } from 'graphql-tools';
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/schema';
 import * as path from 'path'
+// import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
+// import { makeExecutableSchema } from 'graphql-tools';
+// import resolvers from './graphql/resolvers';
+// import typeDefs from './graphql/schema';
 
 // Added ProCCAPI to give the api some standard CAs to avoid -> 'first certificate error' at api call
 import { loadAdditionalCertificates } from './helpers/loadAdditionalCertificates';
@@ -80,20 +84,20 @@ initializeDb(db => {
 });
 
 // graphQl Server part
-const schema = makeExecutableSchema({
-  typeDefs,
-  resolvers
-});
+// const schema = makeExecutableSchema({
+//   typeDefs,
+//   resolvers
+// });
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.use('/graphql', graphqlExpress(req => ({
-  schema,
-  context: { req: req },
-  rootValue: global
-})));
+// app.use('/graphql', graphqlExpress(req => ({
+//   schema,
+//   context: { req: req },
+//   rootValue: global
+// })));
 
-app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
+// app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
 
 export default app;
