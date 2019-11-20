@@ -9,4 +9,4 @@ data:
   REDIS_HOST: redis
   REDIS_PORT: "6379"
   REDIS_DB: "0"
-  VS_ENV: prod
+  VS_ENV: dev
