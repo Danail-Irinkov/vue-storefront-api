@@ -131,20 +131,20 @@ function (_err, _res, _resBody) {
     return apiStatus(res, 200);
   });
   mcApi.get('/backup-config', (req, res) => {
-    request({
-        //store url with custom function
-        uri:'http://'+config.vsf.host+':'+config.vsf.port+'/backup-config',
-        method:'POST',
-        body: req.body,
-        json: true
-      },
-      function (_err, _res, _resBody) {
-      console.log(req.body, 'req.body')
-      console.log(_resBody, '_resBody')
-      console.log(_err, '_err')
-        // let backupConfigFiles = {"vsf_config_data": _resBody, "vsf_api_config_data": config}
-        // return apiStatus(res, backupConfigFiles, 200);
-      })
+    // request({
+    //     //store url with custom function
+    //     uri:'http://'+config.vsf.host+':'+config.vsf.port+'/backup-config',
+    //     method:'POST',
+    //     body: req.body,
+    //     json: true
+    //   },
+    //   function (_err, _res, _resBody) {
+    //   console.log(req.body, 'req.body')
+    //   console.log(_resBody, '_resBody')
+    //   console.log(_err, '_err')
+    //     // let backupConfigFiles = {"vsf_config_data": _resBody, "vsf_api_config_data": config}
+    //     // return apiStatus(res, backupConfigFiles, 200);
+    //   })
     let backupConfigFiles = {"vsf_config_data": {}, "vsf_api_config_data": {}}
     return apiStatus(res, backupConfigFiles, 200);
   });
