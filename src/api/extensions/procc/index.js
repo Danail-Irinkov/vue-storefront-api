@@ -145,7 +145,7 @@ function (_err, _res, _resBody) {
     //     // let backupConfigFiles = {"vsf_config_data": _resBody, "vsf_api_config_data": config}
     //     // return apiStatus(res, backupConfigFiles, 200);
     //   })
-    let backupConfigFiles = {"vsf_config_data": {}, "vsf_api_config_data": {}}
+    let backupConfigFiles = {"vsf_config_data": 'sdfsf', "vsf_api_config_data": 'sdfsdf'}
     return apiStatus(res, backupConfigFiles, 200);
   });
 
