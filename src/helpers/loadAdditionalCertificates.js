@@ -6,9 +6,9 @@ const CERTS_DIRECTORY = 'config/certs'
 /**
  * load certificates from certs directory and consider them trusted
  */
-export const loadAdditionalCertificates = () => {
+export default () => {
   if (fs.existsSync(CERTS_DIRECTORY)) {
     syswidecas.addCAs(CERTS_DIRECTORY);
   }
-  return 'success'
+  return 'asdad'
 }

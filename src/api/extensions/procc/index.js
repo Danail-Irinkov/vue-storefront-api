@@ -4,10 +4,13 @@ import { Router } from 'express';
 import Store from 'data-store';
 import _ from 'lodash';
 import path from 'path';
+// import jwtPrivateKey from '../../config/jwt.js'
 
 let appDir = path.dirname(require.main.filename);
 appDir = path.dirname(appDir)
 console.log('appDir appDirappDir - ', appDir)
+
+// console.log('jwtPrivateKey jwtPrivateKey - ')
 
 import { rebuildElasticSearchIndex, dumpStoreIndex, restoreStoreIndex,
   createNewElasticSearchIndex, deleteElasticSearchIndex, buildAndRestartVueStorefront,
