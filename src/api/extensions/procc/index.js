@@ -130,20 +130,19 @@ function (_err, _res, _resBody) {
       })
     return apiStatus(res, 200);
   });
-  mcApi.post('/backup-config', (req, res) => {
-    // request({
-    //     //store url with custom function
-    //     uri:'http://'+config.vsf.host+':'+config.vsf.port+'/backup-config',
-    //     method:'POST',
-    //     body: req.body,
-    //     json: true
-    //   },
-    //   function (_err, _res, _resBody) {
-    //     let backupConfigFiles = {"vsf_config_data": _resBody,"vsf_api_config_data": config}
-    //     return apiStatus(res, backupConfigFiles, 200);
-    //   })
-    let backupConfigFiles = {"vsf_api_config_data": config.vsf.host}
-    return apiStatus(res, backupConfigFiles, 200);
+  mcApi.get('/backup-config', (req, res) => {
+    let prod_config = config
+    request({
+        //store url with custom function
+        uri:'http://'+config.vsf.host+':'+config.vsf.port+'/backup-config',
+        method:'POST',
+        body: req.body,
+        json: true
+      },
+      function (_err, _res, _resBody) {
+        let backupConfigFiles = {"vsf_config_data": _resBody, "vsf_api_config_data": config}
+        return apiStatus(res, backupConfigFiles, 200);
+      })
   });
 
   mcApi.post('/create-store-index', async (req, res) => {
