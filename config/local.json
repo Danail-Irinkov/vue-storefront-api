@@ -11,27 +11,21 @@
     "excludeDisabledProducts": false
   },
   "vsf": {
-    "host": "vue-storefront",
+    "host": "localhost",
     "port": 3000
   },
   "elasticsearch": {
-    "host": "magento-pre-req-elasticsearch-coordinating-only",
+    "host": "http://magento-pre-req-elasticsearch-coordinating-only",
     "port": 9200,
     "protocol": "http",
     "user": "elastic",
-    "password": "myElasticPass11",
+    "password": "changeme",
     "min_score": 0.01,
     "indices": [
       "vue_storefront_catalog",
       "vue_storefront_catalog_de",
       "vue_storefront_catalog_it",
-      "vue_storefront_catalog_volkky",
-      "vue_storefront_catalog_rrr",
-      "vue_storefront_catalog_",
-      "vue_storefront_catalog_nike",
-      "vue_storefront_catalog_puma",
-      "vue_storefront_catalog_reebok",
-      "vue_storefront_catalog_lee_test"
+      "vue_storefront_catalog_volkky"
     ],
     "indexTypes": [
       "product",
@@ -44,7 +38,7 @@
     "apiVersion": "5.6"
   },
   "redis": {
-    "host": "redis",
+    "host": "localhost",
     "port": 6379,
     "db": 0
   },
@@ -52,16 +46,14 @@
   "availableStores": [
     "de",
     "it",
-    "volkky",
-    "rrr"
+    "volkky"
   ],
   "storeViews": {
     "multistore": true,
     "mapStoreUrlsFor": [
       "de",
       "it",
-      "volkky",
-      "rrr"
+      "volkky"
     ],
     "de": {
       "storeCode": "de",
@@ -70,7 +62,7 @@
       "name": "German Store",
       "url": "/de",
       "elasticsearch": {
-        "host": "http://localhost:8080/catalog",
+        "host": "https://store.procc.co/api/catalog",
         "index": "vue_storefront_catalog_de"
       },
       "tax": {
@@ -97,7 +89,7 @@
       "name": "Italian Store",
       "url": "/it",
       "elasticsearch": {
-        "host": "http://localhost:8080/catalog",
+        "host": "https://store.procc.co/api/catalog",
         "index": "vue_storefront_catalog_it"
       },
       "tax": {
@@ -125,36 +117,8 @@
       "name": "Volkyyz Store",
       "url": "/volkky",
       "elasticsearch": {
-        "host": "http://localhost:8080/catalog",
-        "index": "vue_storefront_catalog_volkky"
-      },
-      "tax": {
-        "defaultCountry": "BG",
-        "defaultRegion": "",
-        "calculateServerSide": true,
-        "sourcePriceIncludesTax": false
-      },
-      "i18n": {
-        "fullCountryName": "Bulgaria",
-        "fullLanguageName": "Bulgarian",
-        "defaultCountry": "BG",
-        "defaultLanguage": "EN",
-        "defaultLocale": "en-US",
-        "currencyCode": "EUR",
-        "currencySign": "EUR",
-        "dateFormat": "HH:mm D-M-YYYY"
-      }
-    },
-    "rrr": {
-      "storeCode": "rrr",
-      "storeName": "Volkyyz Store",
-      "disabled": false,
-      "storeId": 17,
-      "name": "Volkyyz Store",
-      "url": "/rrr",
-      "elasticsearch": {
         "host": "https://store.procc.co/api/catalog",
-        "index": "vue_storefront_catalog_rrr"
+        "index": "vue_storefront_catalog_volkky"
       },
       "tax": {
         "defaultCountry": "BG",
@@ -221,14 +185,15 @@
     }
   },
   "magento2": {
+    "url": "magento-bitnami:80",
     "imgUrl": "https://storage.googleapis.com/procc/vendor/product/optimized",
     "assetPath": "/../var/magento2-sample-data/pub/media",
     "api": {
       "url": "http://m2.procc.co/rest",
-      "consumerKey": "mwzh12h32j51j20i6zzls0jtar1qzwcv",
-      "consumerSecret": "zz19k7okvazn9j4a8vwx8gjj4b4q79bn",
-      "accessToken": "g0mtpkkdo3d8w46tykpmih5ruylktid0",
-      "accessTokenSecret": "qh71c1brwv2qev0qcj83nln4j16amhuz"
+      "consumerKey": "gqb4dlqh2ggdjshx4k7hshfgcoakbphc",
+      "consumerSecret": "nnggh06ciivoiylyn2reeewhn70skqdj",
+      "accessToken": "924xjbdx76rvbc7qff3zbzvaggnqruhu",
+      "accessTokenSecret": "ehxpj9cb5frvje6uygpj7xd7p9fpvksu"
     }
   },
   "imageable": {
@@ -385,10 +350,6 @@
         "category.name": "category.name.keyword"
       }
     }
-  },
-  "msi": {
-    "enabled": false,
-    "defaultStockId": 1
   },
   "usePriceTiers": false,
   "boost": {
