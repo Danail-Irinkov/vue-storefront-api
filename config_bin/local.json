@@ -15,7 +15,7 @@
     "port": 3000
   },
   "elasticsearch": {
-    "host": "http://magento-pre-req-elasticsearch-coordinating-only",
+    "host": "localhost",
     "port": 9200,
     "protocol": "http",
     "user": "elastic",
@@ -184,8 +184,7 @@
       "secretString": "__THIS_IS_SO_SECRET__"
     }
   },
-  "magento2": {
-    "url": "magento-bitnami:80",
+  "magento2-local-edit-to-work": {
     "imgUrl": "https://storage.googleapis.com/procc/vendor/product/optimized",
     "assetPath": "/../var/magento2-sample-data/pub/media",
     "api": {
@@ -361,6 +360,6 @@
     "configurable_children.sku": 1
   },
   "PROCC": {
-    "API": "procc-dash-api:8081"
+    "API": "localhost:8081"
   }
 }
