@@ -2,19 +2,3 @@ Search for "// TODO:" to find smaller tasks
 
 Major Projects:
 - export store config fields to MongoDB storage (config.elasticsearch.indices, storeViews, availableStores)
-  + vue-storefront configs of stores
-
-- Update ProCC on Store events, enable, disable, rendered, available, fail etc.
-
--- rework the dev script to run on pm2 as well, so testing the sync flow can also restart the server in the end and can have e2e capability.
-
--- adding order with email of an already existing user
-    -->> if Customer already exists in VSF -> add order to same account and ask the user to login (prefill email in login form)
-    -->> if exists in ProCC -> catch error.indexOf('E11000 duplicate key error index: promo_db.users.$email') -> and add the new order to the existing account
-
--- error when changing stores -> cnat find customer cart
-     "error: API call failed: Specified request cannot be processed.
-      POST /api/cart/create?token=&storeCode=it 500 1210.303 ms - 62"
-
--- enable reviews management via M2
-

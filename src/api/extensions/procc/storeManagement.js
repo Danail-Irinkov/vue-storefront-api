@@ -1,4 +1,4 @@
-const _ = require('lodash')
+import request from "request";
 
 const spawn = require('child_process').spawn;
 function exec(cmd, args, opts, enableLogging = false, limit_output = false) {
@@ -95,33 +95,44 @@ export function restoreStoreIndex(storeCode){
 
 export function buildVueStorefrontAPI(){
   console.log(' == Building Vuestorefront API ==');
-  return exec('sudo', [
-    'yarn',
+  return exec('yarn', [
     'build'
   ], { shell: true });
 }
 
 export function startVueStorefrontAPI(){
-  console.log(' == Building Vuestorefront API ==');
-  return exec('sudo', [
-    'yarn',
-    'start'
-  ], { shell: true });
+  console.log(' == Start Vuestorefront API ==');
+
+  if(process.env.NODE_ENV === 'development'){
+    console.log('Skipping restart in Development Mode(suggest an improvement)')
+    return true //TODO: how to restart nodemon dev server? maybe change a file?
+  }
+  else
+  return exec('yarn', ['startK2'], { shell: true });
 }
 
-export function buildVueStorefront(){
-  console.log(' == Building Vuestorefront ==');
-  return exec('cd', [
-    '../vue-storefront',
-    '&&',
-    'sudo yarn build'
-  ], { shell: true }, true, true);
+export function buildVueStorefront(config){
+  console.log(' == Building VueStorefront ==');
+  request({
+      // create store in vs
+      uri:'http://'+config.vsf.host+':'+config.vsf.port+'/rebuild-storefront',
+      method:'POST',
+      body: {filler: 'object mock'},
+      json: true
+    },
+    function (_err, _res, _resBody) {
+      console.log('Response', _resBody)
+    })
+  // return exec('cd', [
+  //   '../vue-storefront',
+  //   '&&',
+  //   'yarn build'
+  // ], { shell: true }, true, true);
 }
 
 export function restartPM2Server(){
   console.log(' == Restarting PM2 server ==');
-  return exec('sudo', [
-    'pm2',
+  return exec('pm2', [
     'restart',
     'all',
   ], { shell: true });
@@ -135,7 +146,7 @@ export function deleteElasticSearchIndex(storeCode) {
   ], { shell: true });
 }
 
-export async function buildAndRestartVueStorefront(req, res,brand_id, enableVSFRebuild = false){
+export async function buildAndRestartVueStorefront(req, res, brand_id, enableVSFRebuild = false, config){
   try{
     console.log("Starting with the Vue Build");
     let brand_data ={
@@ -150,22 +161,17 @@ export async function buildAndRestartVueStorefront(req, res,brand_id, enableVSFR
     // Disabled to test if something is breaking
     if(enableVSFRebuild){
       console.time('buildVueStorefront')
-      await buildVueStorefront()
+      await buildVueStorefront(config)
       console.timeEnd('buildVueStorefront')
     }
     console.time('restartPM2Server')
     await restartPM2Server()
     console.timeEnd('restartPM2Server')
 
-    console.time('updateVsfSyncStatus')
-    await ProCcAPI.updateVsfSyncStatus(brand_data);
-    console.timeEnd('updateVsfSyncStatus')
-
+    return brand_data
   }catch(err){
-    res.send({
-      message_type: "error",
-      message: err
-    })
+    console.info('buildAndRestartVueStorefront ERROR')
+    return Promise.reject(err)
   }
 }
 process.on('unhandledRejection', (reason, p) => {
