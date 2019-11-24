@@ -17,9 +17,15 @@ import { rebuildElasticSearchIndex, dumpStoreIndex, restoreStoreIndex,
   startVueStorefrontAPI } from './storeManagement';
 
 import request from 'request';
+// TODO: we should use await/async/try/catch instead of request
 import request_async from 'request-promise-native';
 
-const storefrontApi = new Store({path: path.resolve('./config/production.json')});
+let storefrontApiConfig
+if(process.env.NODE_ENV === 'development')
+  storefrontApiConfig = new Store({path: path.resolve('./config/local.json')});
+else
+  storefrontApiConfig = new Store({path: path.resolve('./config/production.json')});
+
 // console.log('path.resolve', path.resolve('./config/production.json') )
 
 module.exports = ({ config, db }) => {
@@ -67,40 +73,38 @@ module.exports = ({ config, db }) => {
       }
     }
 
-    if (storefrontApi.has(`storeViews.${store_data.storeCode}`)) {
-      storefrontApi.del(`storeViews.${store_data.storeCode}`);
+    if (storefrontApiConfig.has(`storeViews.${store_data.storeCode}`)) {
+      storefrontApiConfig.del(`storeViews.${store_data.storeCode}`);
     }
-    if ((!storefrontApi.has(`storeViews.${store_data.storeCode}`))) {
-      let mapStoreUrlsFor = storefrontApi.get("storeViews.mapStoreUrlsFor");
+    if ((!storefrontApiConfig.has(`storeViews.${store_data.storeCode}`))) {
+      let mapStoreUrlsFor = storefrontApiConfig.get("storeViews.mapStoreUrlsFor");
 
-      if (!_.includes(storefrontApi.get("availableStores"), store_data.storeCode)) {
+      if (!_.includes(storefrontApiConfig.get("availableStores"), store_data.storeCode)) {
         //set available stores
-        storefrontApi.set("availableStores", (_.concat(storefrontApi.get("availableStores"), store_data.storeCode)));
+        storefrontApiConfig.set("availableStores", (_.concat(storefrontApiConfig.get("availableStores"), store_data.storeCode)));
       }
 
-      if (!_.includes(storefrontApi.get("elasticsearch.indices"), store_data.elasticsearch.index)) {
+      if (!_.includes(storefrontApiConfig.get("elasticsearch.indices"), store_data.elasticsearch.index)) {
         //set indices of the store
-        storefrontApi.set("elasticsearch.indices", (_.concat(storefrontApi.get("elasticsearch.indices"), store_data.elasticsearch.index)));
+        storefrontApiConfig.set("elasticsearch.indices", (_.concat(storefrontApiConfig.get("elasticsearch.indices"), store_data.elasticsearch.index)));
 
-        config.elasticsearch.indices = storefrontApi.get("elasticsearch.indices")
+        config.elasticsearch.indices = storefrontApiConfig.get("elasticsearch.indices")
         // console.log('//procc index.js store_data.config.elasticsearch.indices ', config.elasticsearch.indices )
       }
 
-      if ((!_.includes(mapStoreUrlsFor, store_data.storeCode)) || (!_.includes(storefrontApi.get("storeViews.mapStoreUrlsFor"), store_data.storeCode)) ) {
+      if ((!_.includes(mapStoreUrlsFor, store_data.storeCode)) || (!_.includes(storefrontApiConfig.get("storeViews.mapStoreUrlsFor"), store_data.storeCode)) ) {
         // set value in mapStoreUrlsFor
         mapStoreUrlsFor = _.concat(mapStoreUrlsFor, store_data.storeCode)
-        storefrontApi.set("storeViews.mapStoreUrlsFor", _.concat(storefrontApi.get("storeViews.mapStoreUrlsFor"),store_data.storeCode));
+        storefrontApiConfig.set("storeViews.mapStoreUrlsFor", _.concat(storefrontApiConfig.get("storeViews.mapStoreUrlsFor"),store_data.storeCode));
         // storefront.set("storeViews.mapStoreUrlsFor", mapStoreUrlsFor);
       }
 
-      if (!(storefrontApi.get(`storeViews.${store_data.storeCode}`))) {
+      if (!(storefrontApiConfig.get(`storeViews.${store_data.storeCode}`))) {
         //set obj of store
-        storefrontApi.set(`storeViews.${store_data.storeCode}`, store_data);
+        storefrontApiConfig.set(`storeViews.${store_data.storeCode}`, store_data);
         // storefront.set(`storeViews.${store_data.storeCode}`, store_data);
       }
     }
-
-    backupConfig(storefrontApi)
 
     request({
         // create store in vs
@@ -151,8 +155,8 @@ function (_err, _res, _resBody) {
       let storeCodeForElastic = _.snakeCase(storeCode)
       let storeIndex = `vue_storefront_catalog_${storeCodeForElastic}`
 
-      if (!_.includes(storefrontApi.get("elasticsearch.indices"), storeIndex)) {
-        storefrontApi.set("elasticsearch.indices", (_.concat(storefrontApi.get("elasticsearch.indices"), storeIndex)));
+      if (!_.includes(storefrontApiConfig.get("elasticsearch.indices"), storeIndex)) {
+        storefrontApiConfig.set("elasticsearch.indices", (_.concat(storefrontApiConfig.get("elasticsearch.indices"), storeIndex)));
       }
 
       console.time('createNewElasticSearchIndex')
@@ -213,11 +217,18 @@ function (_err, _res, _resBody) {
       console.timeEnd('setProductBanner')
 
       console.time('buildAndRestartVueStorefront')
-      await buildAndRestartVueStorefront(req, res, brand_id, enableVSFRebuild);
+      let brand_data = await buildAndRestartVueStorefront(req, res, brand_id, enableVSFRebuild, config);
       console.timeEnd('buildAndRestartVueStorefront')
       console.log('buildAndRestartVueStorefront Done! Store is ready to function!');
 
-      return apiStatus(res, 200);
+      // TODO: send info to ProCC about success and error
+      // console.time('updateVsfSyncStatusToProCC')
+      // await ProCcAPI.updateVsfSyncStatusToProCC(brand_data);
+      // console.timeEnd('updateVsfSyncStatusToProCC')
+
+      res.status(200);
+      res.end();
+      // return apiStatus(res, 200);
     }catch(e) {
       console.log('----------------------------')
       console.log('----------------------------')
@@ -244,12 +255,12 @@ function (_err, _res, _resBody) {
 
     const catalogFile = new Store({path: path.resolve(`../vue-storefront-api/var/catalog_${storeData.storeCode}.json`)});
 
-    if (storefrontApi.has(`storeViews.${storeData.storeCode}`)) {
+    if (storefrontApiConfig.has(`storeViews.${storeData.storeCode}`)) {
       //remove storeview data from the storefront-api
-      storefrontApi.set("elasticsearch.indices", _.pull(storefrontApi.get("elasticsearch.indices"),storeData.index))
-      storefrontApi.set("availableStores", _.pull(storefrontApi.get("availableStores"),storeData.storeCode))
-      storefrontApi.set("storeViews.mapStoreUrlsFor", _.pull(storefrontApi.get("storeViews.mapStoreUrlsFor"),storeData.storeCode))
-      storefrontApi.del(`storeViews.${storeData.storeCode}`)
+      storefrontApiConfig.set("elasticsearch.indices", _.pull(storefrontApiConfig.get("elasticsearch.indices"),storeData.index))
+      storefrontApiConfig.set("availableStores", _.pull(storefrontApiConfig.get("availableStores"),storeData.storeCode))
+      storefrontApiConfig.set("storeViews.mapStoreUrlsFor", _.pull(storefrontApiConfig.get("storeViews.mapStoreUrlsFor"),storeData.storeCode))
+      storefrontApiConfig.del(`storeViews.${storeData.storeCode}`)
 
       // remove the banners, policies, main image and catalog files
       // mainImage.unlink()
@@ -272,7 +283,7 @@ function (_err, _res, _resBody) {
       apiStatus(res, 200);
     }
     else{
-      console.log(storeData)
+      console.log('/delete-store ERROR', storeData)
       apiStatus(res, 500);
     }
     return
@@ -286,9 +297,9 @@ function (_err, _res, _resBody) {
     let storeData = req.body.storeData;
     let status = !storeData.status;       //current store status
 
-    if (storefrontApi.has(`storeViews.${storeData.store_code}.disabled`)) {
+    if (storefrontApiConfig.has(`storeViews.${storeData.store_code}.disabled`)) {
       // storefront.set(`storeViews.${storeData.store_code}.disabled`,status)
-      storefrontApi.set(`storeViews.${storeData.store_code}.disabled`,status)
+      storefrontApiConfig.set(`storeViews.${storeData.store_code}.disabled`,status)
     }
     request({
         // disable store in vs
@@ -324,15 +335,16 @@ function parse_resBody(_resBody) {
 }
 function getTotalHits(storeCode,search) {
   return new Promise((resolve, reject) => {
-    request({uri: `http://localhost:8080/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?filter_path=hits.total`, method: 'GET'},
+    request({uri: `http://localhost:8080/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?filter_path=hits.total`, method: 'GET'},
         function (_err, _res, _resBody) {
           console.log('_resBody', _resBody)
           if(_resBody.indexOf('Error') === -1) {
             _resBody = parse_resBody(_resBody)
             resolve(_resBody.hits);
           } else {
-            console.log('getTotalHits FAILED -> unaddressable index')
-            console.log(`http://localhost:8080/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?filter_path=hits.total`)
+            console.log('getTotalHits FAILED ->  _err', _err)
+            console.log('getTotalHits FAILED ->  _resBody', _resBody)
+            console.log(`http://localhost:8080/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?filter_path=hits.total`)
             resolve(0)
           }
         });
@@ -342,9 +354,9 @@ function searchCatalogUrl(storeCode,search) {
   return new Promise((resolve, reject) => {
     getTotalHits(storeCode, search).then((res) => {
           if(res.total){
-            resolve(`http://localhost:8080/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?size=${res.total}`); //limiting results, not filtering by product size
+            resolve(`http://localhost:8080/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?size=${res.total}`); //limiting results, not filtering by product size
           }else{
-            resolve(`http://localhost:8080/catalog/vue_storefront_catalog_${storeCode}/${search}/_search`);
+            resolve(`http://localhost:8080/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search`);
           }
         }
     );
@@ -353,7 +365,7 @@ function searchCatalogUrl(storeCode,search) {
 
 
 // function searchCatalogUrl(storeCode,search) {
-//   return `http://localhost:8080/catalog/vue_storefront_catalog_${storeCode}/${search}/_search`;
+//   return `http://localhost:8080/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search`;
 // }
 
 function setProductBanner(config, storeCode) {
@@ -500,9 +512,4 @@ function healthCheckES(config){
       }
     });
   })
-}
-
-function backupConfig(config){
-  console.log('backupConfig config', config)
-  //TODO: connect with proCC api -> send config -> push to MongoDB from procc
 }
