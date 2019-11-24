@@ -31,7 +31,8 @@
       "vue_storefront_catalog_nike",
       "vue_storefront_catalog_puma",
       "vue_storefront_catalog_reebok",
-      "vue_storefront_catalog_lee_test"
+      "vue_storefront_catalog_lee_test",
+      "vue_storefront_catalog_ggg"
     ],
     "indexTypes": [
       "product",
@@ -47,7 +48,8 @@
     "de",
     "it",
     "volkky",
-    "rrr"
+    "rrr",
+    "ggg"
   ],
   "storeViews": {
     "multistore": true,
@@ -55,7 +57,8 @@
       "de",
       "it",
       "volkky",
-      "rrr"
+      "rrr",
+      "ggg"
     ],
     "de": {
       "storeCode": "de",
@@ -149,6 +152,34 @@
       "elasticsearch": {
         "host": "https://store.procc.co/api/catalog",
         "index": "vue_storefront_catalog_rrr"
+      },
+      "tax": {
+        "defaultCountry": "BG",
+        "defaultRegion": "",
+        "calculateServerSide": true,
+        "sourcePriceIncludesTax": false
+      },
+      "i18n": {
+        "fullCountryName": "Bulgaria",
+        "fullLanguageName": "Bulgarian",
+        "defaultCountry": "BG",
+        "defaultLanguage": "EN",
+        "defaultLocale": "en-US",
+        "currencyCode": "EUR",
+        "currencySign": "EUR",
+        "dateFormat": "HH:mm D-M-YYYY"
+      }
+    },
+    "ggg": {
+      "storeCode": "ggg",
+      "storeName": "Volkyyz Store",
+      "disabled": false,
+      "storeId": 27,
+      "name": "Volkyyz Store",
+      "url": "/ggg",
+      "elasticsearch": {
+        "host": "https://store.procc.co/api/catalog",
+        "index": "vue_storefront_catalog_ggg"
       },
       "tax": {
         "defaultCountry": "BG",
