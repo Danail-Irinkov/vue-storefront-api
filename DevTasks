@@ -1,0 +1,4 @@
+Search for "// TODO:" to find smaller tasks
+
+Major Projects:
+- export store config fields to MongoDB storage (config.elasticsearch.indices, storeViews, availableStores)

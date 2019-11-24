@@ -4,5 +4,8 @@
   "exec": "ts-node src",
   "watch": ["./src"],
   "ext": "ts, js",
-  "inspect": true
+  "inspect": true,
+  "env": {
+    "NODE_ENV": "development"
+  }
 }

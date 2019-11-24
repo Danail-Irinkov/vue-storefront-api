@@ -82,6 +82,7 @@ program
     magentoConfig.INDEX_META_PATH = '.lastIndex.json'
 
     if (cmd.storeCode) {
+      console.log('config', config)
       const storeView = config.storeViews[cmd.storeCode]
       if (!storeView) {
         console.error('Wrong storeCode provided - no such store in the config.storeViews[storeCode]', cmd.storeCode)
