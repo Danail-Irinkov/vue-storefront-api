@@ -83,6 +83,7 @@ program
     magentoConfig.INDEX_META_PATH = '.lastIndex.json'
 
     if (cmd.storeCode) {
+      console.log('config', config)
       const storeView = config.storeViews[cmd.storeCode]
       if (!storeView) {
         console.error('Wrong storeCode provided - no such store in the config.storeViews[storeCode]', cmd.storeCode)
@@ -289,7 +290,7 @@ program
       }
       else {
         console.log(' == CMS PAGES IMPORTER ==');
-        
+
         try {
           return exec('node', [
             '--harmony',
@@ -310,7 +311,7 @@ program
       else {
         console.log(' == CMS BLOCKS IMPORTER ==');
 
-        try {  
+        try {
           return exec('node', [
             '--harmony',
             'node_modules/mage2vuestorefront/src/cli.js',
