@@ -14,7 +14,7 @@ console.log('appDir appDirappDir - ', appDir)
 
 import { rebuildElasticSearchIndex, dumpStoreIndex, restoreStoreIndex,
   createNewElasticSearchIndex, deleteElasticSearchIndex, buildAndRestartVueStorefront,
-  startVueStorefrontAPI } from './storeManagement';
+  startVueStorefrontAPI, storewiseImport } from './storeManagement';
 
 import request from 'request';
 // TODO: we should use await/async/try/catch instead of request
@@ -42,7 +42,7 @@ module.exports = ({ config, db }) => {
     }
   })
 
-  mcApi.post('/settings',(req,res) =>{
+  mcApi.post('/updateStorefrontSettings',(req,res) =>{
     let storeData = req.body;
     let store_data = {
       storeCode: storeData.storefront_url,
@@ -188,43 +188,50 @@ function (_err, _res, _resBody) {
       let enableVSFRebuild = req.body.enableVSFRebuild
       let brand_id = req.body.brand_id
 
-      // TODO: Get brand_id via API param, not like this..
-      // const mainImage = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/banners/${storeCode}_main-image.json`)});
-      // let image = mainImage.get('image')
-      // let brand_id = !_.isUndefined(_.get(image, 'brand')) ? _.get(image, 'brand') : 0
-      // TODO: Get brand_id via API param, not like this..
-
       let storeCodeForElastic = _.snakeCase(storeCode)
 
       console.time('rebuildElasticSearchIndex')
+      console.log('rebuildElasticSearchIndex')
+      await storewiseImport(storeCodeForElastic)
+      console.timeEnd('rebuildElasticSearchIndex')
+
+      console.time('rebuildElasticSearchIndex')
+      console.log('rebuildElasticSearchIndex')
       await rebuildElasticSearchIndex(storeCodeForElastic)
       console.timeEnd('rebuildElasticSearchIndex')
 
       console.time('catalogFile.unlink')
-      const catalogFile = new Store({path: path.resolve(`../vue-storefront-api/var/catalog_${storeCodeForElastic}.json`)});
+      console.log('catalogFile.unlink')
+      console.log('path.resolve(`/var/catalog_${storeCodeForElastic}.json`)', path.resolve(`./var/catalog_${storeCodeForElastic}.json`))
+      const catalogFile = new Store({path: path.resolve(`./var/catalog_${storeCodeForElastic}.json`)});
       catalogFile.unlink();
       console.timeEnd('catalogFile.unlink')
 
       console.time('dumpStoreIndex')
+      console.log('dumpStoreIndex')
       await dumpStoreIndex(storeCodeForElastic)
       console.timeEnd('dumpStoreIndex')
 
       console.time('restoreStoreIndex')
+      console.log('restoreStoreIndex')
       await restoreStoreIndex(storeCodeForElastic)
       console.timeEnd('restoreStoreIndex')
 
       console.time('setCategoryBanner')
+      console.log('setCategoryBanner')
       await setCategoryBanner(config, storeCodeForElastic)
       console.timeEnd('setCategoryBanner')
 
       console.time('setProductBanner')
+      console.log('setProductBanner')
       await setProductBanner(config, storeCodeForElastic)
       console.timeEnd('setProductBanner')
 
       console.time('buildAndRestartVueStorefront')
+      console.log('buildAndRestartVueStorefront')
       let brand_data = await buildAndRestartVueStorefront(req, res, brand_id, enableVSFRebuild, config);
       console.timeEnd('buildAndRestartVueStorefront')
-      console.log('buildAndRestartVueStorefront Done! Store is ready to function!');
+      console.log('buildAndRestartVueStorefront Done! Store is ready to function! StoreCode: ', storeCodeForElastic);
 
       // TODO: send info to ProCC about success and error
       // console.time('updateVsfSyncStatusToProCC')
@@ -258,7 +265,9 @@ function (_err, _res, _resBody) {
       index: `vue_storefront_catalog_${_.snakeCase(userData.store_code)}`
     }
 
-    const catalogFile = new Store({path: path.resolve(`../vue-storefront-api/var/catalog_${storeData.storeCode}.json`)});
+    const catalogFile = new Store({path: path.resolve(`var/catalog_${storeData.storeCode}.json`)});
+    console.log("Config path.resolve", path.resolve(`var/catalog_${storeData.storeCode}.json`));
+    console.log("Config path.resolve", path.resolve(`./var/catalog_${storeData.storeCode}.json`));
 
     if (storefrontApiConfig.has(`storeViews.${storeData.storeCode}`)) {
       //remove storeview data from the storefront-api
@@ -279,11 +288,13 @@ function (_err, _res, _resBody) {
           json: true
         },
         function (_err, _res, _resBody) {
-          console.log('Response', _resBody)
+          console.log('POST REQUEST TO', 'http://'+config.vsf.host+':'+config.vsf.port+'/delete-store')
+          console.log('Response _err', _err)
+          console.log('Response _resBody', _resBody)
         })
 
       catalogFile.unlink()
-      deleteElasticSearchIndex(storeData.storeCode);
+      deleteElasticSearchIndex(storeData.storeCode, config);
       console.log("Store view data deleted")
       apiStatus(res, 200);
     }
