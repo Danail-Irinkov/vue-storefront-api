@@ -78,7 +78,9 @@ export default ({config, db}) => function (req, res, body) {
     };
   }
   const s = Date.now()
-  const reqHash = sha3_224(JSON.stringify(requestBody))
+  const reqHash = sha3_224(`${JSON.stringify(requestBody)}${req.url}`)
+console.log('ES requestBody', req.method+' - '+elasticBackendUrl+' - '+require('util').inspect(requestBody, false, null, true /* enable colors */))
+
   const dynamicRequestHandler = () => {
     request({ // do the elasticsearch request
       uri: elasticBackendUrl,
