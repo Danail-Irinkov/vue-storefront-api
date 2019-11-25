@@ -53,7 +53,7 @@ export  function storewiseImport(storeCode){
 }
 
 export function createNewElasticSearchIndex(storeCode){
-  console.log(' == Creating new elastic index storeCode ==', storeCode);
+  console.log(' == Creating New elastic index storeCode ==', storeCode);
   return exec('yarn', [
     'db',
     'new',
@@ -138,11 +138,11 @@ export function restartPM2Server(){
   ], { shell: true });
 }
 
-export function deleteElasticSearchIndex(storeCode) {
+export function deleteElasticSearchIndex(storeCode, config) {
   console.log(' == Delete Elastic Index storeCode ==', storeCode);
   return exec('curl', [
     '-XDELETE',
-    `"http://localhost:9200/vue_storefront_catalog_${storeCode}"`,
+    `"http://${config.elasticsearch.host}:${config.elasticsearch.port}/vue_storefront_catalog_${storeCode}"`,
   ], { shell: true });
 }
 
