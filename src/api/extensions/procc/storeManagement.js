@@ -48,6 +48,9 @@ export  function storewiseImport(storeCode){
   return exec('yarn', [
     'mage2vs',
     'import',
+    '--skip-pages=1',
+    '--skip-blocks=1',
+    '--skip-reviews=1',
     `--store-code=${storeCode}`,
   ], { shell: true });
 }
@@ -116,6 +119,25 @@ export function buildVueStorefront(config){
   request({
       // create store in vs
       uri:'http://'+config.vsf.host+':'+config.vsf.port+'/rebuild-storefront',
+      method:'POST',
+      body: {filler: 'object mock'},
+      json: true
+    },
+    function (_err, _res, _resBody) {
+      console.log('Response', _resBody)
+    })
+  // return exec('cd', [
+  //   '../vue-storefront',
+  //   '&&',
+  //   'yarn build'
+  // ], { shell: true }, true, true);
+}
+
+export function restartPM2VueStorefront(config){
+  console.log(' == restartPM2VueStorefront ==');
+  request({
+      // create store in vs
+      uri:'http://'+config.vsf.host+':'+config.vsf.port+'/restart-pm2',
       method:'POST',
       body: {filler: 'object mock'},
       json: true

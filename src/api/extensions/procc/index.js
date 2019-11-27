@@ -184,16 +184,18 @@ function (_err, _res, _resBody) {
 
   mcApi.post('/manage-store', async (req, res) => {
     try {
+      console.log('\'/manage-store\' Starting')
+      console.log('\'/manage-store\' Starting')
       let storeCode = req.body.storeCode;
       let enableVSFRebuild = req.body.enableVSFRebuild
       let brand_id = req.body.brand_id
 
       let storeCodeForElastic = _.snakeCase(storeCode)
 
-      console.time('rebuildElasticSearchIndex')
-      console.log('rebuildElasticSearchIndex')
-      await storewiseImport(storeCodeForElastic)
-      console.timeEnd('rebuildElasticSearchIndex')
+      console.time('storewiseImport')
+      console.log('storewiseImport')
+      // await storewiseImport(storeCodeForElastic)
+      console.timeEnd('storewiseImport')
 
       console.time('rebuildElasticSearchIndex')
       console.log('rebuildElasticSearchIndex')
