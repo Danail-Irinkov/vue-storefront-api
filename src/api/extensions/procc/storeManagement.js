@@ -48,8 +48,10 @@ export  function storewiseImport(storeCode){
   return exec('yarn', [
     'mage2vs',
     'import',
-    `--store-code=${storeCode}`,
-  ], { shell: true });
+    '--store-code='+storeCode,
+    '--skip-pages=1',
+    '--skip-blocks=1',
+  ], { shell: true }, true);
 }
 
 export function createNewElasticSearchIndex(storeCode){
@@ -112,6 +114,7 @@ export function startVueStorefrontAPI(){
 }
 
 export function buildVueStorefront(config){
+  return new Promise((resolve, reject) => {
   console.log(' == Building VueStorefront ==');
   request({
       // create store in vs
@@ -121,13 +124,49 @@ export function buildVueStorefront(config){
       json: true
     },
     function (_err, _res, _resBody) {
-      console.log('Response', _resBody)
+      console.log('buildVueStorefront Body', _resBody)
+      if(_err){
+        console.log('buildVueStorefront Error', _err)
+        reject(_err)
+      }
+      else resolve(_resBody)
     })
-  // return exec('cd', [
-  //   '../vue-storefront',
-  //   '&&',
-  //   'yarn build'
-  // ], { shell: true }, true, true);
+  })
+}
+
+export function deleteVueStorefrontStoreConfig(storeData, config){
+  return new Promise((resolve, reject) => {
+  console.log(' == Delete VueStorefront Store Config==');
+  request({
+      // delete store in vs
+      uri:'http://'+config.vsf.host+':'+config.vsf.port+'/delete-store',
+      method:'POST',
+      body: storeData,
+      json: true
+    },
+    function (_err, _res, _resBody) {
+      console.log('POST REQUEST TO', 'http://'+config.vsf.host+':'+config.vsf.port+'/delete-store')
+      console.log('deleteVueStorefrontStoreConfig _resBody', _resBody)
+      if(_err){
+        console.log('deleteVueStorefrontStoreConfig _err', _err)
+        reject(_err)
+      }
+      else resolve(_resBody)
+    })
+})
+}
+export function restartPM2VueStorefront(config){
+  console.log(' == restartPM2VueStorefront ==');
+  request({
+      // create store in vs
+      uri:'http://'+config.vsf.host+':'+config.vsf.port+'/restart-pm2',
+      method:'POST',
+      body: {filler: 'object mock'},
+      json: true
+    },
+    function (_err, _res, _resBody) {
+      console.log('restartPM2VueStorefront Response', _resBody)
+    })
 }
 
 export function restartPM2Server(){
@@ -138,11 +177,11 @@ export function restartPM2Server(){
   ], { shell: true });
 }
 
-export function deleteElasticSearchIndex(storeCode, config) {
-  console.log(' == Delete Elastic Index storeCode ==', storeCode);
+export function deleteElasticSearchIndex(store_index, config) {
+  console.log(' == Delete Elastic Index -XDELETE ==', `http://${config.elasticsearch.host}:${config.elasticsearch.port}/${store_index}`);
   return exec('curl', [
     '-XDELETE',
-    `"http://${config.elasticsearch.host}:${config.elasticsearch.port}/vue_storefront_catalog_${storeCode}"`,
+    `"http://${config.elasticsearch.host}:${config.elasticsearch.port}/${store_index}"`,
   ], { shell: true });
 }
 

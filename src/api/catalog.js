@@ -79,7 +79,8 @@ export default ({config, db}) => function (req, res, body) {
   }
   const s = Date.now()
   const reqHash = sha3_224(`${JSON.stringify(requestBody)}${req.url}`)
-console.log('ES requestBody', req.method+' - '+elasticBackendUrl+' - '+require('util').inspect(requestBody, false, null, true /* enable colors */))
+  console.log('ES requestBody', req.method+' - '+elasticBackendUrl+' - '+require('util').inspect(requestBody, false, null, true /* enable colors */))
+  // console.log('ES requestBody', req.method+' - '+url+'\n'+require('util').inspect(requestBody, false, null, true /* enable colors */))
 
   const dynamicRequestHandler = () => {
     request({ // do the elasticsearch request
@@ -146,4 +147,9 @@ console.log('ES requestBody', req.method+' - '+elasticBackendUrl+' - '+require('
   } else {
     dynamicRequestHandler()
   }
+		} else {
+      console.log('ES _err', require('util').inspect(_err, false, null, true /* enable colors */))
+      res.json(_resBody);
+		}
+	});
 }
