@@ -19,7 +19,12 @@ import * as path from 'path'
 // import resolvers from './graphql/resolvers';
 // import typeDefs from './graphql/schema';
 
+// Added by dan-29-11-2019
+const timeout = require('connect-timeout')
+
 const app = express();
+// timeout middleware
+app.use(timeout(400000));
 
 // logger
 app.use(morgan('dev'));

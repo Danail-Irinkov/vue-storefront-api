@@ -14,7 +14,7 @@ console.log('appDir appDirappDir - ', appDir)
 
 import { rebuildElasticSearchIndex, dumpStoreIndex, restoreStoreIndex,
   createNewElasticSearchIndex, deleteElasticSearchIndex, buildAndRestartVueStorefront,
-  startVueStorefrontAPI, storewiseImport } from './storeManagement';
+  startVueStorefrontAPI, deleteVueStorefrontStoreConfig, storewiseImport } from './storeManagement';
 
 import request from 'request';
 // TODO: we should use await/async/try/catch instead of request
@@ -114,7 +114,7 @@ module.exports = ({ config, db }) => {
         json: true
       },
       function (_err, _res, _resBody) {
-        console.log('Response', _resBody)
+        console.log('/updateStorefrontSettings Response', _resBody)
       })
     return apiStatus(res, 200);
   });
@@ -130,11 +130,11 @@ module.exports = ({ config, db }) => {
         json: true
       },
 function (_err, _res, _resBody) {
-       console.log('Response', _resBody)
+       console.log('/test Response', _resBody)
       })
     return apiStatus(res, 200);
   });
-  mcApi.post('/backup-config', (req, res) => {
+  mcApi.get('/backup-config', (req, res) => {
     request({
         //store url with custom function
         uri:'http://'+config.vsf.host+':'+config.vsf.port+'/backup-config',
@@ -143,9 +143,14 @@ function (_err, _res, _resBody) {
         json: true
       },
       function (_err, _res, _resBody) {
-        let backupConfigFiles = {"vsf_config_data":_resBody,"vsf_api_config_data": config}
+      console.log(req.body, 'req.body')
+      console.log(_resBody, '_resBody')
+      console.log(_err, '_err')
+        let backupConfigFiles = {"vsf_config_data": _resBody, "vsf_api_config_data": config}
         return apiStatus(res, backupConfigFiles, 200);
       })
+    // let backupConfigFiles = {"vsf_config_data": 'sdfsf', "vsf_api_config_data": 'sdfsdf'}
+    // return apiStatus(res, backupConfigFiles, 200);
   });
 
   mcApi.post('/create-store-index', async (req, res) => {
@@ -177,23 +182,46 @@ function (_err, _res, _resBody) {
     }
   });
 
-  mcApi.post('/manage-store', async (req, res) => {
+  mcApi.post('/storewise-import', async (req, res) => {
+    // TODO: Optimize store import flow, currently it is importing products from different stores?!
+    req.clearTimeout() //'connect-timeout' middleware express
     try {
+      console.log('\'/storewise-import\' Starting')
+      console.log('\'/storewise-import\' Starting')
       let storeCode = req.body.storeCode;
-      let enableVSFRebuild = req.body.enableVSFRebuild
-      let brand_id = req.body.brand_id
-
       let storeCodeForElastic = _.snakeCase(storeCode)
 
-      console.time('rebuildElasticSearchIndex')
-      console.log('rebuildElasticSearchIndex')
+      console.time('storewiseImport')
+      console.log('storewiseImport')
       await storewiseImport(storeCodeForElastic)
-      console.timeEnd('rebuildElasticSearchIndex')
+      console.timeEnd('storewiseImport')
 
       console.time('rebuildElasticSearchIndex')
       console.log('rebuildElasticSearchIndex')
       await rebuildElasticSearchIndex(storeCodeForElastic)
       console.timeEnd('rebuildElasticSearchIndex')
+
+    }catch (e) {
+      console.log('----------------------------')
+      console.log('----------------------------')
+      console.log('/import Store ERROR', e)
+      console.log('----------------------------')
+      console.log('----------------------------')
+      res.send({
+        message_type: "error",
+        message: e
+      });
+    }
+  })
+
+  mcApi.post('/manage-store', async (req, res) => {
+    try {
+      console.log('\'/manage-store\' Starting')
+      console.log('\'/manage-store\' Starting')
+      let storeCode = req.body.storeCode;
+      let storeCodeForElastic = _.snakeCase(storeCode)
+      let enableVSFRebuild = req.body.enableVSFRebuild
+      let brand_id = req.body.brand_id
 
       console.time('catalogFile.unlink')
       console.log('catalogFile.unlink')
@@ -202,15 +230,16 @@ function (_err, _res, _resBody) {
       catalogFile.unlink();
       console.timeEnd('catalogFile.unlink')
 
-      console.time('dumpStoreIndex')
-      console.log('dumpStoreIndex')
-      await dumpStoreIndex(storeCodeForElastic)
-      console.timeEnd('dumpStoreIndex')
-
-      console.time('restoreStoreIndex')
-      console.log('restoreStoreIndex')
-      await restoreStoreIndex(storeCodeForElastic)
-      console.timeEnd('restoreStoreIndex')
+      // Not needed when we are importing the store directly from M2
+      // console.time('dumpStoreIndex')
+      // console.log('dumpStoreIndex')
+      // await dumpStoreIndex(storeCodeForElastic)
+      // console.timeEnd('dumpStoreIndex')
+      //
+      // console.time('restoreStoreIndex')
+      // console.log('restoreStoreIndex')
+      // await restoreStoreIndex(storeCodeForElastic)
+      // console.timeEnd('restoreStoreIndex')
 
       console.time('setCategoryBanner')
       console.log('setCategoryBanner')
@@ -252,49 +281,32 @@ function (_err, _res, _resBody) {
   /**
    *  Delete a store
    */
-  mcApi.post('/delete-store', (req, res) => {
-    console.log("Here in delete store",req.body);
-    let userData = req.body.storeData;
-    let storeData = {
-      storeCode: userData.store_code,
-      index: `vue_storefront_catalog_${_.snakeCase(userData.store_code)}`
-    }
+  mcApi.post('/delete-store', async (req, res) => {
+    console.log("Here in delete store", req.body);
+    let store_code = req.body.storeData.storefront_url;
+    let store_index = `vue_storefront_catalog_${_.snakeCase(store_code)}`;
 
-    const catalogFile = new Store({path: path.resolve(`var/catalog_${storeData.storeCode}.json`)});
-    console.log("Config path.resolve", path.resolve(`var/catalog_${storeData.storeCode}.json`));
-    console.log("Config path.resolve", path.resolve(`./var/catalog_${storeData.storeCode}.json`));
+    const catalogFile = new Store({path: path.resolve(`var/catalog_${store_code}.json`)});
+    console.log("Config path.resolve", path.resolve(`var/catalog_${store_code}.json`));
+    console.log("Config path.resolve", path.resolve(`./var/catalog_${store_code}.json`));
 
-    if (storefrontApiConfig.has(`storeViews.${storeData.storeCode}`)) {
+    if (storefrontApiConfig.has(`storeViews.${store_code}`)) {
       //remove storeview data from the storefront-api
-      storefrontApiConfig.set("elasticsearch.indices", _.pull(storefrontApiConfig.get("elasticsearch.indices"),storeData.index))
-      storefrontApiConfig.set("availableStores", _.pull(storefrontApiConfig.get("availableStores"),storeData.storeCode))
-      storefrontApiConfig.set("storeViews.mapStoreUrlsFor", _.pull(storefrontApiConfig.get("storeViews.mapStoreUrlsFor"),storeData.storeCode))
-      storefrontApiConfig.del(`storeViews.${storeData.storeCode}`)
+      storefrontApiConfig.set("elasticsearch.indices", _.pull(storefrontApiConfig.get("elasticsearch.indices"),store_index))
+      storefrontApiConfig.set("availableStores", _.pull(storefrontApiConfig.get("availableStores"),store_code))
+      storefrontApiConfig.set("storeViews.mapStoreUrlsFor", _.pull(storefrontApiConfig.get("storeViews.mapStoreUrlsFor"),store_code))
+      storefrontApiConfig.del(`storeViews.${store_code}`)
 
-      // remove the banners, policies, main image and catalog files
-      // mainImage.unlink()
-      // StoreCategories.unlink()
-      // storePolicies.unlink()
-      request({
-          // delete store in vs
-          uri:'http://'+config.vsf.host+':'+config.vsf.port+'/delete-store',
-          method:'POST',
-          body: storeData,
-          json: true
-        },
-        function (_err, _res, _resBody) {
-          console.log('POST REQUEST TO', 'http://'+config.vsf.host+':'+config.vsf.port+'/delete-store')
-          console.log('Response _err', _err)
-          console.log('Response _resBody', _resBody)
-        })
+      // remove the banners, policies, main image and catalog files in Vue-storefront configs
+      await deleteVueStorefrontStoreConfig({storeCode: store_code, index: store_index}, config);
 
       catalogFile.unlink()
-      deleteElasticSearchIndex(storeData.storeCode, config);
+      await deleteElasticSearchIndex(store_index, config);
       console.log("Store view data deleted")
       apiStatus(res, 200);
     }
     else{
-      console.log('/delete-store ERROR', storeData)
+      console.log('/delete-store ERROR', store_code, store_index)
       apiStatus(res, 500);
     }
     return
@@ -320,7 +332,7 @@ function (_err, _res, _resBody) {
         json: true
       },
       function (_err, _res, _resBody) {
-        console.log('Response', _resBody)
+        console.log('/disable-store Response', _resBody)
       })
 
     apiStatus(res,200);
