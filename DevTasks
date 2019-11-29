@@ -2,3 +2,6 @@ Search for "// TODO:" to find smaller tasks
 
 Major Projects:
 - export store config fields to MongoDB storage (config.elasticsearch.indices, storeViews, availableStores)
+  + vue-storefront configs of stores
+
+- Update ProCC on Store events, enable, disable, rendered, available, fail etc.
