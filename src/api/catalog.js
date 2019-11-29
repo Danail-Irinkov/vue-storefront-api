@@ -34,7 +34,6 @@ export default ({config, db}) => function (req, res, body) {
 	if (req.method === 'GET') {
 		if (req.query.request) { // this is in fact optional
 			requestBody = JSON.parse(decodeURIComponent(req.query.request))
-			console.log('requestBody', require('util').inspect(requestBody, false, null, true /* enable colors */))
 		}
 	} else {
 		requestBody = req.body
@@ -94,7 +93,8 @@ export default ({config, db}) => function (req, res, body) {
 		};
   }
 
-  console.log('ES requestBody', req.method+' - '+url+' - '+require('util').inspect(requestBody, false, null, true /* enable colors */))
+  console.log('ES requestBody', req.method+' - '+url+'\n'+require('util').inspect(requestBody, false, null, true /* enable colors */))
+  console.log(JSON.stringify(requestBody))
 	request({ // do the elasticsearch request
 		uri: url,
 		method: req.method,
@@ -102,8 +102,7 @@ export default ({config, db}) => function (req, res, body) {
 		json: true,
 		auth: auth,
 	}, function (_err, _res, _resBody) { // TODO: add caching layer to speed up SSR? How to invalidate products (checksum on the response BEFORE processing it)
-    console.log('ES _err', require('util').inspect(_err, false, null, true /* enable colors */))
-    console.log('ES _resBody', require('util').inspect(_resBody, false, null, true /* enable colors */))
+    console.log('ES _resBody\n', require('util').inspect(_resBody, false, null, true /* enable colors */))
 
     if (_resBody && _resBody.hits && _resBody.hits.hits) { // we're signing up all objects returned to the client to be able to validate them when (for example order)
 
@@ -130,7 +129,8 @@ export default ({config, db}) => function (req, res, body) {
       }
 
 		} else {
-			res.json(_resBody);
+      console.log('ES _err', require('util').inspect(_err, false, null, true /* enable colors */))
+      res.json(_resBody);
 		}
 	});
 }
