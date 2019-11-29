@@ -54,9 +54,12 @@ initializeDb(db => {
 
   const port = process.env.PORT || config.get('server.port')
   const host = process.env.HOST || config.get('server.host')
-  app.listen(parseInt(port), host, () => {
+ let server = app.listen(parseInt(port), host, (server) => {
     console.log(`Vue Storefront API started at http://${host}:${port}`);
+    return server
   });
+  server.timeout = 10 * 60 * 1000;
+  server.keepAliveTimeout = 10 * 60 * 1000;
 });
 
 // graphQl Server part
