@@ -121,17 +121,17 @@ module.exports = ({ config, db }) => {
   /**
    * POST TEST api
    */
-  mcApi.post('/test', (req, res) => {
-      request({
-        //store url with custom function
-        uri:'http://'+config.vsf.host+':'+config.vsf.port+'/create-store',
-        method:'POST',
-        body: req.body,
-        json: true
-      },
-function (_err, _res, _resBody) {
-       console.log('/test Response', _resBody)
-      })
+  mcApi.get('/test', async (req, res) => {
+    let storeCodeForElastic = 'aa'
+    console.time('setCategoryBanner')
+    console.log('setCategoryBanner')
+    await setCategoryBanner(config, storeCodeForElastic)
+    console.timeEnd('setCategoryBanner')
+
+    console.time('setProductBanner')
+    console.log('setProductBanner')
+    await setProductBanner(config, storeCodeForElastic)
+    console.timeEnd('setProductBanner')
     return apiStatus(res, 200);
   });
   mcApi.get('/backup-config', (req, res) => {
@@ -201,6 +201,26 @@ function (_err, _res, _resBody) {
       await rebuildElasticSearchIndex(storeCodeForElastic)
       console.timeEnd('rebuildElasticSearchIndex')
 
+      // Dump elastic Index to local
+      // console.time('catalogFile.unlink')
+      // console.log('catalogFile.unlink')
+      // console.log('path.resolve(`/var/catalog_${storeCodeForElastic}.json`)', path.resolve(`./var/catalog_${storeCodeForElastic}.json`))
+      // const catalogFile = new Store({path: path.resolve(`./var/catalog_${storeCodeForElastic}.json`)});
+      // catalogFile.unlink();
+      // console.timeEnd('catalogFile.unlink')
+
+      // Not needed when we are importing the store directly from M2
+      // console.time('dumpStoreIndex')
+      // console.log('dumpStoreIndex')
+      // await dumpStoreIndex(storeCodeForElastic)
+      // console.timeEnd('dumpStoreIndex')
+      //
+      // Restore dumped index to ES
+      // console.time('restoreStoreIndex')
+      // console.log('restoreStoreIndex')
+      // await restoreStoreIndex(storeCodeForElastic)
+      // console.timeEnd('restoreStoreIndex')
+
       res.status(200);
       res.end();
     }catch (e) {
@@ -225,24 +245,6 @@ function (_err, _res, _resBody) {
       let enableVSFRebuild = req.body.enableVSFRebuild
       let brand_id = req.body.brand_id
 
-      console.time('catalogFile.unlink')
-      console.log('catalogFile.unlink')
-      console.log('path.resolve(`/var/catalog_${storeCodeForElastic}.json`)', path.resolve(`./var/catalog_${storeCodeForElastic}.json`))
-      const catalogFile = new Store({path: path.resolve(`./var/catalog_${storeCodeForElastic}.json`)});
-      catalogFile.unlink();
-      console.timeEnd('catalogFile.unlink')
-
-      // Not needed when we are importing the store directly from M2
-      // console.time('dumpStoreIndex')
-      // console.log('dumpStoreIndex')
-      // await dumpStoreIndex(storeCodeForElastic)
-      // console.timeEnd('dumpStoreIndex')
-      //
-      // console.time('restoreStoreIndex')
-      // console.log('restoreStoreIndex')
-      // await restoreStoreIndex(storeCodeForElastic)
-      // console.timeEnd('restoreStoreIndex')
-
       console.time('setCategoryBanner')
       console.log('setCategoryBanner')
       await setCategoryBanner(config, storeCodeForElastic)
@@ -259,7 +261,7 @@ function (_err, _res, _resBody) {
       console.timeEnd('buildAndRestartVueStorefront')
       console.log('buildAndRestartVueStorefront Done! Store is ready to function! StoreCode: ', storeCodeForElastic);
 
-      // TODO: send info to ProCC about success and error
+      // TODO: send info to ProCC about success and error as part of the queue procedures -> update the queue object status
       // console.time('updateVsfSyncStatusToProCC')
       // await ProCcAPI.updateVsfSyncStatusToProCC(brand_data);
       // console.timeEnd('updateVsfSyncStatusToProCC')
@@ -357,9 +359,9 @@ function parse_resBody(_resBody) {
     return 0
   }
 }
-function getTotalHits(storeCode,search) {
+function getTotalHits(config, storeCode,search) {
   return new Promise((resolve, reject) => {
-    request({uri: `http://localhost:8080/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?filter_path=hits.total`, method: 'GET'},
+    request({uri: `${config.server.url}/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?filter_path=hits.total`, method: 'GET'},
         function (_err, _res, _resBody) {
           console.log('_resBody', _resBody)
           if(_resBody.indexOf('Error') === -1) {
@@ -368,19 +370,19 @@ function getTotalHits(storeCode,search) {
           } else {
             console.log('getTotalHits FAILED ->  _err', _err)
             console.log('getTotalHits FAILED ->  _resBody', _resBody)
-            console.log(`http://localhost:8080/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?filter_path=hits.total`)
+            console.log(`${config.server.url}/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?filter_path=hits.total`)
             resolve(0)
           }
         });
   });
 }
-function searchCatalogUrl(storeCode,search) {
+function searchCatalogUrl(config, storeCode, search) {
   return new Promise((resolve, reject) => {
-    getTotalHits(storeCode, search).then((res) => {
+    getTotalHits(config, storeCode, search).then((res) => {
           if(res.total){
-            resolve(`http://localhost:8080/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?size=${res.total}`); //limiting results, not filtering by product size
+            resolve(`${config.server.url}/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?size=${res.total}`); //limiting results, not filtering by product size
           }else{
-            resolve(`http://localhost:8080/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search`);
+            resolve(`${config.server.url}/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search`);
           }
         }
     );
@@ -389,12 +391,12 @@ function searchCatalogUrl(storeCode,search) {
 
 
 // function searchCatalogUrl(storeCode,search) {
-//   return `http://localhost:8080/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search`;
+//   return `${config.server.url}/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search`;
 // }
 
 function setProductBanner(config, storeCode) {
   return new Promise((resolve, reject) => {
-    searchCatalogUrl(storeCode, 'product').then((res) => {
+    searchCatalogUrl(config, storeCode, 'product').then((res) => {
       request({uri: res, method: 'GET'}, function (_err, _res, _resBody) {
         _resBody = parse_resBody(_resBody)
         let catalogProducts = _.get(_.get(_resBody,'hits'),'hits');
@@ -402,6 +404,7 @@ function setProductBanner(config, storeCode) {
         let products = [];
         if (_resBody && _resBody.hits && catalogProducts) { // we're signing up all objects returned to the client to be able to validate them when (for example order)
           products = _.take(_.filter(catalogProducts, ["_source.type_id", "configurable"]), 6);
+          console.log('setProductBanner products.length - ', products.length)
          request({
            uri:'http://'+config.vsf.host+':'+config.vsf.port+'/product-link',
            method:'POST',
@@ -420,17 +423,18 @@ function setProductBanner(config, storeCode) {
 
 function setCategoryBanner(config, storeCode){
   return new Promise((resolve, reject) => {
-    searchCatalogUrl(storeCode, 'category').then((res) => {
+    searchCatalogUrl(config, storeCode, 'category').then((search_url) => {
       request({ // do the elasticsearch request
-        uri: res,
+        uri: search_url,
         method: 'GET',
       }, function (_err, _res, _resBody) { // TODO: add caching layer to speed up SSR? How to invalidate products (checksum on the response BEFORE processing it)
         _resBody = parse_resBody(_resBody)
         let categoryData = !_.isUndefined(_.first(_.get(_.get(_resBody, 'hits'), 'hits'))) ? _.first(_.get(_.get(_resBody, 'hits'), 'hits')) : {};
-        console.log('_resBody', _resBody)
+        console.log('setCategoryBanner _resBody', _resBody)
         if (_resBody && _resBody.hits && categoryData) { // we're signing up all objects returned to the client to be able to validate them when (for example order)
           let children_data = !_.isUndefined(_.get(_.get(categoryData, '_source'), 'children_data')) ? _.get(_.get(categoryData, '_source'), 'children_data') : [];
-
+          console.log('setCategoryBanner categoryData', categoryData)
+          console.log('setCategoryBanner children_data', children_data)
           request({
             uri:'http://'+config.vsf.host+':'+config.vsf.port+'/category-link',
             method:'POST',
