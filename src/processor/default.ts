@@ -20,7 +20,7 @@ class HmacProcessor {
   }
 
   process (items) {
-    console.debug('Entering HmacProcessor::process')
+    console.debug('Entering default.ts HmacProcessor::process')
 
     const processorChain = []
 

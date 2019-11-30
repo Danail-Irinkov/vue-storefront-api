@@ -40,8 +40,10 @@ class ProductProcessor {
         }
       }
     }
-
+console.log('processorChain.length', processorChain[0])
     return Promise.all(processorChain).then(((resultSet) => {
+      console.log('resultSet.length', resultSet.length)
+      console.log('resultSet.', resultSet)
 
       if (!resultSet || resultSet.length === 0) {
         throw Error('error with resultset for processor chaining')
@@ -63,16 +65,20 @@ class ProductProcessor {
                 subItem.sgn = hmac.sign(sgnSrc(sgnObj, subItem), config.objHashSecret);
               }
 
+              console.log('return 00 subItem.0')
               return subItem
             })
           }
 
+          console.log('return 00 resultSet.0')
           return item
         }).bind(this))
 
         // return first resultSet
+        console.log('return first resultSet.')
         return rs
       } else {
+        console.log('return first resultSet2 [0]')
         return resultSet[0]
       }
     }).bind(this))
