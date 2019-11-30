@@ -14,3 +14,4 @@ var/magento2-sample-data/
 *.iml
 /docker/elasticsearch/data/
 !/docker/elasticsearch/data/.gitkeep
+var/magento2-sample-data/

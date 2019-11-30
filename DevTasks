@@ -5,3 +5,12 @@ Major Projects:
   + vue-storefront configs of stores
 
 - Update ProCC on Store events, enable, disable, rendered, available, fail etc.
+
+-- rework the dev script to run on pm2 as well, so testing the sync flow can also restart the server in the end and can have e2e capability.
+
+-- enable reviews management via M2
+
+-- error when changing stores -> cnat find customer cart
+     "error: API call failed: Specified request cannot be processed.
+      POST /api/cart/create?token=&storeCode=it 500 1210.303 ms - 62"
+
