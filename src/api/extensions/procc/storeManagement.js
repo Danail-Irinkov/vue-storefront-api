@@ -43,12 +43,13 @@ function exec(cmd, args, opts, enableLogging = false, limit_output = false) {
   })
 }
 
-export  function storewiseImport(storeCode){
+export  function storewiseImport(storeCode, skus){
   console.log(' == Running import command with specific store storeCode==', storeCode);
   return exec('yarn', [
     'mage2vs',
     'import',
     '--store-code='+storeCode,
+    '--skus='+skus,
     '--skip-pages=1',
     '--skip-blocks=1',
   ], { shell: true }, true);
@@ -124,7 +125,7 @@ export function buildVueStorefront(config){
       json: true
     },
     function (_err, _res, _resBody) {
-      console.log('buildVueStorefront Body', _resBody)
+      // console.log('buildVueStorefront Body', _resBody)
       if(_err){
         console.log('buildVueStorefront Error', _err)
         reject(_err)
@@ -171,6 +172,7 @@ export function restartPM2VueStorefront(config){
 
 export function restartPM2Server(){
   console.log(' == Restarting PM2 server ==');
+  console.log(' == In Development Mode Need to restart server manually, PM2 not in use yet... ==');
   return exec('pm2', [
     'restart',
     'all',
@@ -203,6 +205,7 @@ export async function buildAndRestartVueStorefront(req, res, brand_id, enableVSF
       await buildVueStorefront(config)
       console.timeEnd('buildVueStorefront')
     }
+
     console.time('restartPM2Server')
     await restartPM2Server()
     console.timeEnd('restartPM2Server')

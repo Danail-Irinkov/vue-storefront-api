@@ -52,7 +52,7 @@ module.exports = ({ config, db }) => {
       name: _.startCase(storeData.magento_store_name),
       url: `/${storeData.storefront_url}`,
       elasticsearch: {
-        host: "https://store.procc.co/api/catalog", // NEED to be with domain, it is sent to the frontend
+        host: config.server.url+"/api/catalog", // NEED to be with domain, it is sent to the frontend
         index: `vue_storefront_catalog_${_.snakeCase(storeData.storefront_url)}`
       },
       tax: {
@@ -183,17 +183,17 @@ function (_err, _res, _resBody) {
   });
 
   mcApi.post('/storewise-import', async (req, res) => {
-    // TODO: Optimize store import flow, currently it is importing products from different stores?!
-    req.clearTimeout() //'connect-timeout' middleware express
     try {
       console.log('\'/storewise-import\' Starting')
-      console.log('\'/storewise-import\' Starting')
       let storeCode = req.body.storeCode;
+      let skus = req.body.skus;
       let storeCodeForElastic = _.snakeCase(storeCode)
+      if(!storeCode)return Promise.reject('Missing store code')
+      if(!skus)return Promise.reject('Missing SKUs') // SKUs are needed, to avoid importing all products from all stores
 
       console.time('storewiseImport')
       console.log('storewiseImport')
-      await storewiseImport(storeCodeForElastic)
+      await storewiseImport(storeCodeForElastic, skus)
       console.timeEnd('storewiseImport')
 
       console.time('rebuildElasticSearchIndex')
@@ -201,6 +201,8 @@ function (_err, _res, _resBody) {
       await rebuildElasticSearchIndex(storeCodeForElastic)
       console.timeEnd('rebuildElasticSearchIndex')
 
+      res.status(200);
+      res.end();
     }catch (e) {
       console.log('----------------------------')
       console.log('----------------------------')
@@ -253,7 +255,7 @@ function (_err, _res, _resBody) {
 
       console.time('buildAndRestartVueStorefront')
       console.log('buildAndRestartVueStorefront')
-      let brand_data = await buildAndRestartVueStorefront(req, res, brand_id, enableVSFRebuild, config);
+      await buildAndRestartVueStorefront(req, res, brand_id, enableVSFRebuild, config);
       console.timeEnd('buildAndRestartVueStorefront')
       console.log('buildAndRestartVueStorefront Done! Store is ready to function! StoreCode: ', storeCodeForElastic);
 
@@ -264,7 +266,6 @@ function (_err, _res, _resBody) {
 
       res.status(200);
       res.end();
-      // return apiStatus(res, 200);
     }catch(e) {
       console.log('----------------------------')
       console.log('----------------------------')

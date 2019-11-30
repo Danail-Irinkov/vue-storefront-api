@@ -2,7 +2,7 @@
 
 /**
  * Check if the module exists
- * @param module name name 
+ * @param module name name
  */
 function module_exists( name ) {
   try { return require.resolve( name ) }
@@ -20,13 +20,13 @@ class ProcessorFactory {
     const moduleName = './' + entityType
 
     if (!module_exists(moduleName)) {
-      console.log('No additional data adapter for ' + entityType)
+      console.log('!module_exists -> '+moduleName+'; No additional data adapter for ' + entityType)
       return null
     }
 
     let adapter_class = require(moduleName);
     if (!adapter_class) {
-      console.log('No additional data adapter for ' + entityType)
+      console.log('adapter_class -> '+moduleName+'; No additional data adapter for ' + entityType)
       return null
     } else {
       let adapter_instance = new adapter_class(this.config, entityType, indexName, req, res);

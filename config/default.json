@@ -1,5 +1,6 @@
 {
   "server": {
+    "url": "https://store.procc.co",
     "host": "localhost",
     "port": 8080,
     "searchEngine": "elasticsearch"
@@ -18,8 +19,6 @@
     "host": "magento-pre-req-elasticsearch-coordinating-only",
     "port": 9200,
     "protocol": "http",
-    "user": "elastic",
-    "password": "myElasticPass11",
     "min_score": 0.01,
     "indices": [
       "vue_storefront_catalog",

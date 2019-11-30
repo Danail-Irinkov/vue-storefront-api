@@ -94,7 +94,7 @@ export default ({config, db}) => function (req, res, body) {
   }
 
   console.log('ES requestBody', req.method+' - '+url+'\n'+require('util').inspect(requestBody, false, null, true /* enable colors */))
-  console.log(JSON.stringify(requestBody))
+  // console.log(JSON.stringify(requestBody))
 	request({ // do the elasticsearch request
 		uri: url,
 		method: req.method,
@@ -102,7 +102,8 @@ export default ({config, db}) => function (req, res, body) {
 		json: true,
 		auth: auth,
 	}, function (_err, _res, _resBody) { // TODO: add caching layer to speed up SSR? How to invalidate products (checksum on the response BEFORE processing it)
-    console.log('ES _resBody\n', require('util').inspect(_resBody, false, null, true /* enable colors */))
+    console.log('ES _resBody.hits.total: ', _resBody.hits ? _resBody.hits.total : _resBody.hits)
+    // console.log('ES _resBody\n', require('util').inspect(_resBody, false, null, true /* enable colors */))
 
     if (_resBody && _resBody.hits && _resBody.hits.hits) { // we're signing up all objects returned to the client to be able to validate them when (for example order)
 
@@ -115,6 +116,7 @@ export default ({config, db}) => function (req, res, body) {
       if (entityType === 'product') {
         resultProcessor.process(_resBody.hits.hits, groupId).then((result) => {
           _resBody.hits.hits = result
+          console.log('ES _resBody.product: ', _resBody.hits)
           res.json(_resBody);
         }).catch((err) => {
           console.error(err)
@@ -122,6 +124,7 @@ export default ({config, db}) => function (req, res, body) {
       } else {
         resultProcessor.process(_resBody.hits.hits).then((result) => {
           _resBody.hits.hits = result
+          console.log('ES _resBody.default: ', _resBody.hits)
           res.json(_resBody);
         }).catch((err) => {
           console.error(err)

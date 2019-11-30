@@ -129,6 +129,8 @@ program
   .option('--skip-products <skipProducts>', 'skip import of products', false)
   .option('--skip-pages <skipPages>', 'skip import of cms pages', false)
   .option('--skip-blocks <skipBlocks>', 'skip import of cms blocks', false)
+  // Modified by Dan 30-11-2019 -> to allow syncing of only specific product SKUs
+  .option('--skus <SKUs>', 'import specific SKUs, comma-delimited list', false)
   .action((cmd) => {
     let magentoConfig = getMagentoDefaultConfig(cmd.storeCode)
 
@@ -171,6 +173,16 @@ program
       magentoConfig.SKIP_BLOCKS = true;
     }
 
+    // Modified by Dan 30-11-2019 -> to allow syncing of only specific product SKUs
+    if (cmd.skus) {
+      magentoConfig.SKUs = cmd.skus;
+    }
+    console.log('magentoConfig.SKUs', magentoConfig.SKUs)
+    // added by Dan 30-11-2019 //TODO: enable reviews to work
+    magentoConfig.SKIP_REVIEWS = true;
+    magentoConfig.SKIP_PAGES = true;
+    magentoConfig.SKIP_BLOCKS = true;
+
     const env = Object.assign({}, magentoConfig, process.env)  // use process env as well
     console.log('=== The mage2vuestorefront full reindex is about to start. Using the following Magento2 config ===', magentoConfig)
 
@@ -209,6 +221,7 @@ program
           '--harmony',
           'node_modules/mage2vuestorefront/src/cli.js',
           'categories',
+          '--generateUniqueUrlKeys=false', // Added by Dan 30-11-2019, prevent random category names
           '--removeNonExistent=true',
           '--extendedCategories=true'
         ], { env: env, shell: true })
@@ -265,13 +278,17 @@ program
       }
       else {
         console.log(' == PRODUCTS IMPORTER ==');
-        return exec('node', [
+        // Modified by Dan 30-11-2019 -> to allow syncing of only specific product SKUs
+        let args = [
           '--harmony',
           'node_modules/mage2vuestorefront/src/cli.js',
           'products',
           '--removeNonExistent=true',
           '--partitions=1'
-        ], { env: env, shell: true })
+        ]
+        if(magentoConfig.SKUs)args.push('--skus='+magentoConfig.SKUs)
+        console.log(' == PRODUCTS IMPORTER args == ', args);
+        return exec('node', args, { env: env, shell: true })
       }
     }
 
