@@ -24,7 +24,7 @@ const timeout = require('connect-timeout')
 
 const app = express();
 // timeout middleware
-app.use(timeout(400000));
+app.use(timeout(600000));
 
 // logger
 app.use(morgan('dev'));
@@ -58,9 +58,10 @@ initializeDb(db => {
 
   const port = process.env.PORT || config.get('server.port')
   const host = process.env.HOST || config.get('server.host')
-  app.listen(parseInt(port), host, () => {
-    console.log(`Vue Storefront API started at http://${host}:${port}`);
-  });
+  let server = app.listen(parseInt(port), host);
+  server.timeout = 10 * 60 * 1000;
+  server.keepAliveTimeout = 10 * 60 * 1000;
+  console.log(`Vue Storefront API started at http://${host}:${port}`);
 });
 
 // graphQl Server part

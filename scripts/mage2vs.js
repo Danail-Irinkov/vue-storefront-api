@@ -118,6 +118,8 @@ program
 
 program
   .command('import')
+  // Modified by Dan 30-11-2019 -> to allow syncing of only specific product SKUs
+  .option('--skus <SKUs>', 'import specific SKUs, comma-delimited list', false)
   .option('--store-code <storeCode>', 'storeCode in multistore setup', null)
   .option('--skip-reviews <skipReviews>', 'skip import of reviews', false)
   .option('--skip-categories <skipCategories>', 'skip import of categories', false)
@@ -170,6 +172,17 @@ program
       magentoConfig.SKIP_BLOCKS = true;
     }
 
+    // Modified by Dan 30-11-2019 -> to allow syncing of only specific product SKUs
+    if (cmd.skus) {
+      magentoConfig.SKUs = cmd.skus;
+    }
+    console.log('magentoConfig.SKUs', magentoConfig.SKUs)
+    // added by Dan 30-11-2019 //TODO: enable reviews to work
+    magentoConfig.SKIP_REVIEWS = true;
+    magentoConfig.SKIP_PAGES = true;
+    magentoConfig.SKIP_BLOCKS = true;
+
+    const env = Object.assign({}, magentoConfig, process.env)  // use process env as well
     magentoConfig.GENERATE_UNIQUE_URL_KEYS = cmd.generateUniqueUrlKeys;
 
     const env = Object.assign({}, magentoConfig, process.env) // use process env as well
@@ -206,6 +219,7 @@ program
           '--harmony',
           'node_modules/mage2vuestorefront/src/cli.js',
           'categories',
+          '--generateUniqueUrlKeys=false', // Added by Dan 30-11-2019, prevent random category names
           '--removeNonExistent=true',
           '--extendedCategories=true',
           `--generateUniqueUrlKeys=${magentoConfig.GENERATE_UNIQUE_URL_KEYS}`
@@ -259,13 +273,17 @@ program
         return Promise.resolve();
       } else {
         console.log(' == PRODUCTS IMPORTER ==');
-        return exec('node', [
+        // Modified by Dan 30-11-2019 -> to allow syncing of only specific product SKUs
+        let args = [
           '--harmony',
           'node_modules/mage2vuestorefront/src/cli.js',
           'products',
           '--removeNonExistent=true',
           '--partitions=1'
-        ], { env: env, shell: true })
+        ]
+        if(magentoConfig.SKUs)args.push('--skus='+magentoConfig.SKUs)
+        console.log(' == PRODUCTS IMPORTER args == ', args);
+        return exec('node', args, { env: env, shell: true })
       }
     }
 
