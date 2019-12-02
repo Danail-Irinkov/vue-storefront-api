@@ -2,14 +2,15 @@
   "PROCC": {
     "API": "localhost:8081"
   },
-  "server": {
-    "host": "localhost",
-    "port": 8080,
-    "searchEngine": "elasticsearch"
-  },
   "vsf": {
     "host": "localhost",
     "port": 3000
+  },
+  "server": {
+    "url": "http://localhost:8080",
+    "host": "localhost",
+    "port": 8080,
+    "searchEngine": "elasticsearch"
   },
   "redis": {
     "host": "localhost",
@@ -20,21 +21,14 @@
     "host": "localhost",
     "port": 9200,
     "protocol": "http",
-    "user": "elastic",
-    "password": "myElasticPass11",
     "min_score": 0.01,
     "indices": [
       "vue_storefront_catalog",
       "vue_storefront_catalog_de",
       "vue_storefront_catalog_it",
-      "vue_storefront_catalog_volkky",
-      "vue_storefront_catalog_rrr",
-      "vue_storefront_catalog_",
-      "vue_storefront_catalog_nike",
-      "vue_storefront_catalog_puma",
-      "vue_storefront_catalog_reebok",
-      "vue_storefront_catalog_lee_test",
-      "vue_storefront_catalog_qweqew"
+      "vue_storefront_catalog_nike_demo",
+      "vue_storefront_catalog_hh",
+      "vue_storefront_catalog_aa"
     ],
     "indexTypes": [
       "product",
@@ -50,18 +44,16 @@
   "availableStores": [
     "de",
     "it",
-    "volkky",
-    "rrr",
-    "qweqew"
+    "nike_demo",
+    "aa"
   ],
   "storeViews": {
     "multistore": true,
     "mapStoreUrlsFor": [
       "de",
       "it",
-      "volkky",
-      "rrr",
-      "qweqew"
+      "nike_demo",
+      "aa"
     ],
     "de": {
       "storeCode": "de",
@@ -70,7 +62,7 @@
       "name": "German Store",
       "url": "/de",
       "elasticsearch": {
-        "host": "http://localhost:8080/catalog",
+        "host": "http://localhost:8080/api/catalog",
         "index": "vue_storefront_catalog_de"
       },
       "tax": {
@@ -97,7 +89,7 @@
       "name": "Italian Store",
       "url": "/it",
       "elasticsearch": {
-        "host": "http://localhost:8080/catalog",
+        "host": "http://localhost:8080/api/catalog",
         "index": "vue_storefront_catalog_it"
       },
       "tax": {
@@ -117,22 +109,22 @@
         "dateFormat": "HH:mm D-M-YYYY"
       }
     },
-    "volkky": {
-      "storeCode": "volkky",
-      "storeName": "Volkyyz Store",
+    "nike_demo": {
+      "storeCode": "nike_demo",
+      "storeName": "Demo Store",
       "disabled": false,
-      "storeId": 23,
-      "name": "Volkyyz Store",
-      "url": "/volkky",
+      "storeId": 39,
+      "name": "Demo Store",
+      "url": "/nike_demo",
       "elasticsearch": {
-        "host": "http://localhost:8080/catalog",
-        "index": "vue_storefront_catalog_volkky"
+        "host": "http://localhost:8080/api/catalog",
+        "index": "vue_storefront_catalog_nike_demo"
       },
       "tax": {
         "defaultCountry": "BG",
         "defaultRegion": "",
         "calculateServerSide": true,
-        "sourcePriceIncludesTax": false
+        "sourcePriceIncludesTax": true
       },
       "i18n": {
         "fullCountryName": "Bulgaria",
@@ -145,44 +137,16 @@
         "dateFormat": "HH:mm D-M-YYYY"
       }
     },
-    "rrr": {
-      "storeCode": "rrr",
-      "storeName": "Volkyyz Store",
+    "aa": {
+      "storeCode": "aa",
+      "storeName": "Mashup Store",
       "disabled": false,
-      "storeId": 17,
-      "name": "Volkyyz Store",
-      "url": "/rrr",
+      "storeId": 68,
+      "name": "Mashup Store",
+      "url": "/aa",
       "elasticsearch": {
-        "host": "https://store.procc.co/api/catalog",
-        "index": "vue_storefront_catalog_rrr"
-      },
-      "tax": {
-        "defaultCountry": "BG",
-        "defaultRegion": "",
-        "calculateServerSide": true,
-        "sourcePriceIncludesTax": false
-      },
-      "i18n": {
-        "fullCountryName": "Bulgaria",
-        "fullLanguageName": "Bulgarian",
-        "defaultCountry": "BG",
-        "defaultLanguage": "EN",
-        "defaultLocale": "en-US",
-        "currencyCode": "EUR",
-        "currencySign": "EUR",
-        "dateFormat": "HH:mm D-M-YYYY"
-      }
-    },
-    "qweqew": {
-      "storeCode": "qweqew",
-      "storeName": "Volkyyz Store",
-      "disabled": false,
-      "storeId": 25,
-      "name": "Volkyyz Store",
-      "url": "/qweqew",
-      "elasticsearch": {
-        "host": "https://store.procc.co/api/catalog",
-        "index": "vue_storefront_catalog_qweqew"
+        "host": "http://localhost:8080/api/catalog",
+        "index": "vue_storefront_catalog_aa"
       },
       "tax": {
         "defaultCountry": "BG",
@@ -214,7 +178,7 @@
     "alwaysSyncPlatformPricesOver": false,
     "usePlatformTotals": true,
     "setConfigurableProductOptions": true,
-    "sourcePriceIncludesTax": false
+    "sourcePriceIncludesTax": true
   },
   "bodyLimit": "100kb",
   "corsHeaders": [
@@ -255,8 +219,8 @@
       "url": "http://m2.procc.co/rest",
       "consumerKey": "ihwmlsyi8bu6wlptwyr67s6bo6yi8cl4",
       "consumerSecret": "8zom97k15z6nwkkflxyvhwrre407kwdw",
-      "accessToken": "36f0bpbw5t5qkut41hovipjkw1pvb1x0",
-      "accessTokenSecret": "3fm070d6pvyttt643nyb2woi0wi7b7qg"
+      "accessToken": "4jooy23xlzfknrvgtpbletmdjq6gybo6",
+      "accessTokenSecret": "9tcgxt7ojxwuyvups5nf7lgyfdrlagkb"
     }
   },
   "imageable": {
