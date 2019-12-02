@@ -42,101 +42,13 @@
   },
   "kue": {},
   "availableStores": [
-    "de",
-    "it",
-    "nike_demo",
     "aa"
   ],
   "storeViews": {
     "multistore": true,
     "mapStoreUrlsFor": [
-      "de",
-      "it",
-      "nike_demo",
       "aa"
     ],
-    "de": {
-      "storeCode": "de",
-      "disabled": true,
-      "storeId": 3,
-      "name": "German Store",
-      "url": "/de",
-      "elasticsearch": {
-        "host": "http://localhost:8080/api/catalog",
-        "index": "vue_storefront_catalog_de"
-      },
-      "tax": {
-        "defaultCountry": "DE",
-        "defaultRegion": "",
-        "calculateServerSide": true,
-        "sourcePriceIncludesTax": false
-      },
-      "i18n": {
-        "fullCountryName": "Germany",
-        "fullLanguageName": "German",
-        "defaultLanguage": "DE",
-        "defaultCountry": "DE",
-        "defaultLocale": "de-DE",
-        "currencyCode": "EUR",
-        "currencySign": "EUR",
-        "dateFormat": "HH:mm D-M-YYYY"
-      }
-    },
-    "it": {
-      "storeCode": "it",
-      "disabled": true,
-      "storeId": 4,
-      "name": "Italian Store",
-      "url": "/it",
-      "elasticsearch": {
-        "host": "http://localhost:8080/api/catalog",
-        "index": "vue_storefront_catalog_it"
-      },
-      "tax": {
-        "defaultCountry": "IT",
-        "defaultRegion": "",
-        "calculateServerSide": true,
-        "sourcePriceIncludesTax": false
-      },
-      "i18n": {
-        "fullCountryName": "Italy",
-        "fullLanguageName": "Italian",
-        "defaultCountry": "IT",
-        "defaultLanguage": "IT",
-        "defaultLocale": "it-IT",
-        "currencyCode": "EUR",
-        "currencySign": "EUR",
-        "dateFormat": "HH:mm D-M-YYYY"
-      }
-    },
-    "nike_demo": {
-      "storeCode": "nike_demo",
-      "storeName": "Demo Store",
-      "disabled": false,
-      "storeId": 39,
-      "name": "Demo Store",
-      "url": "/nike_demo",
-      "elasticsearch": {
-        "host": "http://localhost:8080/api/catalog",
-        "index": "vue_storefront_catalog_nike_demo"
-      },
-      "tax": {
-        "defaultCountry": "BG",
-        "defaultRegion": "",
-        "calculateServerSide": true,
-        "sourcePriceIncludesTax": true
-      },
-      "i18n": {
-        "fullCountryName": "Bulgaria",
-        "fullLanguageName": "Bulgarian",
-        "defaultCountry": "BG",
-        "defaultLanguage": "EN",
-        "defaultLocale": "en-US",
-        "currencyCode": "EUR",
-        "currencySign": "EUR",
-        "dateFormat": "HH:mm D-M-YYYY"
-      }
-    },
     "aa": {
       "storeCode": "aa",
       "storeName": "Mashup Store",
