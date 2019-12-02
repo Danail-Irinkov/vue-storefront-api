@@ -42,8 +42,8 @@ class ProductProcessor {
     }
 console.log('processorChain.length', processorChain[0])
     return Promise.all(processorChain).then(((resultSet) => {
-      console.log('resultSet.length', resultSet.length)
-      console.log('resultSet.', resultSet)
+      console.log('resultSet.length', resultSet[0].length)
+      // console.log('resultSet.', resultSet)
 
       if (!resultSet || resultSet.length === 0) {
         throw Error('error with resultset for processor chaining')

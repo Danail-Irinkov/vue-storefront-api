@@ -105,8 +105,10 @@ module.exports = ({ config, db }) => {
         // storefront.set(`storeViews.${store_data.storeCode}`, store_data);
       }
     }
-
-    request({
+console.log('asdasd req.body', req.body)
+console.log('asdasd req.body  END')
+console.log('asdasd req.body  END')
+    return request({
         // create store in vs
         uri:'http://'+config.vsf.host+':'+config.vsf.port+'/create-store',
         method:'POST',
@@ -115,8 +117,8 @@ module.exports = ({ config, db }) => {
       },
       function (_err, _res, _resBody) {
         console.log('/updateStorefrontSettings Response', _resBody)
+        return apiStatus(res, 200);
       })
-    return apiStatus(res, 200);
   });
   /**
    * POST TEST api
@@ -240,6 +242,7 @@ module.exports = ({ config, db }) => {
     try {
       console.log('\'/manage-store\' Starting')
       console.log('\'/manage-store\' Starting')
+      let storeData = req.body.storeData;
       let storeCode = req.body.storeCode;
       let storeCodeForElastic = _.snakeCase(storeCode)
       let enableVSFRebuild = req.body.enableVSFRebuild
@@ -403,12 +406,14 @@ function setProductBanner(config, storeCode) {
         // depend upon the synced product with category ids
         let products = [];
         if (_resBody && _resBody.hits && catalogProducts) { // we're signing up all objects returned to the client to be able to validate them when (for example order)
+          // TODO: sort by updatedAt and get 6 most recent
           products = _.take(_.filter(catalogProducts, ["_source.type_id", "configurable"]), 6);
+          console.log('setProductBanner products - ', products)
           console.log('setProductBanner products.length - ', products.length)
          request({
            uri:'http://'+config.vsf.host+':'+config.vsf.port+'/product-link',
            method:'POST',
-           body: { 'products': products, 'storeCode': storeCode },
+           body: { 'products': products, 'storeCode': storeCode, 'imagesRootURL': config.magento2.imgUrl },
            json: true
          },function (_err, _res, _resBody) {
            resolve();
@@ -429,16 +434,18 @@ function setCategoryBanner(config, storeCode){
         method: 'GET',
       }, function (_err, _res, _resBody) { // TODO: add caching layer to speed up SSR? How to invalidate products (checksum on the response BEFORE processing it)
         _resBody = parse_resBody(_resBody)
-        let categoryData = !_.isUndefined(_.first(_.get(_.get(_resBody, 'hits'), 'hits'))) ? _.first(_.get(_.get(_resBody, 'hits'), 'hits')) : {};
-        console.log('setCategoryBanner _resBody', _resBody)
+        // TODO: add filter by category.level = 1 in ES query -> refactor "_.last"
+        let categoryData = !_.isUndefined(_.last(_.get(_.get(_resBody, 'hits'), 'hits'))) ? _.last(_.get(_.get(_resBody, 'hits'), 'hits')) : {};
+        // console.log('setCategoryBanner _resBody', _resBody)
+        console.log('setCategoryBanner categoryData', categoryData)
+
         if (_resBody && _resBody.hits && categoryData) { // we're signing up all objects returned to the client to be able to validate them when (for example order)
           let children_data = !_.isUndefined(_.get(_.get(categoryData, '_source'), 'children_data')) ? _.get(_.get(categoryData, '_source'), 'children_data') : [];
-          console.log('setCategoryBanner categoryData', categoryData)
-          console.log('setCategoryBanner children_data', children_data)
+          console.log('setCategoryBanner children_categories of the main category: \n', children_data)
           request({
             uri:'http://'+config.vsf.host+':'+config.vsf.port+'/category-link',
             method:'POST',
-            body: { 'childrenData': children_data, 'storeCode': storeCode },
+            body: { 'categories': children_data, 'storeCode': storeCode },
             json: true
           },function (_err, _res, _resBody) {
             resolve();

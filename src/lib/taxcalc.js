@@ -6,7 +6,7 @@ function isSpecialPriceActive(fromDate, toDate) {
   if (!fromDate && !toDate) {
     return true
   }
-  
+
   if (fromDate && toDate) {
     return fromDate < now && toDate > now
   }
@@ -128,7 +128,7 @@ export function calculateProductTax (product, taxClasses, taxCountry = 'PL', tax
         if (rate.tax_country_id === taxCountry && (rate.region_name === taxRegion || rate.tax_region_id === 0 || !rate.region_name)) {
           updateProductPrices(product, rate, sourcePriceInclTax)
           rateFound = true
-          console.debug('Tax rate ' + rate.code + ' = ' + rate.rate + '% found for ' + taxCountry + ' / ' + taxRegion)
+          // console.debug('Tax rate ' + rate.code + ' = ' + rate.rate + '% found for ' + taxCountry + ' / ' + taxRegion)
           break
         }
       }

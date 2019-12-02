@@ -116,7 +116,7 @@ export default ({config, db}) => function (req, res, body) {
       if (entityType === 'product') {
         resultProcessor.process(_resBody.hits.hits, groupId).then((result) => {
           _resBody.hits.hits = result
-          console.log('ES _resBody.product: ', _resBody.hits)
+          // console.log('ES _resBody.product: ', _resBody.hits)
           res.json(_resBody);
         }).catch((err) => {
           console.error(err)
