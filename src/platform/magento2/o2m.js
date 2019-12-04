@@ -237,7 +237,9 @@ function processSingleOrder(orderData, config, job, done, logger = console) {
                   platform: 'magento2',
                   order: orderData
                 }));
-                redisClient.set("order$$totals$$" + orderData.order_id, JSON.stringify(result[1]));
+                // Edited by Dan 03-12-2019 to fix error -> result = 2 != array (order_id)
+                redisClient.set("order$$totals$$" + orderData.order_id, JSON.stringify(result));
+                // redisClient.set("order$$totals$$" + orderData.order_id, JSON.stringify(result[1]));
                 let orderIncrementId = null;
                 api.orders.incrementIdById(result).then(result => {
                   orderIncrementId = result.increment_id

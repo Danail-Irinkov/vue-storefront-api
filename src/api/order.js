@@ -1,5 +1,6 @@
 import resource from 'resource-router-middleware';
-import { apiStatus, apiError } from '../lib/util';import { merge } from 'lodash';
+import { apiStatus, apiError  } from '../lib/util';
+import { merge, get, isUndefined } from 'lodash';
 import PlatformFactory from '../platform/factory';
 
 const Ajv = require('ajv'); // json validator
@@ -61,6 +62,8 @@ export default ({ config, db }) => resource({
 			}
 		}
 
+		let brand_id = !isUndefined(get(get(get(get(incomingOrder, 'order'), 'products'), '0'), 'procc_brand_id')) ? get(get(get(get(incomingOrder, 'order'), 'products'), '0'), 'procc_brand_id') : 0;
+
 		if (config.orders.useServerQueue) {
 			try {
 				let queue = kue.createQueue(Object.assign(config.kue, { redis: config.redis }));
@@ -69,6 +72,9 @@ export default ({ config, db }) => resource({
 						console.error(err)
 						apiError(res, err);
 					} else {
+            ProCcAPI.addNewOrder(req.body, brand_id).then((resp) => {
+              console.log(resp);
+            })
 						apiStatus(res, job.id, 200);
 					}
 				})
@@ -78,6 +84,11 @@ export default ({ config, db }) => resource({
 		} else {
 			const orderProxy = _getProxy(req, config)
 			orderProxy.create(req.body).then((result) => {
+        let orderData = req.body
+        orderData.order_id = result.magentoOrderId
+        ProCcAPI.addNewOrder(orderData, brand_id).then((resp) => {
+          console.log(resp);
+        })
 				apiStatus(res, result, 200);
 			}).catch(err => {
 				apiError(res, err);
