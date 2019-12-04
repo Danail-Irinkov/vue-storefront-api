@@ -260,14 +260,14 @@ console.log('asdasd req.body  END')
 
       console.time('buildAndRestartVueStorefront')
       console.log('buildAndRestartVueStorefront')
-      await buildAndRestartVueStorefront(req, res, brand_id, enableVSFRebuild, config);
+      let brand_data = await buildAndRestartVueStorefront(req, res, brand_id, enableVSFRebuild, config);
       console.timeEnd('buildAndRestartVueStorefront')
       console.log('buildAndRestartVueStorefront Done! Store is ready to function! StoreCode: ', storeCodeForElastic);
 
       // TODO: send info to ProCC about success and error as part of the queue procedures -> update the queue object status
-      // console.time('updateVsfSyncStatusToProCC')
-      // await ProCcAPI.updateVsfSyncStatusToProCC(brand_data);
-      // console.timeEnd('updateVsfSyncStatusToProCC')
+      console.time('updateVsfSyncStatusToProCC')
+      await ProCcAPI.updateVsfSyncStatusToProCC(brand_data);
+      console.timeEnd('updateVsfSyncStatusToProCC')
 
       res.status(200);
       res.end();

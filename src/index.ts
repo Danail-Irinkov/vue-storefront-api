@@ -19,6 +19,10 @@ import * as path from 'path'
 // import resolvers from './graphql/resolvers';
 // import typeDefs from './graphql/schema';
 
+// Added ProCCAPI to global added by Dan to enable in typescript
+import ProCcApiRaw from './helpers/procc_api'
+(global as any).ProCcAPI = ProCcApiRaw();
+
 // Added by dan-29-11-2019
 const timeout = require('connect-timeout')
 
