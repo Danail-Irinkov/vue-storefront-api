@@ -26,7 +26,8 @@ if(process.env.NODE_ENV === 'development')
 else
   storefrontApiConfig = new Store({path: path.resolve('./config/production.json')});
 
-// console.log('path.resolve', path.resolve('./config/production.json') )
+console.log('START storefrontApiConfig: ', storefrontApiConfig.clone())
+console.log('END storefrontApiConfig! ')
 
 module.exports = ({ config, db }) => {
   let mcApi = Router();
@@ -72,7 +73,7 @@ module.exports = ({ config, db }) => {
         dateFormat: "HH:mm D-M-YYYY"
       }
     }
-    console.log('storefrontApiConfig: ', storefrontApiConfig)
+    console.log('storefrontApiConfig: ', storefrontApiConfig.clone())
 
     if (storefrontApiConfig.has(`storeViews.${store_data.storeCode}`)) {
       storefrontApiConfig.del(`storeViews.${store_data.storeCode}`);
@@ -87,8 +88,8 @@ module.exports = ({ config, db }) => {
 
       if (!_.includes(storefrontApiConfig.get("elasticsearch.indices"), store_data.elasticsearch.index)) {
         //set indices of the store
-        storefrontApiConfig.set("elasticsearch.indices", (_.concat(storefrontApiConfig.get("elasticsearch.indices"), store_data.elasticsearch.index)));
-
+        storefrontApiConfig.set("elasticsearch.indices", _.concat(storefrontApiConfig.get("elasticsearch.indices"), store_data.elasticsearch.index));
+        console.log('storefrontApiConfig.get("elasticsearch.indices")1', storefrontApiConfig.get("elasticsearch.indices"))
         // config.elasticsearch.indices = storefrontApiConfig.get("elasticsearch.indices")
         // console.log('//procc index.js store_data.config.elasticsearch.indices ', config.elasticsearch.indices )
       }
@@ -177,7 +178,7 @@ console.log('asdasd req.body  END')
       let storeCode = req.body.storeCode;
       let skus = req.body.skus;
       let storeCodeForElastic = _.snakeCase(storeCode)
-      console.log('storewise-import storefrontApiConfig', storefrontApiConfig.clone)
+      console.log('storewise-import storefrontApiConfig', storefrontApiConfig.clone())
       console.log('storefrontApiConfig')
       // Check if store exists in configs TODO: add check for all parts of the store related configs
       if(!storefrontApiConfig.get('storeViews') || storefrontApiConfig.get('storeViews').indexOf(storeCode) === -1){
@@ -297,6 +298,8 @@ console.log('asdasd req.body  END')
     if (storefrontApiConfig.has(`storeViews.${store_code}`)) {
       //remove storeview data from the storefront-api
       storefrontApiConfig.set("elasticsearch.indices", _.pull(storefrontApiConfig.get("elasticsearch.indices"),store_index))
+      console.log('storefrontApiConfig.get("elasticsearch.indices")2', storefrontApiConfig.get("elasticsearch.indices"))
+
       storefrontApiConfig.set("availableStores", _.pull(storefrontApiConfig.get("availableStores"),store_code))
       storefrontApiConfig.set("storeViews.mapStoreUrlsFor", _.pull(storefrontApiConfig.get("storeViews.mapStoreUrlsFor"),store_code))
       storefrontApiConfig.del(`storeViews.${store_code}`)
@@ -351,17 +354,20 @@ async function createStoreIndexInBothServers (storeCode) {
     let storeCodeForElastic = _.snakeCase(storeCode)
     let storeIndex = `vue_storefront_catalog_${storeCodeForElastic}`
 
-    console.log('storefrontApiConfig', storefrontApiConfig.clone)
+    console.log('storefrontApiConfig', storefrontApiConfig.clone())
     console.log('storeIndex', storeIndex)
     console.log('createStoreIndexInBothServers')
 
     if (!_.includes(storefrontApiConfig.get("elasticsearch.indices"), storeIndex)) {
-      storefrontApiConfig.set("elasticsearch.indices", (_.concat(storefrontApiConfig.get("elasticsearch.indices"), storeIndex)));
+      storefrontApiConfig.set("elasticsearch.indices", _.concat(storefrontApiConfig.get("elasticsearch.indices"), storeIndex));
+      console.log('storefrontApiConfig.get("elasticsearch.indices")3', storefrontApiConfig.get("elasticsearch.indices"))
     }
 
     console.time('createNewElasticSearchIndex')
     await createNewElasticSearchIndex(storeCodeForElastic)
     console.timeEnd('createNewElasticSearchIndex')
+
+    // TODO: configure all indices in one command for the store code if error was found
 
     console.time('startVueStorefrontAPI')
     await startVueStorefrontAPI()
