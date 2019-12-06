@@ -159,6 +159,18 @@ console.log('asdasd req.body  END')
     try {
       console.log('/create-store-index', req.body.storeCode)
       let storeCode = req.body.storeCode;
+      await createStoreIndexInBothServers(storeCode)
+
+      return apiStatus(res, 200);
+    }catch (e) {
+      res.send({
+        message_type: "error",
+        message: e
+      });
+    }
+  });
+  async function createStoreIndexInBothServers (storeCode) {
+    try {
       let storeCodeForElastic = _.snakeCase(storeCode)
       let storeIndex = `vue_storefront_catalog_${storeCodeForElastic}`
 
@@ -175,14 +187,11 @@ console.log('asdasd req.body  END')
       console.timeEnd('startVueStorefrontAPI')
       console.log('Done! You can start Selling!');
 
-      return apiStatus(res, 200);
+      return Promise.resolve(true)
     }catch (e) {
-      res.send({
-        message_type: "error",
-        message: e
-      });
+      return Promise.reject(e)
     }
-  });
+  }
 
   mcApi.post('/storewise-import', async (req, res) => {
     try {
@@ -190,6 +199,13 @@ console.log('asdasd req.body  END')
       let storeCode = req.body.storeCode;
       let skus = req.body.skus;
       let storeCodeForElastic = _.snakeCase(storeCode)
+
+      // Check if store exists in configs
+      if(!storefrontApiConfig.storeViews || storefrontApiConfig.storeViews.indexOf(storeCode) === -1){
+        // Creating New Store Configs
+        await createStoreIndexInBothServers(storeCode)
+      }
+
       if(!storeCode)return Promise.reject('Missing store code')
       if(!skus)return Promise.reject('Missing SKUs') // SKUs are needed, to avoid importing all products from all stores
 
