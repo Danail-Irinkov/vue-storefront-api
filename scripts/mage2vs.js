@@ -4,6 +4,8 @@ const spawn = require('child_process').spawn
 
 function multiStoreConfig (apiConfig, storeCode) {
   let confCopy = Object.assign({}, apiConfig)
+  // console.log('multiStoreConfig config', config)
+  console.log('multiStoreConfig config')
 
   if (storeCode && config.availableStores.indexOf(storeCode) >= 0) {
     if (config.magento2['api_' + storeCode]) {
