@@ -119,7 +119,7 @@ export function buildVueStorefront(config){
   console.log(' == Building VueStorefront ==');
   request({
       // create store in vs
-      uri:'http://'+config.vsf.host+':'+config.vsf.port+'/rebuild-storefront',
+      uri:config.vsf.host+':'+config.vsf.port+'/rebuild-storefront',
       method:'POST',
       body: {filler: 'object mock'},
       json: true
@@ -140,13 +140,13 @@ export function deleteVueStorefrontStoreConfig(storeData, config){
   console.log(' == Delete VueStorefront Store Config==');
   request({
       // delete store in vs
-      uri:'http://'+config.vsf.host+':'+config.vsf.port+'/delete-store',
+      uri:config.vsf.host+':'+config.vsf.port+'/delete-store',
       method:'POST',
       body: storeData,
       json: true
     },
     function (_err, _res, _resBody) {
-      console.log('POST REQUEST TO', 'http://'+config.vsf.host+':'+config.vsf.port+'/delete-store')
+      console.log('POST REQUEST TO', config.vsf.host+':'+config.vsf.port+'/delete-store')
       console.log('deleteVueStorefrontStoreConfig _resBody', _resBody)
       if(_err){
         console.log('deleteVueStorefrontStoreConfig _err', _err)
@@ -160,7 +160,7 @@ export function restartPM2VueStorefront(config){
   console.log(' == restartPM2VueStorefront ==');
   request({
       // create store in vs
-      uri:'http://'+config.vsf.host+':'+config.vsf.port+'/restart-pm2',
+      uri:config.vsf.host+':'+config.vsf.port+'/restart-pm2',
       method:'POST',
       body: {filler: 'object mock'},
       json: true
