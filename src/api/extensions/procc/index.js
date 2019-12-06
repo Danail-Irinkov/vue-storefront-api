@@ -72,6 +72,7 @@ module.exports = ({ config, db }) => {
         dateFormat: "HH:mm D-M-YYYY"
       }
     }
+    console.log('storefrontApiConfig: ', storefrontApiConfig)
 
     if (storefrontApiConfig.has(`storeViews.${store_data.storeCode}`)) {
       storefrontApiConfig.del(`storeViews.${store_data.storeCode}`);
@@ -88,7 +89,7 @@ module.exports = ({ config, db }) => {
         //set indices of the store
         storefrontApiConfig.set("elasticsearch.indices", (_.concat(storefrontApiConfig.get("elasticsearch.indices"), store_data.elasticsearch.index)));
 
-        config.elasticsearch.indices = storefrontApiConfig.get("elasticsearch.indices")
+        // config.elasticsearch.indices = storefrontApiConfig.get("elasticsearch.indices")
         // console.log('//procc index.js store_data.config.elasticsearch.indices ', config.elasticsearch.indices )
       }
 
@@ -169,29 +170,6 @@ console.log('asdasd req.body  END')
       });
     }
   });
-  async function createStoreIndexInBothServers (storeCode) {
-    try {
-      let storeCodeForElastic = _.snakeCase(storeCode)
-      let storeIndex = `vue_storefront_catalog_${storeCodeForElastic}`
-
-      if (!_.includes(storefrontApiConfig.get("elasticsearch.indices"), storeIndex)) {
-        storefrontApiConfig.set("elasticsearch.indices", (_.concat(storefrontApiConfig.get("elasticsearch.indices"), storeIndex)));
-      }
-
-      console.time('createNewElasticSearchIndex')
-      await createNewElasticSearchIndex(storeCodeForElastic)
-      console.timeEnd('createNewElasticSearchIndex')
-
-      console.time('startVueStorefrontAPI')
-      await startVueStorefrontAPI()
-      console.timeEnd('startVueStorefrontAPI')
-      console.log('Done! You can start Selling!');
-
-      return Promise.resolve(true)
-    }catch (e) {
-      return Promise.reject(e)
-    }
-  }
 
   mcApi.post('/storewise-import', async (req, res) => {
     try {
@@ -367,6 +345,33 @@ console.log('asdasd req.body  END')
   return mcApi;
 };
 
+async function createStoreIndexInBothServers (storeCode) {
+  try {
+    let storeCodeForElastic = _.snakeCase(storeCode)
+    let storeIndex = `vue_storefront_catalog_${storeCodeForElastic}`
+
+    console.log('storefrontApiConfig', storefrontApiConfig)
+    console.log('storeIndex', storeIndex)
+    console.log('createStoreIndexInBothServers')
+
+    if (!_.includes(storefrontApiConfig.get("elasticsearch.indices"), storeIndex)) {
+      storefrontApiConfig.set("elasticsearch.indices", (_.concat(storefrontApiConfig.get("elasticsearch.indices"), storeIndex)));
+    }
+
+    console.time('createNewElasticSearchIndex')
+    await createNewElasticSearchIndex(storeCodeForElastic)
+    console.timeEnd('createNewElasticSearchIndex')
+
+    console.time('startVueStorefrontAPI')
+    await startVueStorefrontAPI()
+    console.timeEnd('startVueStorefrontAPI')
+    console.log('Done! You can start Selling!');
+
+    return Promise.resolve(true)
+  }catch (e) {
+    return Promise.reject(e)
+  }
+}
 
 function parse_resBody(_resBody) {
   if(_resBody.indexOf('Error') === -1 && _resBody.charAt(0) == '{'){
@@ -495,8 +500,8 @@ function healthCheckVSF(config){
       },
       function (_err, _res, _resBody) {
         if (_err) {
-          console.log('ERROR VSF-FRONTEND CONNECTION')
-          reject(_err)
+          console.log('ERROR VSF-FRONTEND CONNECTION', _err)
+          reject({error: _err, message: 'ERROR VSF-FRONTEND CONNECTION'})
         } else {
           console.log('VSF-FRONTEND is running');
           resolve('VSF-FRONTEND is running')
