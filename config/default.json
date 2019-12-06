@@ -1,4 +1,12 @@
 {
+  "PROCC": {
+    "API": "http://procc-dash-api:8081",
+    "URL": "https://procc.co/api"
+  },
+  "vsf": {
+    "host": "http://vue-storefront",
+    "port": 3000
+  },
   "server": {
     "url": "http://localhost:8080",
     "host": "localhost",
@@ -12,11 +20,10 @@
     "invalidateCacheForwarding": false,
     "invalidateCacheForwardUrl": "http://localhost:3000/invalidate?key=aeSu7aip&tag="
   },
-  "orders": {
-    "useServerQueue": false
-  },
-  "catalog": {
-    "excludeDisabledProducts": false
+  "redis": {
+    "host": "redis",
+    "port": 6379,
+    "db": 0
   },
   "elasticsearch": {
     "host": "magento-pre-req-elasticsearch-coordinating-only",
@@ -24,10 +31,7 @@
     "protocol": "http",
     "min_score": 0.01,
     "indices": [
-      "vue_storefront_catalog",
-      "vue_storefront_catalog_de",
-      "vue_storefront_catalog_it",
-      "need_to_update these manually"
+      "vue_storefront_catalog"
     ],
     "indexTypes": [
       "product",
@@ -40,10 +44,11 @@
     ],
     "apiVersion": "5.6"
   },
-  "redis": {
-    "host": "redis",
-    "port": 6379,
-    "db": 0
+  "orders": {
+    "useServerQueue": false
+  },
+  "catalog": {
+    "excludeDisabledProducts": true
   },
   "kue": {},
   "availableStores": [
@@ -66,7 +71,7 @@
       "name": "German Store",
       "url": "/de",
       "elasticsearch": {
-        "host": "https://store.procc.co/api/catalog",
+        "host": "http://localhost:8080/catalog",
         "index": "vue_storefront_catalog_de"
       },
       "tax": {
@@ -98,7 +103,7 @@
       "name": "Italian Store",
       "url": "/it",
       "elasticsearch": {
-        "host": "https://store.procc.co/api/catalog",
+        "host": "http://localhost:8080/catalog",
         "index": "vue_storefront_catalog_it"
       },
       "tax": {
@@ -130,7 +135,7 @@
       "name": "Volkyyz Store",
       "url": "/volkky",
       "elasticsearch": {
-        "host": "https://store.procc.co/api/catalog",
+        "host": "http://localhost:8080/catalog",
         "index": "vue_storefront_catalog_volkky"
       },
       "tax": {
@@ -163,7 +168,7 @@
     "alwaysSyncPlatformPricesOver": false,
     "usePlatformTotals": true,
     "setConfigurableProductOptions": true,
-    "sourcePriceIncludesTax": false,
+    "sourcePriceIncludesTax": true,
     "deprecatedPriceFieldsSupport": true,
     "finalPriceIncludesTax": false,
     "userGroupId": null,
@@ -181,7 +186,7 @@
   ],
   "platform": "magento2",
   "registeredExtensions": [
-    "procc-config-data",
+    "procc",
     "mailchimp-subscribe",
     "example-magento-api",
     "cms-data",
@@ -214,11 +219,11 @@
     "imgUrl": "https://storage.googleapis.com/procc/vendor/product/optimized",
     "assetPath": "/../var/magento2-sample-data/pub/media",
     "api": {
-      "url": "http://magento-bitnami:80/rest",
-      "consumerKey": "gqb4dlqh2ggdjshx4k7hshfgcoakbphc",
-      "consumerSecret": "nnggh06ciivoiylyn2reeewhn70skqdj",
-      "accessToken": "924xjbdx76rvbc7qff3zbzvaggnqruhu",
-      "accessTokenSecret": "ehxpj9cb5frvje6uygpj7xd7p9fpvksu"
+      "url": "http://m2.procc.co/rest",
+      "consumerKey": "ihwmlsyi8bu6wlptwyr67s6bo6yi8cl4",
+      "consumerSecret": "8zom97k15z6nwkkflxyvhwrre407kwdw",
+      "accessToken": "4jooy23xlzfknrvgtpbletmdjq6gybo6",
+      "accessTokenSecret": "9tcgxt7ojxwuyvups5nf7lgyfdrlagkb"
     }
   },
   "imageable": {
@@ -390,6 +395,10 @@
       }
     }
   },
+  "msi": {
+    "enabled": false,
+    "defaultStockId": 1
+  },
   "usePriceTiers": false,
   "boost": {
     "name": 3,
@@ -398,8 +407,5 @@
     "description": 1,
     "sku": 1,
     "configurable_children.sku": 1
-  },
-  "PROCC": {
-    "API": "procc-dash-api:8081"
   }
 }
