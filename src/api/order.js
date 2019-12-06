@@ -41,7 +41,8 @@ export default ({ config, db }) => resource({
       return;
     }
     const incomingOrder = { title: 'Incoming order received on ' + new Date() + ' / ' + req.ip, ip: req.ip, agent: req.headers['user-agent'], receivedAt: new Date(), order: req.body }/* parsed using bodyParser.json middleware */
-    console.log(JSON.stringify(incomingOrder))
+    // console.log(JSON.stringify(incomingOrder))
+    console.log('incomingOrder: ', JSON.stringify(incomingOrder))
 
     for (let product of req.body.products) {
       let key = config.tax.calculateServerSide ? { priceInclTax: product.priceInclTax } : { price: product.price }
@@ -72,7 +73,7 @@ export default ({ config, db }) => resource({
 						apiError(res, err);
 					} else {
             ProCcAPI.addNewOrder(req.body, brand_id).then((resp) => {
-              console.log(resp);
+              console.log('addNewOrder Response1:', resp);
             })
 						apiStatus(res, job.id, 200);
 					}
@@ -86,7 +87,7 @@ export default ({ config, db }) => resource({
         let orderData = req.body
         orderData.order_id = result.magentoOrderId
         ProCcAPI.addNewOrder(orderData, brand_id).then((resp) => {
-          console.log(resp);
+          console.log('addNewOrder Response2:', resp);
         })
 				apiStatus(res, result, 200);
 			}).catch(err => {

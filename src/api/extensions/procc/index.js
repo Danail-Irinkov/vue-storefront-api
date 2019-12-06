@@ -86,6 +86,7 @@ module.exports = ({ config, db }) => {
         storefrontApiConfig.set("availableStores", (_.concat(storefrontApiConfig.get("availableStores"), store_data.storeCode)));
       }
 
+      console.log('storefrontApiConfig.get("elasticsearch.indices")0', storefrontApiConfig.get("elasticsearch.indices"))
       if (!_.includes(storefrontApiConfig.get("elasticsearch.indices"), store_data.elasticsearch.index)) {
         //set indices of the store
         storefrontApiConfig.set("elasticsearch.indices", _.concat(storefrontApiConfig.get("elasticsearch.indices"), store_data.elasticsearch.index));

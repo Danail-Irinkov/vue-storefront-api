@@ -84,7 +84,6 @@ function putAlias (db, originalName, aliasName, next) {
     db.indices.putAlias({ index: originalName, name: aliasName }).then(result => {
       console.log('Index alias created')
     }).then(next).catch(err => {
-      console.log(err.message)
       next()
     })
   }
