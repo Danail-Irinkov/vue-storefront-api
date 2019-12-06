@@ -1,19 +1,22 @@
 {
+  "PROCC": {
+    "API": "http://procc-dash-api:8081",
+    "URL": "https://procc.co/api"
+  },
+  "vsf": {
+    "host": "http://vue-storefront",
+    "port": 3000
+  },
   "server": {
     "url": "https://store.procc.co",
     "host": "localhost",
     "port": 8080,
     "searchEngine": "elasticsearch"
   },
-  "orders": {
-    "useServerQueue": false
-  },
-  "catalog": {
-    "excludeDisabledProducts": false
-  },
-  "vsf": {
-    "host": "vue-storefront",
-    "port": 3000
+  "redis": {
+    "host": "redis",
+    "port": 6379,
+    "db": 0
   },
   "elasticsearch": {
     "host": "magento-pre-req-elasticsearch-coordinating-only",
@@ -21,10 +24,7 @@
     "protocol": "http",
     "min_score": 0.01,
     "indices": [
-      "vue_storefront_catalog",
-      "vue_storefront_catalog_de",
-      "vue_storefront_catalog_it",
-      "need_to_update these manually"
+      "vue_storefront_catalog"
     ],
     "indexTypes": [
       "product",
@@ -36,10 +36,11 @@
     ],
     "apiVersion": "5.6"
   },
-  "redis": {
-    "host": "redis",
-    "port": 6379,
-    "db": 0
+  "orders": {
+    "useServerQueue": false
+  },
+  "catalog": {
+    "excludeDisabledProducts": true
   },
   "kue": {},
   "authHashSecret": "__SECRET_CHANGE_ME__",
@@ -54,7 +55,7 @@
     "alwaysSyncPlatformPricesOver": false,
     "usePlatformTotals": true,
     "setConfigurableProductOptions": true,
-    "sourcePriceIncludesTax": false
+    "sourcePriceIncludesTax": true
   },
   "bodyLimit": "100kb",
   "corsHeaders": [
@@ -266,8 +267,5 @@
     "description": 1,
     "sku": 1,
     "configurable_children.sku": 1
-  },
-  "PROCC": {
-    "API": "procc-dash-api:8081"
   }
 }

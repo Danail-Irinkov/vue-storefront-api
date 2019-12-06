@@ -1,9 +1,10 @@
 {
   "PROCC": {
-    "API": "localhost:8081"
+    "API": "http://localhost:8081",
+    "URL": "https://procc.co/api"
   },
   "vsf": {
-    "host": "localhost",
+    "host": "http://localhost",
     "port": 3000
   },
   "server": {
@@ -28,7 +29,8 @@
       "vue_storefront_catalog_it",
       "vue_storefront_catalog_nike_demo",
       "vue_storefront_catalog_hh",
-      "vue_storefront_catalog_aa"
+      "vue_storefront_catalog_aa",
+      "vue_storefront_catalog_cctest"
     ],
     "indexTypes": [
       "product",
@@ -42,12 +44,14 @@
   },
   "kue": {},
   "availableStores": [
-    "aa"
+    "aa",
+    "cctest"
   ],
   "storeViews": {
     "multistore": true,
     "mapStoreUrlsFor": [
-      "aa"
+      "aa",
+      "cctest"
     ],
     "aa": {
       "storeCode": "aa",
@@ -59,6 +63,34 @@
       "elasticsearch": {
         "host": "http://localhost:8080/api/catalog",
         "index": "vue_storefront_catalog_aa"
+      },
+      "tax": {
+        "defaultCountry": "BG",
+        "defaultRegion": "",
+        "calculateServerSide": true,
+        "sourcePriceIncludesTax": false
+      },
+      "i18n": {
+        "fullCountryName": "Bulgaria",
+        "fullLanguageName": "Bulgarian",
+        "defaultCountry": "BG",
+        "defaultLanguage": "EN",
+        "defaultLocale": "en-US",
+        "currencyCode": "EUR",
+        "currencySign": "EUR",
+        "dateFormat": "HH:mm D-M-YYYY"
+      }
+    },
+    "cctest": {
+      "storeCode": "cctest",
+      "storeName": "Test Judy Store",
+      "disabled": false,
+      "storeId": 69,
+      "name": "Test Judy Store",
+      "url": "/cctest",
+      "elasticsearch": {
+        "host": "http://localhost:8080/api/catalog",
+        "index": "vue_storefront_catalog_cctest"
       },
       "tax": {
         "defaultCountry": "BG",
