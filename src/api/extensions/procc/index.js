@@ -110,7 +110,7 @@ console.log('asdasd req.body  END')
 console.log('asdasd req.body  END')
     return request({
         // create store in vs
-        uri:'http://'+config.vsf.host+':'+config.vsf.port+'/create-store',
+        uri:config.vsf.host+':'+config.vsf.port+'/create-store',
         method:'POST',
         body: req.body,
         json: true
@@ -139,7 +139,7 @@ console.log('asdasd req.body  END')
   mcApi.get('/backup-config', (req, res) => {
     request({
         //store url with custom function
-        uri:'http://'+config.vsf.host+':'+config.vsf.port+'/backup-config',
+        uri:config.vsf.host+':'+config.vsf.port+'/backup-config',
         method:'POST',
         body: req.body,
         json: true
@@ -351,7 +351,7 @@ console.log('asdasd req.body  END')
     }
     request({
         // disable store in vs
-        uri:'http://'+config.vsf.host+':'+config.vsf.port+'/disable-store',
+        uri:config.vsf.host+':'+config.vsf.port+'/disable-store',
         method:'POST',
         body: {"storeData": storeData, "status": status},
         json: true
@@ -430,7 +430,7 @@ function setProductBanner(config, storeCode) {
           console.log('setProductBanner products - ', products)
           console.log('setProductBanner products.length - ', products.length)
          request({
-           uri:'http://'+config.vsf.host+':'+config.vsf.port+'/product-link',
+           uri:config.vsf.host+':'+config.vsf.port+'/product-link',
            method:'POST',
            body: { 'products': products, 'storeCode': storeCode, 'imagesRootURL': config.magento2.imgUrl },
            json: true
@@ -462,7 +462,7 @@ function setCategoryBanner(config, storeCode){
           let children_data = !_.isUndefined(_.get(_.get(categoryData, '_source'), 'children_data')) ? _.get(_.get(categoryData, '_source'), 'children_data') : [];
           console.log('setCategoryBanner children_categories of the main category: \n', children_data)
           request({
-            uri:'http://'+config.vsf.host+':'+config.vsf.port+'/category-link',
+            uri:config.vsf.host+':'+config.vsf.port+'/category-link',
             method:'POST',
             body: { 'categories': children_data, 'storeCode': storeCode },
             json: true
