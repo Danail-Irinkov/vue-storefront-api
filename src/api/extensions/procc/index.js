@@ -177,9 +177,9 @@ console.log('asdasd req.body  END')
       let storeCode = req.body.storeCode;
       let skus = req.body.skus;
       let storeCodeForElastic = _.snakeCase(storeCode)
-console.log('storewise-import storefrontApiConfig', storefrontApiConfig)
-console.log('storefrontApiConfig')
-      // Check if store exists in configs
+      console.log('storewise-import storefrontApiConfig', storefrontApiConfig.clone)
+      console.log('storefrontApiConfig')
+      // Check if store exists in configs TODO: add check for all parts of the store related configs
       if(!storefrontApiConfig.get('storeViews') || storefrontApiConfig.get('storeViews').indexOf(storeCode) === -1){
         // Creating New Store Configs
         await createStoreIndexInBothServers(storeCode)
@@ -351,7 +351,7 @@ async function createStoreIndexInBothServers (storeCode) {
     let storeCodeForElastic = _.snakeCase(storeCode)
     let storeIndex = `vue_storefront_catalog_${storeCodeForElastic}`
 
-    console.log('storefrontApiConfig', storefrontApiConfig)
+    console.log('storefrontApiConfig', storefrontApiConfig.clone)
     console.log('storeIndex', storeIndex)
     console.log('createStoreIndexInBothServers')
 
