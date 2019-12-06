@@ -248,6 +248,9 @@ console.log('asdasd req.body  END')
       let enableVSFRebuild = req.body.enableVSFRebuild
       let brand_id = req.body.brand_id
 
+      // TODO: ON FIRST STORE CREATE
+      // TODO: setCategoryBanner is searching for a non-existent index in ES
+      // TODO: WE NEED TO MAKE SURE THE INDEX EXISTS AND IS ACCESSIBLE BEFORE THIS FUNC
       console.time('setCategoryBanner')
       console.log('setCategoryBanner')
       await setCategoryBanner(config, storeCodeForElastic)
@@ -266,7 +269,7 @@ console.log('asdasd req.body  END')
 
       // TODO: send info to ProCC about success and error as part of the queue procedures -> update the queue object status
       console.time('updateVsfSyncStatusToProCC')
-      await ProCcAPI.updateVsfSyncStatusToProCC(brand_data);
+      await ProCcAPI.updateVsfSyncStatus(brand_data);
       console.timeEnd('updateVsfSyncStatusToProCC')
 
       res.status(200);
