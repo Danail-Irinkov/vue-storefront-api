@@ -38,12 +38,6 @@
     ],
     "apiVersion": "5.6"
   },
-  "redis": {
-    "host": "redis",
-    "port": 6379,
-    "db": 0
-  },
-  "kue": {},
   "availableStores": [
     "de",
     "it",
