@@ -37,7 +37,7 @@ cli.command('buildcache', () => {
                 index: 'gls_parcelshop_dk'
             }, function (err, resp, status) {
                 if (err) {
-                    console.log(err);
+                    console.log("gls_parcelshop_dk", err);
                 }
                 else {
                     console.log("create", resp);
@@ -77,12 +77,12 @@ cli.command('buildcache', () => {
                 index: 'gls_parcelshop_dk',
                 type: 'droppoint'
             }, function (err, resp, status) {
-                console.log(resp);
+                console.log("gls_parcelshop_dk resp1", resp);
 
                 esClient.bulk({
                     body: bulk
                 }, function (err, resp, status) {
-                    console.log(resp);
+                    console.log("gls_parcelshop_dk resp2",resp);
                 })
             })
         })

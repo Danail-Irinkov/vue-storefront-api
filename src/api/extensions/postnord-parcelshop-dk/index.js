@@ -28,7 +28,7 @@ module.exports = ({config, db}) => {
             method: 'GET',
             json: true,
         }, function (_err, _res, _resBody) {
-            console.log(_resBody)
+            console.log("_resBody parcel shop", _resBody)
             if (_resBody && _resBody.servicePointInformationResponse.servicePoints) {
                 let latitude = 0;
                 let longitude = 0;

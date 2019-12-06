@@ -4,11 +4,10 @@ const fs = require('fs');
 const jsonFile = require('jsonfile')
 
 function putAlias(db, originalName, aliasName, next) {
-  let step2 = () => { 
+  let step2 = () => {
     db.indices.putAlias({ index: originalName, name: aliasName }).then(result=>{
       console.log('Index alias created', result)
     }).then(next).catch(err => {
-      console.log(err.message)
       next()
     })
   }
@@ -108,7 +107,7 @@ function createIndex(db, indexName, next) {
 
 /**
  * Load the schema definition for particular entity type
- * @param {String} entityType 
+ * @param {String} entityType
  */
 function loadSchema(entityType) {
   let elasticSchema = jsonFile.readFileSync(path.join(__dirname, '../../config/elastic.schema.' + entityType + '.json'));
@@ -153,13 +152,13 @@ function putMappings(db, indexName, next) {
           type: "cms_page",
           body: pageSchema
         }).then(res4 => {
-          console.dir(res4, { depth: null, colors: true })        
+          console.dir(res4, { depth: null, colors: true })
           db.indices.putMapping({
             index: indexName,
             type: "cms_block",
             body: blockSchema
           }).then(res5 => {
-            console.dir(res5, { depth: null, colors: true })   
+            console.dir(res5, { depth: null, colors: true })
             db.indices.putMapping({
               index: indexName,
               type: "category",

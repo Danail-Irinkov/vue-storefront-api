@@ -36,7 +36,7 @@ class ProductProcessor {
           processorChain.push(extProcessor.process(items))
         } catch (err) {
           // Additional processor not found or failed
-          console.log(err)
+          console.log('Additional processor not found or failed', err)
         }
       }
     }
