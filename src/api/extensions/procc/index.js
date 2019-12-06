@@ -177,9 +177,10 @@ console.log('asdasd req.body  END')
       let storeCode = req.body.storeCode;
       let skus = req.body.skus;
       let storeCodeForElastic = _.snakeCase(storeCode)
-
+console.log('storewise-import storefrontApiConfig', storefrontApiConfig)
+console.log('storefrontApiConfig')
       // Check if store exists in configs
-      if(!storefrontApiConfig.storeViews || storefrontApiConfig.storeViews.indexOf(storeCode) === -1){
+      if(!storefrontApiConfig.get('storeViews') || storefrontApiConfig.get('storeViews').indexOf(storeCode) === -1){
         // Creating New Store Configs
         await createStoreIndexInBothServers(storeCode)
       }
