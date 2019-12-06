@@ -490,7 +490,7 @@ function healthCheckVSF(config){
   return new Promise((resolve, reject)=>{
     request({
         //store url with custom function
-        uri:'http://'+config.vsf.host+':'+config.vsf.port+'/health',
+        uri: config.vsf.host+':'+config.vsf.port+'/health',
         method:'GET'
       },
       function (_err, _res, _resBody) {
