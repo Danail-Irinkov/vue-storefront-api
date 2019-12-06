@@ -30,7 +30,8 @@
       "vue_storefront_catalog_nike_demo",
       "vue_storefront_catalog_hh",
       "vue_storefront_catalog_aa",
-      "vue_storefront_catalog_cctest"
+      "vue_storefront_catalog_cctest",
+      "vue_storefront_catalog_kk"
     ],
     "indexTypes": [
       "product",
@@ -45,13 +46,15 @@
   "kue": {},
   "availableStores": [
     "aa",
-    "cctest"
+    "cctest",
+    "kk"
   ],
   "storeViews": {
     "multistore": true,
     "mapStoreUrlsFor": [
       "aa",
-      "cctest"
+      "cctest",
+      "kk"
     ],
     "aa": {
       "storeCode": "aa",
@@ -91,6 +94,34 @@
       "elasticsearch": {
         "host": "http://localhost:8080/api/catalog",
         "index": "vue_storefront_catalog_cctest"
+      },
+      "tax": {
+        "defaultCountry": "BG",
+        "defaultRegion": "",
+        "calculateServerSide": true,
+        "sourcePriceIncludesTax": false
+      },
+      "i18n": {
+        "fullCountryName": "Bulgaria",
+        "fullLanguageName": "Bulgarian",
+        "defaultCountry": "BG",
+        "defaultLanguage": "EN",
+        "defaultLocale": "en-US",
+        "currencyCode": "EUR",
+        "currencySign": "EUR",
+        "dateFormat": "HH:mm D-M-YYYY"
+      }
+    },
+    "kk": {
+      "storeCode": "kk",
+      "storeName": "Volkyyz Store",
+      "disabled": false,
+      "storeId": 70,
+      "name": "Volkyyz Store",
+      "url": "/kk",
+      "elasticsearch": {
+        "host": "http://localhost:8080/api/catalog",
+        "index": "vue_storefront_catalog_kk"
       },
       "tax": {
         "defaultCountry": "BG",
