@@ -21,10 +21,10 @@ import request from 'request';
 import request_async from 'request-promise-native';
 
 let storefrontApiConfig
-if(process.env.NODE_ENV === 'development')
+if(process.env.NODE_ENV === 'development'){
   storefrontApiConfig = new Store({path: path.resolve('./config/local.json')});
-else
-  storefrontApiConfig = new Store({path: appDir+'/config/production.json'});
+}else
+  storefrontApiConfig = new Store({path: path.resolve('./config/production.json')});
 
 import fs from 'fs';
 console.log('START process.env.NODE_ENV: ', process.env.NODE_ENV)

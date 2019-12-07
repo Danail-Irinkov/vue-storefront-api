@@ -12,6 +12,5 @@ if [ "$VS_ENV" = 'dev' ]; then
 else
   npm install pm2 -g
   npm run build
-  set NODE_ENV=production
   yarn startK
 fi
