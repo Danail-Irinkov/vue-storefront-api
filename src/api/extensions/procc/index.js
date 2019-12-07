@@ -27,6 +27,8 @@ else
   storefrontApiConfig = new Store({path: path.resolve('./config/production.json')});
 
 console.log('START storefrontApiConfig: ', storefrontApiConfig.clone())
+console.log('START storefrontApiConfig: ', path.resolve('./config/production.json'))
+console.log('START storefrontApiConfig: ', path.resolve('/config/production.json'))
 console.log('END storefrontApiConfig! ')
 
 module.exports = ({ config, db }) => {
@@ -148,9 +150,9 @@ console.log('asdasd req.body  END')
         json: true
       },
       function (_err, _res, _resBody) {
-      console.log(req.body, 'req.body')
-      console.log(_resBody, '_resBody')
-      console.log(_err, '_err')
+      // console.log(req.body, 'req.body')
+      // console.log(_resBody, '_resBody')
+      // console.log(_err, '_err')
         let backupConfigFiles = {"vsf_config_data": _resBody, "vsf_api_config_data": config}
         return apiStatus(res, backupConfigFiles, 200);
       })
