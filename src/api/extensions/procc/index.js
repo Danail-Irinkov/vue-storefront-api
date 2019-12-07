@@ -185,15 +185,15 @@ console.log('asdasd req.body  END')
       let storeCodeForElastic = _.snakeCase(storeCode)
       console.log('storewise-import storefrontApiConfig', storefrontApiConfig.clone())
       console.log('storefrontApiConfig')
-      // Check if store exists in configs TODO: add creation for all parts of the store related configs
-      if(!storefrontApiConfig.get('storeViews') || !storefrontApiConfig.get('storeViews.'+storeCode)
-        || !storefrontApiConfig.get('storeViews.mapStoreUrlsFor') || ![...storefrontApiConfig.get('storeViews.mapStoreUrlsFor')].indexOf(storeCode) === -1
-        || !storefrontApiConfig.get('elasticsearch.indices') || ![...storefrontApiConfig.get('elasticsearch.indices')].indexOf(storeCode) === -1
-        || !storefrontApiConfig.get('availableStores') || ![...storefrontApiConfig.get('availableStores')].indexOf(storeCode) === -1
-      ){
-        // Creating New Store Configs
-        await createStoreIndexInBothServers(storeCode)
-      }
+      // Check if store exists in configs TODO: add creation for all parts of the store related configs, if missing any part
+      // if(!storefrontApiConfig.get('storeViews') || !storefrontApiConfig.get('storeViews.'+storeCode)
+      //   || !storefrontApiConfig.get('storeViews.mapStoreUrlsFor') || ![...storefrontApiConfig.get('storeViews.mapStoreUrlsFor')].indexOf(storeCode) === -1
+      //   || !storefrontApiConfig.get('elasticsearch.indices') || ![...storefrontApiConfig.get('elasticsearch.indices')].indexOf(storeCode) === -1
+      //   || !storefrontApiConfig.get('availableStores') || ![...storefrontApiConfig.get('availableStores')].indexOf(storeCode) === -1
+      // ){
+      //   // Creating New Store Configs
+      //   await createStoreIndexInBothServers(storeCode)
+      // }
 
       if(!storeCode)return Promise.reject('Missing store code')
       if(!skus)return Promise.reject('Missing SKUs') // SKUs are needed, to avoid importing all products from all stores
