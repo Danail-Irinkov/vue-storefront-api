@@ -15,7 +15,7 @@
     "port": 3000
   },
   "elasticsearch": {
-    "host": "magento-pre-req-elasticsearch-coordinating-only",
+    "host": "elastic5",
     "port": 9200,
     "protocol": "http",
     "user": "elastic",

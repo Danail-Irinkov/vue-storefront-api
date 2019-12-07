@@ -1,6 +1,6 @@
 {
   "server": {
-    "url": "https://store.procc.co",
+    "url": "http://localhost:8080",
     "host": "localhost",
     "port": 8080,
     "searchEngine": "elasticsearch",
