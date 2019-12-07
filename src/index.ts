@@ -5,7 +5,9 @@ import bodyParser from 'body-parser';
 import initializeDb from './db';
 import middleware from './middleware';
 import api from './api';
+console.log('BEFORE process.env.NODE_ENV: ', process.env.NODE_ENV)
 import config from 'config';
+console.log('AFTER process.env.NODE_ENV: ', process.env.NODE_ENV)
 import img from './api/img';
 // import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 // import { makeExecutableSchema } from 'graphql-tools';
