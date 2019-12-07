@@ -406,6 +406,11 @@ function getTotalHits(config, storeCode,search) {
   return new Promise((resolve, reject) => {
     request({uri: `${config.server.url}/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?filter_path=hits.total`, method: 'GET'},
         function (_err, _res, _resBody) {
+          if(_err){
+            console.log('getTotalHits Error', _err)
+            console.log('config.server.url:', config.server.url)
+            reject(_err)
+          }
           console.log('_resBody', _resBody)
           if(_resBody.indexOf('Error') === -1) {
             _resBody = parse_resBody(_resBody)
@@ -439,8 +444,13 @@ function searchCatalogUrl(config, storeCode, search) {
 
 function setProductBanner(config, storeCode) {
   return new Promise((resolve, reject) => {
-    searchCatalogUrl(config, storeCode, 'product').then((res) => {
-      request({uri: res, method: 'GET'}, function (_err, _res, _resBody) {
+    searchCatalogUrl(config, storeCode, 'product').then((URL) => {
+      request({uri: URL, method: 'GET'}, function (_err, _res, _resBody) {
+        if(_err){
+          console.log('setProductBanner Error', _err)
+          console.log('config.server.url:', URL)
+          reject(_err)
+        }
         _resBody = parse_resBody(_resBody)
         let catalogProducts = _.get(_.get(_resBody,'hits'),'hits');
         // depend upon the synced product with category ids
@@ -473,6 +483,11 @@ function setCategoryBanner(config, storeCode){
         uri: search_url,
         method: 'GET',
       }, function (_err, _res, _resBody) { // TODO: add caching layer to speed up SSR? How to invalidate products (checksum on the response BEFORE processing it)
+        if(_err){
+          console.log('setCategoryBanner Error', _err)
+          console.log('config.server.url:', search_url)
+          reject(_err)
+        }
         _resBody = parse_resBody(_resBody)
         // TODO: add filter by category.level = 1 in ES query -> refactor "_.last"
         let categoryData = !_.isUndefined(_.last(_.get(_.get(_resBody, 'hits'), 'hits'))) ? _.last(_.get(_.get(_resBody, 'hits'), 'hits')) : {};
