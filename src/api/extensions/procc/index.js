@@ -24,11 +24,13 @@ let storefrontApiConfig
 if(process.env.NODE_ENV === 'development')
   storefrontApiConfig = new Store({path: path.resolve('./config/local.json')});
 else
-  storefrontApiConfig = new Store({path: path.resolve('./config/production.json')});
+  storefrontApiConfig = new Store({path: appDir+'/config/production.json'});
 
+import fs from 'fs';
+console.log('START process.env.NODE_ENV: ', process.env.NODE_ENV)
+console.log('START readFileSync: ', fs.readFileSync(path.resolve('./config/production.json')))
 console.log('START storefrontApiConfig: ', storefrontApiConfig.clone())
 console.log('START storefrontApiConfig: ', path.resolve('./config/production.json'))
-console.log('START storefrontApiConfig: ', path.resolve('/config/production.json'))
 console.log('END storefrontApiConfig! ')
 
 module.exports = ({ config, db }) => {
