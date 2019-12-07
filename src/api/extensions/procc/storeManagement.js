@@ -117,21 +117,23 @@ export function startVueStorefrontAPI(){
 export function buildVueStorefront(config){
   return new Promise((resolve, reject) => {
   console.log(' == Building VueStorefront ==');
-  request({
-      // create store in vs
-      uri:config.vsf.host+':'+config.vsf.port+'/rebuild-storefront',
-      method:'POST',
-      body: {filler: 'object mock'},
-      json: true
-    },
-    function (_err, _res, _resBody) {
-      // console.log('buildVueStorefront Body', _resBody)
-      if(_err){
-        console.log('buildVueStorefront Error', _err)
-        reject(_err)
-      }
-      else resolve(_resBody)
-    })
+  console.log(' == TODO: Trigger kubernetes rolling restart ==');
+  // TODO: Execute kubectl rolling restart deploy/vue-storefront-api
+  // request({
+  //     // create store in vs
+  //     uri:config.vsf.host+':'+config.vsf.port+'/rebuild-storefront',
+  //     method:'POST',
+  //     body: {filler: 'object mock'},
+  //     json: true
+  //   },
+  //   function (_err, _res, _resBody) {
+  //     // console.log('buildVueStorefront Body', _resBody)
+  //     if(_err){
+  //       console.log('buildVueStorefront Error', _err)
+  //       reject(_err)
+  //     }
+  //     else resolve(_resBody)
+  //   })
   })
 }
 
