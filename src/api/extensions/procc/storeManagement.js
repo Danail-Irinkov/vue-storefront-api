@@ -118,7 +118,7 @@ export function buildVueStorefront(config){
   return new Promise((resolve, reject) => {
   console.log(' == Building VueStorefront ==');
   console.log(' == TODO: Trigger kubernetes rolling restart ==');
-  // TODO: Execute kubectl rolling restart deploy/vue-storefront-api
+  // TODO: Execute kubectl rollout restart deploy/vue-storefront-api
   // request({
   //     // create store in vs
   //     uri:config.vsf.host+':'+config.vsf.port+'/rebuild-storefront',
@@ -198,12 +198,15 @@ export async function buildAndRestartVueStorefront(req, res, brand_id, enableVSF
     };
 
     console.time('buildVueStorefrontAPI')
+    // TODO: Need to restart kubernetes deployment in Production
+    if(process.env.NODE_ENV === 'development')
     await buildVueStorefrontAPI()
     console.timeEnd('buildVueStorefrontAPI')
 
     // Disabled to test if something is breaking
     if(enableVSFRebuild){
       console.time('buildVueStorefront')
+      if(process.env.NODE_ENV === 'development')
       await buildVueStorefront(config)
       console.timeEnd('buildVueStorefront')
     }
