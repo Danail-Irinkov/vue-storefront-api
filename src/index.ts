@@ -17,6 +17,10 @@ import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/schema';
 import * as path from 'path'
 
+// Added ProCCAPI to give the api some standard CAs to avoid -> 'first certificate error' at api call
+import { loadAdditionalCertificates } from './helpers/loadAdditionalCertificates';
+loadAdditionalCertificates();
+
 // Added ProCCAPI to global added by Dan to enable in typescript
 import ProCcApiRaw from './helpers/procc_api'
 (global as any).ProCcAPI = ProCcApiRaw();
@@ -61,7 +65,6 @@ initializeDb(db => {
   const port = process.env.PORT || config.get('server.port')
   const host = process.env.HOST || config.get('server.host')
   let server = app.listen(parseInt(port), host);
-  // server.globalAgent.options.ca = require('ssl-root-cas/latest').create();
   server.timeout = 10 * 60 * 1000;
   server.keepAliveTimeout = 10 * 60 * 1000;
   console.log(`Vue Storefront API started at http://${host}:${port}`);
