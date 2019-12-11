@@ -20,6 +20,8 @@ import * as path from 'path'
 // Added ProCCAPI to give the api some standard CAs to avoid -> 'first certificate error' at api call
 import { loadAdditionalCertificates } from './helpers/loadAdditionalCertificates';
 loadAdditionalCertificates();
+console.log('loadAdditionalCertificates LOADED')
+console.log('loadAdditionalCertificates LOADED')
 
 // Added ProCCAPI to global added by Dan to enable in typescript
 import ProCcApiRaw from './helpers/procc_api'
