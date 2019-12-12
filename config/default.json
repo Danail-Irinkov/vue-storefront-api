@@ -79,7 +79,9 @@
         "deprecatedPriceFieldsSupport": true,
         "calculateServerSide": true,
         "sourcePriceIncludesTax": false,
-		    "finalPriceIncludesTax": true
+        "finalPriceIncludesTax": true,
+        "userGroupId": null,
+        "useOnlyDefaultUserGroupId": false
       },
       "i18n": {
         "fullCountryName": "Germany",
@@ -112,7 +114,9 @@
         "calculateServerSide": true,
         "sourcePriceIncludesTax": false,
         "deprecatedPriceFieldsSupport": true,
-        "finalPriceIncludesTax": true
+        "finalPriceIncludesTax": true,
+        "userGroupId": null,
+        "useOnlyDefaultUserGroupId": false
       },
       "i18n": {
         "fullCountryName": "Italy",
@@ -140,7 +144,9 @@
     "setConfigurableProductOptions": true,
     "sourcePriceIncludesTax": false,
     "deprecatedPriceFieldsSupport": true,
-    "finalPriceIncludesTax": true
+    "finalPriceIncludesTax": false,
+    "userGroupId": null,
+    "useOnlyDefaultUserGroupId": false
   },
   "review": {
     "defaultReviewStatus": 2 
@@ -183,13 +189,8 @@
     }
   },
   "magento2": {
-    "url": "http://demo-magento2.vuestorefront.io/",
     "imgUrl": "http://demo-magento2.vuestorefront.io/media/catalog/product",
     "assetPath": "/../var/magento2-sample-data/pub/media",
-    "magentoUserName": "",
-    "magentoUserPassword": "",
-    "httpUserName": "",
-    "httpUserPassword": "",
     "api": {
       "url": "http://demo-magento2.vuestorefront.io/rest",
       "consumerKey": "byv3730rhoulpopcq64don8ukb8lf2gq",
@@ -199,7 +200,6 @@
     }
   },
   "magento1": {
-    "url": "http://magento-demo.local",
     "imgUrl": "http://magento-demo.local/media/catalog/product",
     "assetPath": "",
     "magentoUserName": "",
@@ -215,7 +215,6 @@
     }
   },
   "imageable": {
-    "namespace": "",
     "maxListeners": 512,
     "imageSizeLimit": 1024,
     "whitelist": {
@@ -235,7 +234,6 @@
       "process": 4
     },
     "simd": true,
-    "keepDownloads": true,
     "caching": {
       "active": false,
       "type": "file",
