@@ -25,6 +25,7 @@ export default ({ config, db }) => resource({
    * POST create an order with JSON payload compliant with models/order.md
    */
   create (req, res) {
+    console.log('create Order Data: ', req.body)
     const ajv = new Ajv();
     require('ajv-keywords')(ajv, 'regexp');
 
@@ -64,6 +65,8 @@ export default ({ config, db }) => resource({
 
 		let brand_id = !isUndefined(get(get(get(get(incomingOrder, 'order'), 'products'), '0'), 'procc_brand_id')) ? get(get(get(get(incomingOrder, 'order'), 'products'), '0'), 'procc_brand_id') : 0;
 
+    console.log('create Order Data: ', req.body)
+    console.log('create Order brand_id: ', brand_id)
 		if (config.orders.useServerQueue) {
 			try {
 				let queue = kue.createQueue(Object.assign(config.kue, { redis: config.redis }));
@@ -73,7 +76,7 @@ export default ({ config, db }) => resource({
 						apiError(res, err);
 					} else {
             ProCcAPI.addNewOrder(req.body, brand_id).then((resp) => {
-              console.log('addNewOrder Response1:', resp);
+              console.log('addNewOrder Response1:');
             })
 						apiStatus(res, job.id, 200);
 					}
@@ -83,13 +86,14 @@ export default ({ config, db }) => resource({
 			}
 		} else {
 			const orderProxy = _getProxy(req, config)
-			orderProxy.create(req.body).then((result) => {
-        let orderData = req.body
-        orderData.order_id = result.magentoOrderId
-        ProCcAPI.addNewOrder(orderData, brand_id).then((resp) => {
-          console.log('addNewOrder Response2:', resp);
-        })
-				apiStatus(res, result, 200);
+			orderProxy.create(req.body)
+        .then((result) => {
+          let orderData = req.body
+          orderData.order_id = result.magentoOrderId
+          ProCcAPI.addNewOrder(orderData, brand_id).then((resp) => {
+            console.log('addNewOrder Response2:');
+          })
+          apiStatus(res, result, 200);
 			}).catch(err => {
 				apiError(res, err);
 			})

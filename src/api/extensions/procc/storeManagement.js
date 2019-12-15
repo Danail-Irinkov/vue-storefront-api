@@ -116,22 +116,45 @@ export function startVueStorefrontAPI(){
 
 export function buildVueStorefront(config){
   return new Promise((resolve, reject) => {
-  console.log(' == Building VueStorefront ==');
-  request({
-      // create store in vs
-      uri:'http://'+config.vsf.host+':'+config.vsf.port+'/rebuild-storefront',
-      method:'POST',
-      body: {filler: 'object mock'},
-      json: true
-    },
-    function (_err, _res, _resBody) {
-      // console.log('buildVueStorefront Body', _resBody)
-      if(_err){
-        console.log('buildVueStorefront Error', _err)
-        reject(_err)
-      }
-      else resolve(_resBody)
-    })
+    console.log(' == Building VueStorefront ==');
+    request({
+        // create store in vs
+        uri: config.vsf.host+':'+config.vsf.port+'/rebuild-storefront',
+        method: 'POST',
+        body: {filler: 'object mock'},
+        json: true
+      },
+      function (_err, _res, _resBody) {
+        // console.log('buildVueStorefront Body', _resBody)
+        if(_err){
+          console.log('buildVueStorefront Error', _err)
+          reject(_err)
+        }
+        else resolve(_resBody)
+      })
+  })
+}
+
+
+export function kubeRestartVSFDeployment(config){
+  return new Promise((resolve, reject) => {
+      console.log(' == Triggering kubernetes rolling restart ==');
+      // Execute kubectl rollout restart deploy/vue-storefront-api
+      request({
+          // create store in vs
+          uri: 'http://procc-kube-control:3000/rollout',
+          method: 'POST',
+          body: {filler: 'object mock'},
+          json: true
+        },
+        function (_err, _res, _resBody) {
+          // console.log('buildVueStorefront Body', _resBody)
+          if(_err){
+            console.log('buildVueStorefront Error', _err)
+            reject(_err)
+          }
+          else resolve(_resBody)
+        })
   })
 }
 
@@ -140,13 +163,13 @@ export function deleteVueStorefrontStoreConfig(storeData, config){
   console.log(' == Delete VueStorefront Store Config==');
   request({
       // delete store in vs
-      uri:'http://'+config.vsf.host+':'+config.vsf.port+'/delete-store',
+      uri:config.vsf.host+':'+config.vsf.port+'/delete-store',
       method:'POST',
       body: storeData,
       json: true
     },
     function (_err, _res, _resBody) {
-      console.log('POST REQUEST TO', 'http://'+config.vsf.host+':'+config.vsf.port+'/delete-store')
+      console.log('POST REQUEST TO', config.vsf.host+':'+config.vsf.port+'/delete-store')
       console.log('deleteVueStorefrontStoreConfig _resBody', _resBody)
       if(_err){
         console.log('deleteVueStorefrontStoreConfig _err', _err)
@@ -160,7 +183,7 @@ export function restartPM2VueStorefront(config){
   console.log(' == restartPM2VueStorefront ==');
   request({
       // create store in vs
-      uri:'http://'+config.vsf.host+':'+config.vsf.port+'/restart-pm2',
+      uri:config.vsf.host+':'+config.vsf.port+'/restart-pm2',
       method:'POST',
       body: {filler: 'object mock'},
       json: true
@@ -195,20 +218,23 @@ export async function buildAndRestartVueStorefront(req, res, brand_id, enableVSF
       status:false
     };
 
-    console.time('buildVueStorefrontAPI')
-    await buildVueStorefrontAPI()
-    console.timeEnd('buildVueStorefrontAPI')
+    // TODO: Need to restart kubernetes deployment in Production
 
-    // Disabled to test if something is breaking
-    if(enableVSFRebuild){
-      console.time('buildVueStorefront')
-      await buildVueStorefront(config)
-      console.timeEnd('buildVueStorefront')
+    if(enableVSFRebuild) {
+      if (process.env.NODE_ENV === 'development') {
+        console.time('buildVueStorefrontDev')
+        await buildVueStorefront(config)
+        await buildVueStorefrontAPI(config)
+        console.timeEnd('buildVueStorefrontDev')
+      } else if (process.env.NODE_ENV === 'production') {
+        console.time('kubeRestartVSFDeployment')
+        await kubeRestartVSFDeployment(config)
+        console.timeEnd('kubeRestartVSFDeployment')
+      }
     }
-
-    console.time('restartPM2Server')
-    await restartPM2Server()
-    console.timeEnd('restartPM2Server')
+    // console.time('restartPM2Server')
+    // await restartPM2Server()
+    // console.timeEnd('restartPM2Server')
 
     return brand_data
   }catch(err){
