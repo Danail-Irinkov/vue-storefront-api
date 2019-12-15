@@ -273,7 +273,8 @@ console.log('asdasd req.body  END')
 
       // TODO: send info to ProCC about success and error as part of the queue procedures -> update the queue object status
       console.time('updateVsfSyncStatusToProCC')
-      await ProCcAPI.updateVsfSyncStatus(brand_data);
+      console.log('updateVsfSyncStatusToProCC brand_id: ', brand_id)
+      await ProCcAPI.updateVsfSyncStatus(brand_data, brand_id);
       console.timeEnd('updateVsfSyncStatusToProCC')
 
       res.status(200);
