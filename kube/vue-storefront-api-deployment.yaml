@@ -37,20 +37,20 @@ spec:
           httpGet:
             path: /api/ext/procc/health
             port: 8080
-          initialDelaySeconds: 40
-          periodSeconds: 15
+          initialDelaySeconds: 60
+          periodSeconds: 33
           timeoutSeconds: 5
           successThreshold: 1
           failureThreshold: 3
         livenessProbe:
           httpGet:
-            path: /api/ext/procc/health
+            path: /api/
             port: 8080
           initialDelaySeconds: 200
-          periodSeconds: 60
-          timeoutSeconds: 20
-          successThreshold: 1
-          failureThreshold: 2
+          periodSeconds: 10
+          timeoutSeconds: 2
+          successThreshold: 2
+          failureThreshold: 3
         resources:
           limits:
             memory: 678Mi
