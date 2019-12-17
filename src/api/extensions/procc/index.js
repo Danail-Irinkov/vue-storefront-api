@@ -182,6 +182,10 @@ console.log('asdasd req.body  END')
       let storeCode = req.body.storeCode;
       let skus = req.body.skus;
       let storeCodeForElastic = _.snakeCase(storeCode)
+      let brand_id = req.body.brand_id
+      if(!storeCode || !brand_id){
+        return Promise.reject('Insufficient Parameters')
+      }
       console.log('storewise-import storefrontApiConfig', storefrontApiConfig.clone())
       console.log('storefrontApiConfig')
       // Check if store exists in configs TODO: add creation for all parts of the store related configs, if missing any part
@@ -226,6 +230,8 @@ console.log('asdasd req.body  END')
       // console.log('restoreStoreIndex')
       // await restoreStoreIndex(storeCodeForElastic)
       // console.timeEnd('restoreStoreIndex')
+      console.log('store_wise_import_done - brand_id: ', brand_id)
+      ProCcAPI.store_wise_import_done({success: true, brand_id}, brand_id)
 
       res.status(200);
       res.end();
@@ -274,7 +280,9 @@ console.log('asdasd req.body  END')
       // TODO: send info to ProCC about success and error as part of the queue procedures -> update the queue object status
       console.time('updateVsfSyncStatusToProCC')
       console.log('updateVsfSyncStatusToProCC brand_id: ', brand_id)
-      await ProCcAPI.updateVsfSyncStatus(brand_data, brand_id);
+      if(!enableVSFRebuild || process.env.NODE_ENV === 'development')
+        ProCcAPI.updateStoreSyncQueWaiting({success: true, brand_id}, brand_id)
+      // await ProCcAPI.updateVsfSyncStatus(brand_data, brand_id); // DEPRECATED
       console.timeEnd('updateVsfSyncStatusToProCC')
 
       res.status(200);

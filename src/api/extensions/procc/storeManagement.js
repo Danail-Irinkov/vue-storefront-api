@@ -136,13 +136,13 @@ export function buildVueStorefront(config){
 }
 
 
-export function kubeRestartVSFDeployment(config){
+export function kubeRestartVSFDeployment(config, brand_id){
   return new Promise((resolve, reject) => {
       console.log(' == Triggering kubernetes rolling restart ==');
       // Execute kubectl rollout restart deploy/vue-storefront-api
       request({
           // create store in vs
-          uri: 'http://procc-kube-control:3000/rollout',
+          uri: 'http://procc-kube-control:3000/rollout-vsf?brand_id='+brand_id,
           method: 'POST',
           body: {filler: 'object mock'},
           json: true
@@ -217,7 +217,6 @@ export async function buildAndRestartVueStorefront(req, res, brand_id, enableVSF
       brand_id:brand_id,
       status:false
     };
-
     // TODO: Need to restart kubernetes deployment in Production
 
     if(enableVSFRebuild) {
@@ -228,7 +227,7 @@ export async function buildAndRestartVueStorefront(req, res, brand_id, enableVSF
         console.timeEnd('buildVueStorefrontDev')
       } else if (process.env.NODE_ENV === 'production') {
         console.time('kubeRestartVSFDeployment')
-        await kubeRestartVSFDeployment(config)
+        await kubeRestartVSFDeployment(config, brand_id)
         console.timeEnd('kubeRestartVSFDeployment')
       }
     }
