@@ -20,7 +20,7 @@ cli.command('buildcache', () => {
           host: config.elasticsearch.host,
           port: config.elasticsearch.port
         },
-        log: 'debug',
+        // log: 'debug',
         apiVersion: config.elasticsearch.apiVersion,
         requestTimeout: 1000 * 60 * 60,
         keepAlive: false

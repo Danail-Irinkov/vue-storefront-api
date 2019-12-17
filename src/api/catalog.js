@@ -93,7 +93,8 @@ export default ({config, db}) => function (req, res, body) {
 		};
   }
 
-  console.log('ES requestBody', req.method+' - '+url+'\n'+require('util').inspect(requestBody, false, null, true /* enable colors */))
+  console.log('ES requestURL: ', req.method+' - '+url)
+  // console.log('ES requestBody', '\n'+require('util').inspect(requestBody, false, null, true /* enable colors */))
   // console.log(JSON.stringify(requestBody))
 	request({ // do the elasticsearch request
 		uri: url,
@@ -124,7 +125,7 @@ export default ({config, db}) => function (req, res, body) {
       } else {
         resultProcessor.process(_resBody.hits.hits).then((result) => {
           _resBody.hits.hits = result
-          console.log('ES _resBody.default: ', _resBody.hits)
+          // console.log('ES _resBody.default: ', _resBody.hits) // Show results from query
           res.json(_resBody);
         }).catch((err) => {
           console.error(err)

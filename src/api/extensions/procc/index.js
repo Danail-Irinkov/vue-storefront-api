@@ -521,13 +521,20 @@ function setCategoryBanner(config, storeCode){
 }
 
 async function healthCheck(config){
-  const asyncFunctions = [
-    healthCheckVSF(config),
-    healthCheckMagento2(config),
-    healthCheckRedis(config),
-    healthCheckES(config),
-  ];
-  return await Promise.all(asyncFunctions);
+  try{
+    const asyncFunctions = [
+      healthCheckVSF(config),
+      healthCheckMagento2(config),
+      healthCheckRedis(config),
+      healthCheckES(config),
+    ];
+    let result = await Promise.all(asyncFunctions)
+    console.log('VSF-API IS HEALTHY')
+    return result;
+  }catch (e) {
+    console.log('VSF-API IS DOWN', e)
+    return Promise.reject(e)
+  }
 }
 
 function healthCheckVSF(config){
@@ -539,10 +546,10 @@ function healthCheckVSF(config){
       },
       function (_err, _res, _resBody) {
         if (_err) {
-          console.log('ERROR VSF-FRONTEND CONNECTION', _err)
-          reject({error: _err, message: 'ERROR VSF-FRONTEND CONNECTION'})
+          console.log('ERROR VSF-API CANNOT CONNECT WITH VSF-FRONTEND', _err)
+          reject({error: _err, message: 'ERROR VSF-API CANNOT CONNECT WITH VSF-FRONTEND'})
         } else {
-          console.log('VSF-FRONTEND is running');
+          // console.log('VSF-FRONTEND is running');
           resolve('VSF-FRONTEND is running')
         }
       })
@@ -555,7 +562,7 @@ function healthCheckMagento2(config){
 
     client.categories.list()
       .then(function (categories) {
-        console.log('M2 is running');
+        // console.log('M2 is running');
         resolve('M2 is running')
       })
       .catch((e)=>{
@@ -573,7 +580,7 @@ function healthCheckRedis(config){
       redisClient.auth(config.redis.auth);
     }
     redisClient.on('ready', function() {
-      console.log('redis is running');
+      // console.log('redis is running');
       resolve('redis is running')
     });
     redisClient.on('error', function(e) {
@@ -590,7 +597,7 @@ function healthCheckES(config){
         host: config.elasticsearch.host,
         port: config.elasticsearch.port
       },
-      log: 'debug',
+      // log: 'debug',
       apiVersion: config.elasticsearch.apiVersion,
       requestTimeout: 1000 * 60 * 60,
       keepAlive: false
@@ -605,7 +612,7 @@ function healthCheckES(config){
         console.log('ERROR ELASTICSEARCH CONNECTION')
         reject(e)
       } else {
-        console.log('elasticsearch is running');
+        // console.log('elasticsearch is running');
         resolve('elasticsearch is running')
       }
     });
