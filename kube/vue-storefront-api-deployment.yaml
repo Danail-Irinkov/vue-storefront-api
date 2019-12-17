@@ -37,7 +37,7 @@ spec:
           httpGet:
             path: /api/ext/procc/health
             port: 8080
-          initialDelaySeconds: 60
+          initialDelaySeconds: 40
           periodSeconds: 33
           timeoutSeconds: 5
           successThreshold: 1
