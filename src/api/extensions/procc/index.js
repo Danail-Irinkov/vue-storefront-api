@@ -593,7 +593,7 @@ function healthCheckMagento2(config){
         resolve('M2 is running')
       })
       .catch((e)=>{
-        console.log('ERROR MAGENTO2 CONNECTION')
+        console.log('ERROR MAGENTO2 CONNECTION config.magento2: ', config.magento2 && config.magento2.api ? config.magento2.api : config.magento2)
         reject({message: 'ERROR MAGENTO2 CONNECTION', error: e})
       })
   })
