@@ -23,9 +23,11 @@ spec:
             value: "-Xmx512m -Xms512m"
         resources:
           limits:
-            memory: 1024Mi
+            cpu: 200m
+            memory: 2048Mi
           requests:
-            memory: 512Mi
+            cpu: 50m
+            memory: 900Mi
         volumeMounts:
           - mountPath: /usr/share/elasticsearch/data2
             name: nfs-drive
