@@ -46,6 +46,17 @@ module.exports = ({ config, db }) => {
     }
   })
 
+  mcApi.get('/health-core', async (req, res) => {
+    let health
+    try{
+      health = await healthCheckCore(config)
+      return apiStatus(res, 'ProCC VSF-API Online', 200);
+    }catch (e) {
+      return apiStatus(res, {error: e, health: health}, 502);
+      // return apiStatus(res, 'ERROR ProCC VSF-API Not Connected', 502);
+    }
+  })
+
   mcApi.post('/updateStorefrontSettings',(req,res) =>{
     let storeData = req.body;
     let store_data = {
@@ -525,6 +536,22 @@ async function healthCheck(config){
     const asyncFunctions = [
       healthCheckVSF(config),
       healthCheckMagento2(config),
+      healthCheckRedis(config),
+      healthCheckES(config),
+    ];
+    let result = await Promise.all(asyncFunctions)
+    console.log('VSF-API IS HEALTHY')
+    return result;
+  }catch (e) {
+    console.log('VSF-API IS DOWN', e)
+    return Promise.reject(e)
+  }
+}
+
+async function healthCheckCore(config){
+  try{
+    const asyncFunctions = [
+      healthCheckVSF(config),
       healthCheckRedis(config),
       healthCheckES(config),
     ];
