@@ -1,25 +1,25 @@
 {
   "PROCC": {
-    "API": "http://localhost:8081",
+    "API": "http://procc:8081",
     "URL": "https://procc.co/api"
   },
   "vsf": {
-    "host": "http://localhost",
+    "host": "http://storefront",
     "port": 3000
   },
   "server": {
-    "url": "http://localhost:8080",
-    "host": "localhost",
+    "url": "http://storefront_api:8080",
+    "host": "storefront_api",
     "port": 8080,
     "searchEngine": "elasticsearch"
   },
   "redis": {
-    "host": "localhost",
+    "host": "redis",
     "port": 6379,
     "db": 0
   },
   "elasticsearch": {
-    "host": "localhost",
+    "host": "es1",
     "port": 9200,
     "protocol": "http",
     "min_score": 0.01,
@@ -64,7 +64,7 @@
       "name": "Mashup Store",
       "url": "/aa",
       "elasticsearch": {
-        "host": "http://localhost:8080/api/catalog",
+        "host": "http://storefront_api:8080/api/catalog",
         "index": "vue_storefront_catalog_aa"
       },
       "tax": {
@@ -92,7 +92,7 @@
       "name": "Test Judy Store",
       "url": "/cctest",
       "elasticsearch": {
-        "host": "http://localhost:8080/api/catalog",
+        "host": "http://storefront_api:8080/api/catalog",
         "index": "vue_storefront_catalog_cctest"
       },
       "tax": {
@@ -120,7 +120,7 @@
       "name": "Volkyyz Store",
       "url": "/kk",
       "elasticsearch": {
-        "host": "http://localhost:8080/api/catalog",
+        "host": "http://storefront_api:8080/api/catalog",
         "index": "vue_storefront_catalog_kk"
       },
       "tax": {
