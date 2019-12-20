@@ -210,12 +210,15 @@ console.log('asdasd req.body  END')
       // }
 
       if(!storeCode)return Promise.reject('Missing store code')
-      if(!skus)return Promise.reject('Missing SKUs') // SKUs are needed, to avoid importing all products from all stores
 
-      console.time('storewiseImport')
-      console.log('storewiseImport')
-      await storewiseImport(storeCodeForElastic, skus)
-      console.timeEnd('storewiseImport')
+      if(skus){
+        console.time('storewiseImport')
+        console.log('storewiseImport')
+        await storewiseImport(storeCodeForElastic, skus)
+        console.timeEnd('storewiseImport')
+      }else{
+        // return Promise.reject('Missing SKUs') // SKUs are needed, to avoid importing all products from all stores
+      }
 
       console.time('rebuildElasticSearchIndex')
       console.log('rebuildElasticSearchIndex')
