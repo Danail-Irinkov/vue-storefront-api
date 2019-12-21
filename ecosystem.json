@@ -4,7 +4,8 @@
       "name": "api",
       "script": "./dist/index.js",
       "env": {
-        "NODE_ENV": "production"
+        "NODE_ENV": "production",
+        "SEO_USE_URL_DISPATCHER": "false"
       },
       "log_date_format": "YYYY-MM-DD HH:mm:ss",
       "ignore_watch": ["node_modules"]
