@@ -23,6 +23,13 @@ console.log('loadAdditionalCertificates LOADED')
 // Added ProCCAPI to global added by Dan to enable in typescript
 import ProCcApiRaw from './helpers/procc_api'
 (global as any).ProCcAPI = ProCcApiRaw();
+(global as any).sleep = function (ms){
+  return new Promise(resolve=>{
+    setTimeout(()=>{
+      resolve('slept for '+ms+'ms')
+    },ms)
+  })
+}
 
 // Added by dan-29-11-2019
 const timeout = require('connect-timeout')

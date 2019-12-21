@@ -43,7 +43,7 @@ function exec(cmd, args, opts, enableLogging = false, limit_output = false) {
   })
 }
 
-export  function storewiseImport(storeCode, skus){
+export function storewiseImport(storeCode, skus){
   console.log(' == Running import command with specific store storeCode==', storeCode);
   return exec('yarn', [
     'mage2vs',
