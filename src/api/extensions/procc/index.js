@@ -21,12 +21,15 @@ import request from 'request';
 import request_async from 'request-promise-native';
 
 let storefrontApiConfig
-if(process.env.NODE_ENV === 'development')
+if(process.env.NODE_ENV === 'development'){
   storefrontApiConfig = new Store({path: path.resolve('./config/local.json')});
-else
+}else
   storefrontApiConfig = new Store({path: path.resolve('./config/production.json')});
 
-console.log('START storefrontApiConfig: ', storefrontApiConfig.clone())
+import fs from 'fs';
+console.log('START process.env.NODE_ENV: ', process.env.NODE_ENV)
+// console.log('START storefrontApiConfig: ', storefrontApiConfig.clone())
+// console.log('START storefrontApiConfig: ', path.resolve('./config/production.json'))
 console.log('END storefrontApiConfig! ')
 
 module.exports = ({ config, db }) => {
@@ -36,6 +39,17 @@ module.exports = ({ config, db }) => {
     let health
     try{
       health = await healthCheck(config)
+      return apiStatus(res, 'ProCC VSF-API Online', 200);
+    }catch (e) {
+      return apiStatus(res, {error: e, health: health}, 502);
+      // return apiStatus(res, 'ERROR ProCC VSF-API Not Connected', 502);
+    }
+  })
+
+  mcApi.get('/health-core', async (req, res) => {
+    let health
+    try{
+      health = await healthCheckCore(config)
       return apiStatus(res, 'ProCC VSF-API Online', 200);
     }catch (e) {
       return apiStatus(res, {error: e, health: health}, 502);
@@ -91,15 +105,11 @@ module.exports = ({ config, db }) => {
         //set indices of the store
         storefrontApiConfig.set("elasticsearch.indices", _.concat(storefrontApiConfig.get("elasticsearch.indices"), store_data.elasticsearch.index));
         console.log('storefrontApiConfig.get("elasticsearch.indices")1', storefrontApiConfig.get("elasticsearch.indices"))
-        // config.elasticsearch.indices = storefrontApiConfig.get("elasticsearch.indices")
-        // console.log('//procc index.js store_data.config.elasticsearch.indices ', config.elasticsearch.indices )
       }
 
       if ((!_.includes(mapStoreUrlsFor, store_data.storeCode)) || (!_.includes(storefrontApiConfig.get("storeViews.mapStoreUrlsFor"), store_data.storeCode)) ) {
         // set value in mapStoreUrlsFor
-        mapStoreUrlsFor = _.concat(mapStoreUrlsFor, store_data.storeCode)
         storefrontApiConfig.set("storeViews.mapStoreUrlsFor", _.concat(storefrontApiConfig.get("storeViews.mapStoreUrlsFor"),store_data.storeCode));
-        // storefront.set("storeViews.mapStoreUrlsFor", mapStoreUrlsFor);
       }
 
       if (!(storefrontApiConfig.get(`storeViews.${store_data.storeCode}`))) {
@@ -108,12 +118,11 @@ module.exports = ({ config, db }) => {
         // storefront.set(`storeViews.${store_data.storeCode}`, store_data);
       }
     }
-console.log('asdasd req.body', req.body)
-console.log('asdasd req.body  END')
-console.log('asdasd req.body  END')
+    console.log('updateStorefrontSettings req.body', req.body.brand={})
+    console.log('updateStorefrontSettings req.body  END')
     return request({
         // create store in vs
-        uri:config.vsf.host+':'+config.vsf.port+'/create-store',
+        uri:config.vsf.host+':'+config.vsf.port+'/updateStorefrontSettings',
         method:'POST',
         body: req.body,
         json: true
@@ -148,9 +157,9 @@ console.log('asdasd req.body  END')
         json: true
       },
       function (_err, _res, _resBody) {
-      console.log(req.body, 'req.body')
-      console.log(_resBody, '_resBody')
-      console.log(_err, '_err')
+      // console.log(req.body, 'req.body')
+      // console.log(_resBody, '_resBody')
+      // console.log(_err, '_err')
         let backupConfigFiles = {"vsf_config_data": _resBody, "vsf_api_config_data": config}
         return apiStatus(res, backupConfigFiles, 200);
       })
@@ -173,31 +182,45 @@ console.log('asdasd req.body  END')
     }
   });
 
-  mcApi.post('/storewise-import', async (req, res) => {
+  mcApi.post('/populateM2StoreToES', async (req, res) => {
     try {
-      console.log('\'/storewise-import\' Starting')
+      console.log('/populateM2StoreToES Starting')
       let storeCode = req.body.storeCode;
       let skus = req.body.skus;
       let storeCodeForElastic = _.snakeCase(storeCode)
-      console.log('storewise-import storefrontApiConfig', storefrontApiConfig.clone())
-      console.log('storefrontApiConfig')
-      // Check if store exists in configs TODO: add check for all parts of the store related configs
-      if(!storefrontApiConfig.get('storeViews') || storefrontApiConfig.get('storeViews').indexOf(storeCode) === -1){
-        // Creating New Store Configs
-        await createStoreIndexInBothServers(storeCode)
+      let brand_id = req.body.brand_id
+      if(!storeCode || !brand_id){
+        return Promise.reject('Insufficient Parameters')
       }
+      console.log('populateM2StoreToES storefrontApiConfig', storefrontApiConfig.clone())
+      console.log('storefrontApiConfig')
+      // Check if store exists in configs TODO: add creation for all parts of the store related configs, if missing any part
+      // if(!storefrontApiConfig.get('storeViews') || !storefrontApiConfig.get('storeViews.'+storeCode)
+      //   || !storefrontApiConfig.get('storeViews.mapStoreUrlsFor') || ![...storefrontApiConfig.get('storeViews.mapStoreUrlsFor')].indexOf(storeCode) === -1
+      //   || !storefrontApiConfig.get('elasticsearch.indices') || ![...storefrontApiConfig.get('elasticsearch.indices')].indexOf(storeCode) === -1
+      //   || !storefrontApiConfig.get('availableStores') || ![...storefrontApiConfig.get('availableStores')].indexOf(storeCode) === -1
+      // ){
+      //   // Creating New Store Configs
+      //   await createStoreIndexInBothServers(storeCode)
+      // }
 
       if(!storeCode)return Promise.reject('Missing store code')
-      if(!skus)return Promise.reject('Missing SKUs') // SKUs are needed, to avoid importing all products from all stores
 
-      console.time('storewiseImport')
-      console.log('storewiseImport')
-      await storewiseImport(storeCodeForElastic, skus)
-      console.timeEnd('storewiseImport')
+      if(skus){
+        console.time('storewiseImport')
+        console.log('storewiseImport')
+        await storewiseImport(storeCodeForElastic, skus)
+        console.timeEnd('storewiseImport')
+      }else{
+        // return Promise.reject('Missing SKUs') // SKUs are needed, to avoid importing all products from all stores
+      }
 
       console.time('rebuildElasticSearchIndex')
       console.log('rebuildElasticSearchIndex')
       await rebuildElasticSearchIndex(storeCodeForElastic)
+      let time_ms = 2000
+      console.log('Sleeping for '+time_ms+' ms to avoid sync bug' )
+      await sleep(time_ms) // Needed to avoid issues with subsequent setCategoryBanner ES queries
       console.timeEnd('rebuildElasticSearchIndex')
 
       // Dump elastic Index to local
@@ -219,6 +242,8 @@ console.log('asdasd req.body  END')
       // console.log('restoreStoreIndex')
       // await restoreStoreIndex(storeCodeForElastic)
       // console.timeEnd('restoreStoreIndex')
+      console.log('store_wise_import_done - brand_id: ', brand_id)
+      ProCcAPI.store_wise_import_done({success: true, brand_id}, brand_id)
 
       res.status(200);
       res.end();
@@ -235,10 +260,10 @@ console.log('asdasd req.body  END')
     }
   })
 
-  mcApi.post('/manage-store', async (req, res) => {
+  mcApi.post('/setupVSFConfig', async (req, res) => {
     try {
-      console.log('\'/manage-store\' Starting')
-      console.log('\'/manage-store\' Starting')
+      console.log('/setupVSFConfig Starting')
+      console.log('/setupVSFConfig Starting')
       let storeData = req.body.storeData;
       let storeCode = req.body.storeCode;
       let storeCodeForElastic = _.snakeCase(storeCode)
@@ -267,7 +292,9 @@ console.log('asdasd req.body  END')
       // TODO: send info to ProCC about success and error as part of the queue procedures -> update the queue object status
       console.time('updateVsfSyncStatusToProCC')
       console.log('updateVsfSyncStatusToProCC brand_id: ', brand_id)
-      await ProCcAPI.updateVsfSyncStatus(brand_data, brand_id);
+      if(!enableVSFRebuild || process.env.NODE_ENV === 'development')
+        ProCcAPI.updateStoreSyncQueWaiting({success: true, brand_id}, brand_id)
+      // await ProCcAPI.updateVsfSyncStatus(brand_data, brand_id); // DEPRECATED
       console.timeEnd('updateVsfSyncStatusToProCC')
 
       res.status(200);
@@ -275,7 +302,7 @@ console.log('asdasd req.body  END')
     }catch(e) {
       console.log('----------------------------')
       console.log('----------------------------')
-      console.log('/manage-store ERROR', e)
+      console.log('/setupVSFConfig ERROR', e)
       console.log('----------------------------')
       console.log('----------------------------')
       res.send({
@@ -438,14 +465,20 @@ function searchCatalogUrl(config, storeCode, search) {
 function setProductBanner(config, storeCode) {
   return new Promise((resolve, reject) => {
     searchCatalogUrl(config, storeCode, 'product').then((URL) => {
-      request({uri: URL, method: 'GET'}, function (_err, _res, _resBody) {
+      request({
+        uri: URL,
+        method: 'GET',
+        body: { '_source': { 'type_id': 'configurable' } },
+        json: true
+      }, function (_err, _res, _resBody) {
         if(_err){
           console.log('setProductBanner Error', _err)
           console.log('config.server.url:', URL)
           reject(_err)
         }
-        _resBody = parse_resBody(_resBody)
-        let catalogProducts = _.get(_.get(_resBody,'hits'),'hits');
+        // console.log('setProductBanner _resBody', _resBody)
+        // _resBody = parse_resBody(_resBody)
+        let catalogProducts = _.get(_.get(_resBody, 'hits'), 'hits');
         // depend upon the synced product with category ids
         let products = [];
         if (_resBody && _resBody.hits && catalogProducts) { // we're signing up all objects returned to the client to be able to validate them when (for example order)
@@ -471,45 +504,77 @@ function setProductBanner(config, storeCode) {
 
 function setCategoryBanner(config, storeCode){
   return new Promise((resolve, reject) => {
-    searchCatalogUrl(config, storeCode, 'category').then((search_url) => {
-      request({ // do the elasticsearch request
-        uri: search_url,
-        method: 'GET',
-      }, function (_err, _res, _resBody) { // TODO: add caching layer to speed up SSR? How to invalidate products (checksum on the response BEFORE processing it)
-        if(_err){
-          console.log('setCategoryBanner Error', _err)
-          console.log('config.server.url:', search_url)
-          reject(_err)
-        }
-        _resBody = parse_resBody(_resBody)
-        // TODO: add filter by category.level = 1 in ES query -> refactor "_.last"
-        let categoryData = !_.isUndefined(_.last(_.get(_.get(_resBody, 'hits'), 'hits'))) ? _.last(_.get(_.get(_resBody, 'hits'), 'hits')) : {};
-        // console.log('setCategoryBanner _resBody', _resBody)
-        console.log('setCategoryBanner categoryData', categoryData)
-
-        if (_resBody && _resBody.hits && categoryData) { // we're signing up all objects returned to the client to be able to validate them when (for example order)
-          let children_data = !_.isUndefined(_.get(_.get(categoryData, '_source'), 'children_data')) ? _.get(_.get(categoryData, '_source'), 'children_data') : [];
-          console.log('setCategoryBanner children_categories of the main category: \n', children_data)
-          request({
-            uri:config.vsf.host+':'+config.vsf.port+'/category-link',
-            method:'POST',
-            body: { 'categories': children_data, 'storeCode': storeCode },
-            json: true
-          },function (_err, _res, _resBody) {
-            resolve();
-          })
-        }
-        resolve();
-      });
-    });
+            request({
+              uri:config.vsf.host+':'+config.vsf.port+'/category-link',
+              method:'POST',
+              body: { 'storeCode': storeCode },
+              json: true
+            },function (_err, _res, _resBody) {
+              resolve();
+            })
+        resolve()
   });
 }
+// DEPRECATED OLD FUNCTION WITH WIERD ES CATEGORY SEARCH WHICH I REPLACED WITH QUERY TO PROCC API
+// function setCategoryBanner(config, storeCode){
+//   return new Promise((resolve, reject) => {
+//     searchCatalogUrl(config, storeCode, 'category')
+//       .then((search_url) => {
+//         request({ // do the elasticsearch request
+//           uri: search_url,
+//           method: 'GET',
+//         }, function (_err, _res, _resBody) { // TODO: add caching layer to speed up SSR? How to invalidate products (checksum on the response BEFORE processing it)
+//           if(_err){
+//             console.log('setCategoryBanner Error', _err)
+//             console.log('config.server.url:', search_url)
+//             reject(_err)
+//           }
+//           _resBody = parse_resBody(_resBody)
+//           // TODO: add filter by category.level = 1 in ES query -> refactor "_.last"
+//           let categoryData = !_.isUndefined(_.last(_.get(_.get(_resBody, 'hits'), 'hits'))) ? _.last(_.get(_.get(_resBody, 'hits'), 'hits')) : {};
+//           // console.log('setCategoryBanner _resBody', _resBody)
+//           console.log('setCategoryBanner categoryData', categoryData)
+//
+//           if (_resBody && _resBody.hits && categoryData) { // we're signing up all objects returned to the client to be able to validate them when (for example order)
+//             let children_data = !_.isUndefined(_.get(_.get(categoryData, '_source'), 'children_data')) ? _.get(_.get(categoryData, '_source'), 'children_data') : [];
+//             console.log('setCategoryBanner children_categories of the main category: \n', children_data)
+//
+//             request({
+//               uri:config.vsf.host+':'+config.vsf.port+'/category-link',
+//               method:'POST',
+//               body: { 'store_categories': children_data, 'storeCode': storeCode },
+//               json: true
+//             },function (_err, _res, _resBody) {
+//               resolve();
+//             })
+//           }
+//         resolve();
+//       });
+//     });
+//   });
+// }
 
 async function healthCheck(config){
   try{
     const asyncFunctions = [
       healthCheckVSF(config),
       healthCheckMagento2(config),
+      healthCheckRedis(config),
+      healthCheckES(config),
+    ];
+    let result = await Promise.all(asyncFunctions)
+    console.log('VSF-API IS HEALTHY')
+    return result;
+  }catch (e) {
+    console.log('VSF-API IS DOWN', e)
+    return Promise.reject(e)
+  }
+}
+
+async function healthCheckCore(config){
+  try{
+    const asyncFunctions = [
+      healthCheckVSF(config),
       healthCheckRedis(config),
       healthCheckES(config),
     ];
@@ -551,7 +616,7 @@ function healthCheckMagento2(config){
         resolve('M2 is running')
       })
       .catch((e)=>{
-        console.log('ERROR MAGENTO2 CONNECTION')
+        console.log('ERROR MAGENTO2 CONNECTION config.magento2: ', config.magento2 && config.magento2.api ? config.magento2.api : config.magento2)
         reject({message: 'ERROR MAGENTO2 CONNECTION', error: e})
       })
   })
