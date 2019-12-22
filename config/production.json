@@ -5,9 +5,7 @@
     "protocol": "http",
     "min_score": 0.01,
     "indices": [
-      "vue_storefront_catalog",
-      "vue_storefront_catalog_aa",
-      "vue_storefront_catalog_cctest"
+      "vue_storefront_catalog"
     ],
     "indexTypes": [
       "product",
@@ -20,70 +18,10 @@
     "apiVersion": "5.6"
   },
   "availableStores": [
-    "aa",
-    "cctest"
   ],
   "storeViews": {
     "multistore": true,
     "mapStoreUrlsFor": [
-      "aa",
-      "cctest"
-    ],
-    "cctest": {
-      "storeCode": "cctest",
-      "storeName": "Test Judy Store",
-      "disabled": false,
-      "storeId": 69,
-      "name": "Test Judy Store",
-      "url": "/cctest",
-      "elasticsearch": {
-        "host": "http://localhost:8080/api/catalog",
-        "index": "vue_storefront_catalog_cctest"
-      },
-      "tax": {
-        "defaultCountry": "BG",
-        "defaultRegion": "",
-        "calculateServerSide": true,
-        "sourcePriceIncludesTax": false
-      },
-      "i18n": {
-        "fullCountryName": "Bulgaria",
-        "fullLanguageName": "Bulgarian",
-        "defaultCountry": "BG",
-        "defaultLanguage": "EN",
-        "defaultLocale": "en-US",
-        "currencyCode": "EUR",
-        "currencySign": "EUR",
-        "dateFormat": "HH:mm D-M-YYYY"
-      }
-    },
-    "aa": {
-      "storeCode": "aa",
-      "storeName": "Mashup Store",
-      "disabled": false,
-      "storeId": 68,
-      "name": "Mashup Store",
-      "url": "/aa",
-      "elasticsearch": {
-        "host": "http://localhost:8080/api/catalog",
-        "index": "vue_storefront_catalog_aa"
-      },
-      "tax": {
-        "defaultCountry": "BG",
-        "defaultRegion": "",
-        "calculateServerSide": true,
-        "sourcePriceIncludesTax": false
-      },
-      "i18n": {
-        "fullCountryName": "Bulgaria",
-        "fullLanguageName": "Bulgarian",
-        "defaultCountry": "BG",
-        "defaultLanguage": "EN",
-        "defaultLocale": "en-US",
-        "currencyCode": "EUR",
-        "currencySign": "EUR",
-        "dateFormat": "HH:mm D-M-YYYY"
-      }
-    }
+    ]
   }
 }
