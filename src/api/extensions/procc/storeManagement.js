@@ -96,6 +96,14 @@ export function restoreStoreIndex(storeCode){
   ], { shell: true });
 }
 
+export function buildVueStorefrontDocker(){
+  console.log(' == Building Vuestorefront Docker Dev ==');
+  return exec('docker', [
+    'exec', 'storefront_api', 'pm2', 'restart', '0',
+    '&&',
+    'docker', 'exec', 'storefront', 'pm2', 'restart', '0',
+  ], { shell: true });
+}
 export function buildVueStorefrontAPI(){
   console.log(' == Building Vuestorefront API ==');
   return exec('yarn', [
@@ -222,8 +230,9 @@ export async function buildAndRestartVueStorefront(req, res, brand_id, enableVSF
     if(enableVSFRebuild) {
       if (process.env.NODE_ENV === 'development') {
         console.time('buildVueStorefrontDev')
-        await buildVueStorefront(config)
-        await buildVueStorefrontAPI(config)
+        await buildVueStorefrontDocker() // Sync flow for the new Docker Dev Script get_procc.sh
+        // await buildVueStorefront(config) // LEGACY
+        // await buildVueStorefrontAPI(config) // LEGACY
         console.timeEnd('buildVueStorefrontDev')
       } else if (process.env.NODE_ENV === 'production') {
         console.time('kubeRestartVSFDeployment')
