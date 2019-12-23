@@ -45,13 +45,29 @@ function exec(cmd, args, opts, enableLogging = false, limit_output = false) {
 
 export function storewiseImport(storeCode, skus){
   console.log(' == Running import command with specific store storeCode==', storeCode);
-  return exec('yarn', [
+  let args = [
     'mage2vs',
     'import',
     '--store-code='+storeCode,
-    '--skus='+skus,
     '--skip-pages=1',
     '--skip-blocks=1',
+  ]
+  if(!skus){
+    args.push('--skip-products=1')
+  }else{
+    args.push('--skus='+skus)
+  }
+  return exec('yarn', args, { shell: true }, true);
+}
+
+export function storewiseImportProductsDifference(storeCode, skus){
+  console.log(' == Running storewiseImportProductsDifference storeCode==', storeCode);
+  return exec('yarn', [
+    'mage2vs',
+    'productsdelta',
+    '--removeNonExistent=1',
+    '--store-code='+storeCode,
+    '--skus='+skus, // NoT SURE IF NEEDED here
   ], { shell: true }, true);
 }
 

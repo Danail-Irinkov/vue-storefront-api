@@ -1,3 +1,4 @@
+const _ = require('lodash')
 const program = require('commander')
 const config = require('config')
 const spawn = require('child_process').spawn
@@ -93,7 +94,7 @@ program
         magentoConfig.INDEX_NAME = storeView.elasticsearch.index
         magentoConfig.INDEX_META_PATH = '.lastIndex-' + cmd.storeCode + '.json'
         magentoConfig.MAGENTO_STORE_ID = storeView.storeId
-        magentoConfig.MAGENTO_MSI_STOCK_ID = storeView.msi.stockId
+        magentoConfig.MAGENTO_MSI_STOCK_ID = storeView.msi && storeView.msi.stockId ? storeView.msi.stockId : 1
         if (storeView.i18n && storeView.i18n.currencyCode) {
           magentoConfig.MAGENTO_CURRENCY_CODE = storeView.i18n.currencyCode;
         }
@@ -287,7 +288,10 @@ program
           '--removeNonExistent=true',
           '--partitions=1'
         ]
-        if(magentoConfig.SKUs)args.push('--skus='+magentoConfig.SKUs)
+        if(magentoConfig.SKUs && _.isString(magentoConfig.SKUs) && _.size(magentoConfig.SKUs) > 3){
+          console.log('PUSHED SKUs to Config')
+          args.push('--skus='+magentoConfig.SKUs)
+        }
         console.log(' == PRODUCTS IMPORTER args == ', args);
         return exec('node', args, { env: env, shell: true })
       }
