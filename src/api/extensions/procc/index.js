@@ -12,7 +12,7 @@ console.log('appDir appDirappDir - ', appDir)
 
 // console.log('jwtPrivateKey jwtPrivateKey - ')
 
-import { rebuildElasticSearchIndex, dumpStoreIndex, restoreStoreIndex,
+import { rebuildElasticSearchIndex, storewiseImportProductsDifference,
   createNewElasticSearchIndex, deleteElasticSearchIndex, buildAndRestartVueStorefront,
   startVueStorefrontAPI, deleteVueStorefrontStoreConfig, storewiseImport } from './storeManagement';
 
@@ -87,7 +87,7 @@ module.exports = ({ config, db }) => {
         dateFormat: "HH:mm D-M-YYYY"
       }
     }
-    console.log('storefrontApiConfig: ', storefrontApiConfig.clone())
+    // console.log('storefrontApiConfig: ', storefrontApiConfig.clone())
 
     if (storefrontApiConfig.has(`storeViews.${store_data.storeCode}`)) {
       storefrontApiConfig.del(`storeViews.${store_data.storeCode}`);
@@ -137,15 +137,15 @@ module.exports = ({ config, db }) => {
    */
   mcApi.get('/test', async (req, res) => {
     let storeCodeForElastic = 'aa'
-    console.time('setCategoryBanner')
-    console.log('setCategoryBanner')
-    await setCategoryBanner(config, storeCodeForElastic)
-    console.timeEnd('setCategoryBanner')
+    console.time(' setCategoryBanners')
+    console.log(' setCategoryBanners')
+    await  setCategoryBanners(config, storeCodeForElastic)
+    console.timeEnd(' setCategoryBanners')
 
-    console.time('setProductBanner')
-    console.log('setProductBanner')
-    await setProductBanner(config, storeCodeForElastic)
-    console.timeEnd('setProductBanner')
+    console.time('setProductBanners')
+    console.log('setProductBanners')
+    await setProductBanners(config, storeCodeForElastic)
+    console.timeEnd('setProductBanners')
     return apiStatus(res, 200);
   });
   mcApi.get('/backup-config', (req, res) => {
@@ -187,12 +187,13 @@ module.exports = ({ config, db }) => {
       console.log('/populateM2StoreToES Starting')
       let storeCode = req.body.storeCode;
       let skus = req.body.skus;
+      let force_all_skus = req.body.force_all_skus;
       let storeCodeForElastic = _.snakeCase(storeCode)
       let brand_id = req.body.brand_id
       if(!storeCode || !brand_id){
         return Promise.reject('Insufficient Parameters')
       }
-      console.log('populateM2StoreToES storefrontApiConfig', storefrontApiConfig.clone())
+      // console.log('populateM2StoreToES storefrontApiConfig', storefrontApiConfig.clone())
       console.log('storefrontApiConfig')
       // Check if store exists in configs TODO: add creation for all parts of the store related configs, if missing any part
       // if(!storefrontApiConfig.get('storeViews') || !storefrontApiConfig.get('storeViews.'+storeCode)
@@ -205,24 +206,31 @@ module.exports = ({ config, db }) => {
       // }
 
       if(!storeCode)return Promise.reject('Missing store code')
-
-      if(skus){
+      if(skus && _.isString(skus) && _.size(skus) > 3){ //Simple check for available SKUs (comma-delimited list)
         console.time('storewiseImport')
         console.log('storewiseImport')
-        await storewiseImport(storeCodeForElastic, skus)
+        if(force_all_skus){
+          await storewiseImport(storeCodeForElastic, skus)
+        }else{
+          await storewiseImport(storeCodeForElastic, null)
+          console.log('skus', skus)
+          console.log('_.size(skus)', _.size(skus))
+          console.log('_.isString(skus)', _.isString(skus))
+          await storewiseImportProductsDifference(storeCodeForElastic, skus)
+        }
         console.timeEnd('storewiseImport')
-      }else{
+      }
+      else{
+        console.time('rebuildElasticSearchIndex')
+        console.log('rebuildElasticSearchIndex')
+        await rebuildElasticSearchIndex(storeCodeForElastic)
+        let time_ms = 2000
+        console.log('Sleeping for '+time_ms+' ms to avoid sync bug' )
+        await sleep(time_ms) // Needed to avoid issues with subsequent  setCategoryBanners ES queries
+        console.timeEnd('rebuildElasticSearchIndex')
+
         // return Promise.reject('Missing SKUs') // SKUs are needed, to avoid importing all products from all stores
       }
-
-      console.time('rebuildElasticSearchIndex')
-      console.log('rebuildElasticSearchIndex')
-      await rebuildElasticSearchIndex(storeCodeForElastic)
-      let time_ms = 2000
-      console.log('Sleeping for '+time_ms+' ms to avoid sync bug' )
-      await sleep(time_ms) // Needed to avoid issues with subsequent setCategoryBanner ES queries
-      console.timeEnd('rebuildElasticSearchIndex')
-
       // Dump elastic Index to local
       // console.time('catalogFile.unlink')
       // console.log('catalogFile.unlink')
@@ -271,17 +279,17 @@ module.exports = ({ config, db }) => {
       let brand_id = req.body.brand_id
 
       // TODO: ON FIRST STORE CREATE
-      // TODO: setCategoryBanner is searching for a non-existent index in ES
+      // TODO:  setCategoryBanners is searching for a non-existent index in ES
       // TODO: WE NEED TO MAKE SURE THE INDEX EXISTS AND IS ACCESSIBLE BEFORE THIS FUNC
-      console.time('setCategoryBanner')
-      console.log('setCategoryBanner')
-      await setCategoryBanner(config, storeCodeForElastic)
-      console.timeEnd('setCategoryBanner')
+      console.time(' setCategoryBanners')
+      console.log(' setCategoryBanners')
+      await  setCategoryBanners(config, storeCodeForElastic)
+      console.timeEnd(' setCategoryBanners')
 
-      console.time('setProductBanner')
-      console.log('setProductBanner')
-      await setProductBanner(config, storeCodeForElastic)
-      console.timeEnd('setProductBanner')
+      console.time('setProductBanners')
+      console.log('setProductBanners')
+      await setProductBanners(config, storeCodeForElastic)
+      console.timeEnd('setProductBanners')
 
       console.time('buildAndRestartVueStorefront')
       console.log('buildAndRestartVueStorefront')
@@ -462,7 +470,7 @@ function searchCatalogUrl(config, storeCode, search) {
 //   return `${config.server.url}/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search`;
 // }
 
-function setProductBanner(config, storeCode) {
+function setProductBanners(config, storeCode) {
   return new Promise((resolve, reject) => {
     searchCatalogUrl(config, storeCode, 'product').then((URL) => {
       request({
@@ -472,20 +480,20 @@ function setProductBanner(config, storeCode) {
         json: true
       }, function (_err, _res, _resBody) {
         if(_err){
-          console.log('setProductBanner Error', _err)
+          console.log('setProductBanners Error', _err)
           console.log('config.server.url:', URL)
           reject(_err)
         }
-        // console.log('setProductBanner _resBody', _resBody)
+        // console.log('setProductBanners _resBody', _resBody)
         // _resBody = parse_resBody(_resBody)
         let catalogProducts = _.get(_.get(_resBody, 'hits'), 'hits');
         // depend upon the synced product with category ids
         let products = [];
         if (_resBody && _resBody.hits && catalogProducts) { // we're signing up all objects returned to the client to be able to validate them when (for example order)
           // TODO: sort by updatedAt and get 6 most recent
-          products = _.take(_.filter(catalogProducts, ["_source.type_id", "configurable"]), 6);
-          console.log('setProductBanner products - ', products)
-          console.log('setProductBanner products.length - ', products.length)
+          // products = _.take(_.filter(catalogProducts, ["_source.type_id", "configurable"]), 6);
+          // console.log('setProductBanners products - ', products)
+          console.log('setProductBanners products.length - ', products.length)
          request({
            uri:config.vsf.host+':'+config.vsf.port+'/product-link',
            method:'POST',
@@ -502,7 +510,7 @@ function setProductBanner(config, storeCode) {
   });
 }
 
-function setCategoryBanner(config, storeCode){
+function  setCategoryBanners(config, storeCode){
   return new Promise((resolve, reject) => {
             request({
               uri:config.vsf.host+':'+config.vsf.port+'/category-link',
@@ -516,7 +524,7 @@ function setCategoryBanner(config, storeCode){
   });
 }
 // DEPRECATED OLD FUNCTION WITH WIERD ES CATEGORY SEARCH WHICH I REPLACED WITH QUERY TO PROCC API
-// function setCategoryBanner(config, storeCode){
+// function  setCategoryBanners(config, storeCode){
 //   return new Promise((resolve, reject) => {
 //     searchCatalogUrl(config, storeCode, 'category')
 //       .then((search_url) => {
@@ -525,19 +533,19 @@ function setCategoryBanner(config, storeCode){
 //           method: 'GET',
 //         }, function (_err, _res, _resBody) { // TODO: add caching layer to speed up SSR? How to invalidate products (checksum on the response BEFORE processing it)
 //           if(_err){
-//             console.log('setCategoryBanner Error', _err)
+//             console.log(' setCategoryBanners Error', _err)
 //             console.log('config.server.url:', search_url)
 //             reject(_err)
 //           }
 //           _resBody = parse_resBody(_resBody)
 //           // TODO: add filter by category.level = 1 in ES query -> refactor "_.last"
 //           let categoryData = !_.isUndefined(_.last(_.get(_.get(_resBody, 'hits'), 'hits'))) ? _.last(_.get(_.get(_resBody, 'hits'), 'hits')) : {};
-//           // console.log('setCategoryBanner _resBody', _resBody)
-//           console.log('setCategoryBanner categoryData', categoryData)
+//           // console.log(' setCategoryBanners _resBody', _resBody)
+//           console.log(' setCategoryBanners categoryData', categoryData)
 //
 //           if (_resBody && _resBody.hits && categoryData) { // we're signing up all objects returned to the client to be able to validate them when (for example order)
 //             let children_data = !_.isUndefined(_.get(_.get(categoryData, '_source'), 'children_data')) ? _.get(_.get(categoryData, '_source'), 'children_data') : [];
-//             console.log('setCategoryBanner children_categories of the main category: \n', children_data)
+//             console.log(' setCategoryBanners children_categories of the main category: \n', children_data)
 //
 //             request({
 //               uri:config.vsf.host+':'+config.vsf.port+'/category-link',
