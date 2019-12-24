@@ -6,15 +6,9 @@ import initializeDb from './db';
 import middleware from './middleware';
 import { loadAdditionalCertificates } from './helpers/loadAdditionalCertificates'
 import api from './api';
-console.log('BEFORE process.env.NODE_ENV: ', process.env.NODE_ENV)
 import config from 'config';
-console.log('AFTER process.env.NODE_ENV: ', process.env.NODE_ENV)
 import img from './api/img';
 import invalidateCache from './api/invalidate'
-import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
-import { makeExecutableSchema } from 'graphql-tools';
-import resolvers from './graphql/resolvers';
-import typeDefs from './graphql/schema';
 import * as path from 'path'
 // import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 // import { makeExecutableSchema } from 'graphql-tools';
@@ -23,17 +17,19 @@ import * as path from 'path'
 
 // Added ProCCAPI to global added by Dan to enable in typescript
 import ProCcApiRaw from './helpers/procc_api'
+console.log('AFTER process.env.NODE_ENV: ', process.env.NODE_ENV);
+
 (global as any).ProCcAPI = ProCcApiRaw();
-(global as any).sleep = function (ms){
-  return new Promise(resolve=>{
-    setTimeout(()=>{
-      resolve('slept for '+ms+'ms')
-    },ms)
+(global as any).sleep = (ms) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve('slept for ' + ms + 'ms')
+    }, ms)
   })
-}
+};
 
 // Added by dan-29-11-2019
-const timeout = require('connect-timeout')
+const timeout = require('connect-timeout');
 
 const app = express();
 // timeout middleware
@@ -42,7 +38,7 @@ app.use(timeout(600000));
 // logger
 app.use(morgan('dev'));
 
-app.use('/media', express.static(path.join(__dirname, config.get(`${config.get('platform')}.assetPath`))))
+app.use('/media', express.static(path.join(__dirname, config.get(`${config.get('platform')}.assetPath`))));
 
 // 3rd party middleware
 app.use(cors({
@@ -53,7 +49,7 @@ app.use(bodyParser.json({
   limit: config.get('bodyLimit')
 }));
 
-loadAdditionalCertificates()
+// loadAdditionalCertificates()
 
 // connect to db
 initializeDb(db => {
@@ -66,11 +62,11 @@ initializeDb(db => {
   app.use('/img/:width/:height/:action/:image', (req, res, next) => {
     console.log(req.params)
   });
-  app.post('/invalidate', invalidateCache)
-  app.get('/invalidate', invalidateCache)
+  app.post('/invalidate', invalidateCache);
+  app.get('/invalidate', invalidateCache);
 
-  const port = process.env.PORT || config.get('server.port')
-  const host = process.env.HOST || config.get('server.host')
+  const port = process.env.PORT || config.get('server.port');
+  const host = process.env.HOST || config.get('server.host');
   let server = app.listen(parseInt(port), host);
   // server.globalAgent.options.ca = require('ssl-root-cas/latest').create();
   server.timeout = 10 * 60 * 1000;
