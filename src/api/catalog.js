@@ -18,7 +18,7 @@ function _cacheStorageHandler (config, result, hash, tags) {
 }
 
 export default ({config, db}) => function (req, res, body) {
-  let groupId = null
+  let groupId = null;
 
   // Request method handling: exit if not GET or POST
   // Other metods - like PUT, DELETE etc. should be available only for authorized users or not available at all)
@@ -26,7 +26,7 @@ export default ({config, db}) => function (req, res, body) {
     throw new Error('ERROR: ' + req.method + ' request method is not supported.')
   }
 
-  let requestBody = {}
+  let requestBody = {};
   if (req.method === 'GET') {
     if (req.query.request) { // this is in fact optional
       requestBody = JSON.parse(decodeURIComponent(req.query.request))
@@ -37,8 +37,8 @@ export default ({config, db}) => function (req, res, body) {
 
   const urlSegments = req.url.split('/');
 
-  let indexName = ''
-  let entityType = ''
+  let indexName = '';
+  let entityType = '';
   if (urlSegments.length < 2) { throw new Error('No index name given in the URL. Please do use following URL format: /api/catalog/<index_name>/<entity_type>_search') } else {
     indexName = urlSegments[1];
 
@@ -54,19 +54,19 @@ export default ({config, db}) => function (req, res, body) {
   }
 
   // pass the request to elasticsearch
-  const elasticBackendUrl = adjustBackendProxyUrl(req, indexName, entityType, config)
-  const userToken = requestBody.groupToken
+  const elasticBackendUrl = adjustBackendProxyUrl(req, indexName, entityType, config);
+  const userToken = requestBody.groupToken;
 
   // Decode token and get group id
   if (userToken && userToken.length > 10) {
-    const decodeToken = jwt.decode(userToken, config.authHashSecret ? config.authHashSecret : config.objHashSecret)
+    const decodeToken = jwt.decode(userToken, config.authHashSecret ? config.authHashSecret : config.objHashSecret);
     groupId = decodeToken.group_id || groupId
   } else if (requestBody.groupId) {
     groupId = requestBody.groupId || groupId
   }
 
-  delete requestBody.groupToken
-  delete requestBody.groupId
+  delete requestBody.groupToken;
+  delete requestBody.groupId;
 
   let auth = null;
 
@@ -77,9 +77,9 @@ export default ({config, db}) => function (req, res, body) {
       pass: config.elasticsearch.password
     };
   }
-  const s = Date.now()
-  const reqHash = sha3_224(`${JSON.stringify(requestBody)}${req.url}`)
-  console.log('ES requestBody', req.method+' - '+elasticBackendUrl+' - '+require('util').inspect(requestBody, false, null, true /* enable colors */))
+  const s = Date.now();
+  const reqHash = sha3_224(`${JSON.stringify(requestBody)}${req.url}`);
+  console.log('ES requestBody', req.method + ' - ' + elasticBackendUrl + ' - ' + require('util').inspect(requestBody, false, null, true /* enable colors */));
   // console.log('ES requestBody', req.method+' - '+url+'\n'+require('util').inspect(requestBody, false, null, true /* enable colors */))
 
   const dynamicRequestHandler = () => {
@@ -91,11 +91,12 @@ export default ({config, db}) => function (req, res, body) {
       auth: auth
     }, (_err, _res, _resBody) => { // TODO: add caching layer to speed up SSR? How to invalidate products (checksum on the response BEFORE processing it)
       if (_resBody && _resBody.hits && _resBody.hits.hits) { // we're signing up all objects returned to the client to be able to validate them when (for example order)
-        const factory = new ProcessorFactory(config)
-        const tagsArray = []
+        console.log(_resBody.hits, '_resBody.hits');
+        const factory = new ProcessorFactory(config);
+        const tagsArray = [];
         if (config.server.useOutputCache && cache) {
-          const tagPrefix = entityType[0].toUpperCase() // first letter of entity name: P, T, A ...
-          tagsArray.push(entityType)
+          const tagPrefix = entityType[0].toUpperCase(); // first letter of entity name: P, T, A ...
+          tagsArray.push(entityType);
           _resBody.hits.hits.map(item => {
             if (item._source.id) { // has common identifier
               tagsArray.push(`${tagPrefix}${item._source.id}`)
@@ -103,22 +104,22 @@ export default ({config, db}) => function (req, res, body) {
           })
         }
 
-        let resultProcessor = factory.getAdapter(entityType, indexName, req, res)
+        let resultProcessor = factory.getAdapter(entityType, indexName, req, res);
 
         if (!resultProcessor) { resultProcessor = factory.getAdapter('default', indexName, req, res) } // get the default processor
 
         if (entityType === 'product') {
           resultProcessor.process(_resBody.hits.hits, groupId).then((result) => {
-            _resBody.hits.hits = result
-            _cacheStorageHandler(config, _resBody, reqHash, tagsArray)
+            _resBody.hits.hits = result;
+            _cacheStorageHandler(config, _resBody, reqHash, tagsArray);
             res.json(_resBody);
           }).catch((err) => {
             console.error(err)
           })
         } else {
           resultProcessor.process(_resBody.hits.hits).then((result) => {
-            _resBody.hits.hits = result
-            _cacheStorageHandler(config, _resBody, reqHash, tagsArray)
+            _resBody.hits.hits = result;
+            _cacheStorageHandler(config, _resBody, reqHash, tagsArray);
             res.json(_resBody);
           }).catch((err) => {
             console.error(err)
@@ -128,28 +129,23 @@ export default ({config, db}) => function (req, res, body) {
         res.json(_resBody);
       }
     });
-  }
+  };
 
   if (config.server.useOutputCache && cache) {
     cache.get(
       'api:' + reqHash
     ).then(output => {
       if (output !== null) {
-        res.setHeader('X-VS-Cache', 'Hit')
-        res.json(output)
+        res.setHeader('X-VS-Cache', 'Hit');
+        res.json(output);
         console.log(`cache hit [${req.url}], cached request: ${Date.now() - s}ms`)
       } else {
-        res.setHeader('X-VS-Cache', 'Miss')
-        console.log(`cache miss [${req.url}], request: ${Date.now() - s}ms`)
+        res.setHeader('X-VS-Cache', 'Miss');
+        console.log(`cache miss [${req.url}], request: ${Date.now() - s}ms`);
         dynamicRequestHandler()
       }
     }).catch(err => console.error(err))
   } else {
     dynamicRequestHandler()
   }
-		} else {
-      console.log('ES _err', require('util').inspect(_err, false, null, true /* enable colors */))
-      res.json(_resBody);
-		}
-	});
 }

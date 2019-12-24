@@ -1,12 +1,12 @@
-const _ = require('lodash')
-const program = require('commander')
-const config = require('config')
-const spawn = require('child_process').spawn
+const _ = require('lodash');
+const program = require('commander');
+const config = require('config');
+const spawn = require('child_process').spawn;
 
 function multiStoreConfig (apiConfig, storeCode) {
-  let confCopy = Object.assign({}, apiConfig)
+  let confCopy = Object.assign({}, apiConfig);
   // console.log('multiStoreConfig config', config)
-  console.log('multiStoreConfig config')
+  console.log('multiStoreConfig config');
 
   if (storeCode && config.availableStores.indexOf(storeCode) >= 0) {
     if (config.magento2['api_' + storeCode]) {
@@ -22,7 +22,7 @@ function multiStoreConfig (apiConfig, storeCode) {
 }
 
 function getMagentoDefaultConfig (storeCode) {
-  const apiConfig = multiStoreConfig(config.magento2.api, storeCode)
+  const apiConfig = multiStoreConfig(config.magento2.api, storeCode);
   return {
     TIME_TO_EXIT: 2000,
     PRODUCTS_SPECIAL_PRICES: true,
@@ -50,7 +50,7 @@ function getMagentoDefaultConfig (storeCode) {
 
 function exec (cmd, args, opts) {
   return new Promise((resolve, reject) => {
-    let child = spawn(cmd, args, opts)
+    let child = spawn(cmd, args, opts);
     child.stdout.on('data', (data) => {
       console.log(data.toString('utf8'));
     });
@@ -64,7 +64,7 @@ function exec (cmd, args, opts) {
     });
 
     child.on('error', (error) => {
-      console.error(error)
+      console.error(error);
       reject(error)
     });
   })
@@ -80,29 +80,29 @@ program
   .option('--skus <skus>', 'comma delimited list of SKUs to fetch fresh informations from', '')
   .option('--removeNonExistent <removeNonExistent>', 'remove non existent products', false)
   .action((cmd) => {
-    let magentoConfig = getMagentoDefaultConfig(cmd.storeCode)
-    magentoConfig.MAGENTO_STORE_ID = 1
-    magentoConfig.INDEX_META_PATH = '.lastIndex.json'
+    let magentoConfig = getMagentoDefaultConfig(cmd.storeCode);
+    magentoConfig.MAGENTO_STORE_ID = 1;
+    magentoConfig.INDEX_META_PATH = '.lastIndex.json';
 
     if (cmd.storeCode) {
-      console.log('config', config)
-      const storeView = config.storeViews[cmd.storeCode]
+      console.log('config', config);
+      const storeView = config.storeViews[cmd.storeCode];
       if (!storeView) {
-        console.error('Wrong storeCode provided - no such store in the config.storeViews[storeCode]', cmd.storeCode)
+        console.error('Wrong storeCode provided - no such store in the config.storeViews[storeCode]', cmd.storeCode);
         process.exit(-1)
       } else {
-        magentoConfig.INDEX_NAME = storeView.elasticsearch.index
-        magentoConfig.INDEX_META_PATH = '.lastIndex-' + cmd.storeCode + '.json'
-        magentoConfig.MAGENTO_STORE_ID = storeView.storeId
-        magentoConfig.MAGENTO_MSI_STOCK_ID = storeView.msi && storeView.msi.stockId ? storeView.msi.stockId : 1
+        magentoConfig.INDEX_NAME = storeView.elasticsearch.index;
+        magentoConfig.INDEX_META_PATH = '.lastIndex-' + cmd.storeCode + '.json';
+        magentoConfig.MAGENTO_STORE_ID = storeView.storeId;
+        magentoConfig.MAGENTO_MSI_STOCK_ID = storeView.msi && storeView.msi.stockId ? storeView.msi.stockId : 1;
         if (storeView.i18n && storeView.i18n.currencyCode) {
           magentoConfig.MAGENTO_CURRENCY_CODE = storeView.i18n.currencyCode;
         }
       }
     }
 
-    const env = Object.assign({}, magentoConfig, process.env) // use process env as well
-    console.log('=== Delta indexer is about to start ===')
+    const env = Object.assign({}, magentoConfig, process.env); // use process env as well
+    console.log('=== Delta indexer is about to start ===');
 
     exec('node', [
       '--harmony',
@@ -117,7 +117,7 @@ program
     ], { env: env, shell: true }).then((res) => {
 
     })
-  })
+  });
 
 program
   .command('import')
@@ -134,12 +134,12 @@ program
   .option('--skip-blocks <skipBlocks>', 'skip import of cms blocks', false)
   .option('--generate-unique-url-keys <generateUniqueUrlKeys>', 'generate unique url keys for categories', true)
   .action((cmd) => {
-    let magentoConfig = getMagentoDefaultConfig(cmd.storeCode)
+    let magentoConfig = getMagentoDefaultConfig(cmd.storeCode);
 
     if (cmd.storeCode) {
-      const storeView = config.storeViews[cmd.storeCode]
+      const storeView = config.storeViews[cmd.storeCode];
       if (!storeView) {
-        console.error('Wrong storeCode provided - no such store in the config.storeViews[storeCode]', cmd.storeCode)
+        console.error('Wrong storeCode provided - no such store in the config.storeViews[storeCode]', cmd.storeCode);
         process.exit(-1)
       } else {
         magentoConfig.INDEX_NAME = storeView.elasticsearch.index;
@@ -179,26 +179,25 @@ program
     if (cmd.skus) {
       magentoConfig.SKUs = cmd.skus;
     }
-    console.log('magentoConfig.SKUs', magentoConfig.SKUs)
+    console.log('magentoConfig.SKUs', magentoConfig.SKUs);
     // added by Dan 30-11-2019 //TODO: enable reviews to work
     magentoConfig.SKIP_REVIEWS = true;
     magentoConfig.SKIP_PAGES = true;
     magentoConfig.SKIP_BLOCKS = true;
 
-    const env = Object.assign({}, magentoConfig, process.env)  // use process env as well
+    const env = Object.assign({}, magentoConfig, process.env); // use process env as well
     magentoConfig.GENERATE_UNIQUE_URL_KEYS = cmd.generateUniqueUrlKeys;
 
-    const env = Object.assign({}, magentoConfig, process.env) // use process env as well
-    console.log('=== The mage2vuestorefront full reindex is about to start. Using the following Magento2 config ===', magentoConfig)
+    console.log('=== The mage2vuestorefront full reindex is about to start. Using the following Magento2 config ===', magentoConfig);
 
     let createDbPromise = function () {
-      console.log(' == CREATING NEW DATABASE ==')
+      console.log(' == CREATING NEW DATABASE ==');
       return exec('node', [
         'scripts/db.js',
         'new',
         `--indexName=${env.INDEX_NAME}`
       ], { env: env, shell: true })
-    }
+    };
 
     let importReviewsPromise = function () {
       if (magentoConfig.SKIP_REVIEWS) {
@@ -211,7 +210,7 @@ program
           'reviews'
         ], {env: env, shell: true})
       }
-    }
+    };
 
     let importCategoriesPromise = function () {
       if (magentoConfig.SKIP_CATEGORIES) {
@@ -228,7 +227,7 @@ program
           `--generateUniqueUrlKeys=${magentoConfig.GENERATE_UNIQUE_URL_KEYS}`
         ], { env: env, shell: true })
       }
-    }
+    };
 
     let importProductcategoriesPromise = function () {
       if (magentoConfig.SKIP_PRODUCTCATEGORIES) {
@@ -241,7 +240,7 @@ program
           'productcategories'
         ], { env: env, shell: true })
       }
-    }
+    };
 
     let importAttributesPromise = function () {
       if (magentoConfig.SKIP_ATTRIBUTES) {
@@ -255,7 +254,7 @@ program
           '--removeNonExistent=true'
         ], { env: env, shell: true })
       }
-    }
+    };
 
     let importTaxrulePromise = function () {
       if (magentoConfig.SKIP_TAXRULE) {
@@ -269,7 +268,7 @@ program
           '--removeNonExistent=true'
         ], { env: env, shell: true })
       }
-    }
+    };
 
     let importProductsPromise = function () {
       if (magentoConfig.SKIP_PRODUCTS) {
@@ -283,24 +282,24 @@ program
           'products',
           '--removeNonExistent=true',
           '--partitions=1'
-        ]
-        if(magentoConfig.SKUs && _.isString(magentoConfig.SKUs) && _.size(magentoConfig.SKUs) > 3){
-          console.log('PUSHED SKUs to Config')
-          args.push('--skus='+magentoConfig.SKUs)
+        ];
+        if (magentoConfig.SKUs && _.isString(magentoConfig.SKUs) && _.size(magentoConfig.SKUs) > 3) {
+          console.log('PUSHED SKUs to Config');
+          args.push('--skus=' + magentoConfig.SKUs)
         }
         console.log(' == PRODUCTS IMPORTER args == ', args);
         return exec('node', args, { env: env, shell: true })
       }
-    }
+    };
 
     let reindexPromise = function () {
-      console.log(' == REINDEXING DATABASE ==')
+      console.log(' == REINDEXING DATABASE ==');
       return exec('node', [
         'scripts/db.js',
         'rebuild',
         `--indexName=${env.INDEX_NAME}`
       ], {env: env, shell: true})
-    }
+    };
 
     let importCmsPagesPromise = function () {
       if (magentoConfig.SKIP_PAGES) {
@@ -319,7 +318,7 @@ program
           return Promise.resolve();
         }
       }
-    }
+    };
 
     let importCmsBlocksPromise = function () {
       if (magentoConfig.SKIP_BLOCKS) {
@@ -338,7 +337,7 @@ program
           return Promise.resolve();
         }
       }
-    }
+    };
 
     createDbPromise().then(() => {
       importReviewsPromise().then(() => {
@@ -350,7 +349,7 @@ program
                   reindexPromise().then(() => {
                     importCmsPagesPromise().then(() => {
                       importCmsBlocksPromise().then(() => {
-                        console.log('Done! Bye Bye!')
+                        console.log('Done! Bye Bye!');
                         process.exit(0)
                       })
                     })
@@ -371,12 +370,12 @@ program
   });
 
 program
-  .parse(process.argv)
+  .parse(process.argv);
 
 process.on('unhandledRejection', (reason, p) => {
   console.log('Unhandled Rejection at: Promise ', p, ' reason: ', reason)
-})
+});
 
 process.on('uncaughtException', (exception) => {
   console.log(exception)
-})
+});
