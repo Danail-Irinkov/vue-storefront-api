@@ -1,8 +1,12 @@
 import _ from 'lodash';
 import {createNewElasticSearchIndex, startVueStorefrontAPI} from './storeManagement';
 import request from 'request';
-import Store from "data-store";
-import path from "path";
+import config from 'config';
+import Store from 'data-store';
+import path from 'path';
+
+// ELASTICSEARCH CLIENT
+import elasticsearch from 'elasticsearch'
 
 let storefrontApiConfig;
 if (process.env.NODE_ENV === 'development') {
@@ -12,6 +16,22 @@ console.log('START process.env.NODE_ENV: ', process.env.NODE_ENV);
 // console.log('START storefrontApiConfig: ', storefrontApiConfig.clone())
 // console.log('START storefrontApiConfig: ', path.resolve('./config/production.json'))
 console.log('END storefrontApiConfig! ');
+const esConfig = {
+  host: {
+    host: config.elasticsearch.host,
+    port: config.elasticsearch.port
+  },
+  // log: 'debug',
+  apiVersion: config.elasticsearch.apiVersion,
+  requestTimeout: 1000 * 60 * 60,
+  keepAlive: false
+};
+if (config.elasticsearch.user) {
+  esConfig.httpAuth = config.elasticsearch.user + ':' + config.elasticsearch.password
+}
+const esClient = new elasticsearch.Client(esConfig);
+export function getESClient () { return esClient }
+// ELASTICSEARCH CLIENT - END
 
 export async function createStoreIndexInBothServers (storeCode) {
   try {
@@ -45,7 +65,7 @@ export async function createStoreIndexInBothServers (storeCode) {
 }
 
 export function parse_resBody (_resBody) {
-  if (_resBody.indexOf('Error') === -1 && _resBody.charAt(0) == '{') {
+  if (_resBody.indexOf('Error') === -1 && _resBody.charAt(0) === '{') {
     return JSON.parse(_resBody)
   } else {
     let body_start = _resBody.indexOf('<body>');
@@ -255,21 +275,6 @@ export function healthCheckRedis (config) {
 }
 export function healthCheckES (config) {
   return new Promise((resolve, reject) => {
-    const elasticsearch = require('elasticsearch');
-    const esConfig = {
-      host: {
-        host: config.elasticsearch.host,
-        port: config.elasticsearch.port
-      },
-      // log: 'debug',
-      apiVersion: config.elasticsearch.apiVersion,
-      requestTimeout: 1000 * 60 * 60,
-      keepAlive: false
-    };
-    if (config.elasticsearch.user) {
-      esConfig.httpAuth = config.elasticsearch.user + ':' + config.elasticsearch.password
-    }
-    const esClient = new elasticsearch.Client(esConfig);
     esClient.ping({
     }, (e) => {
       if (e) {

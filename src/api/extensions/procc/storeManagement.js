@@ -1,4 +1,8 @@
 import request from 'request';
+import config from 'config';
+
+import { getESClient } from './helpers';
+const esClient = getESClient();
 
 const spawn = require('child_process').spawn;
 function exec (cmd, args, opts, enableLogging = false, limit_output = false) {
@@ -43,33 +47,120 @@ function exec (cmd, args, opts, enableLogging = false, limit_output = false) {
   })
 }
 
-export function storewiseImport (storeCode, skus) {
+export function stringifySKUs (skus_array) {
+  let skus = '';
+  for (let sku of skus_array) {
+    if (skus !== '')skus = skus + ',';
+    skus = skus + sku
+  }
+  return skus
+}
+
+export function storewiseImportStore (storeCode, sync_options) {
   console.log(' == Running import command with specific store storeCode==', storeCode);
   let args = [
     'mage2vs',
     'import',
+    '--partitions=1', // How many requests to run in parallel
+    '--partitionSize=20', // Size of request
+    '--initQueue=0', // Need this to enable partitions > 1
     '--store-code=' + storeCode,
-    '--skip-pages=1',
-    '--skip-blocks=1'
+    '--skip-products=1', // Importing the products separately in Delta mode
+    '--skip-pages=1', // Still not implemented
+    '--skip-blocks=1' // Still not implemented
   ];
-  if (!skus) {
-    args.push('--skip-products=1')
-  } else {
-    args.push('--skus=' + skus)
+  if (sync_options.categories_rebuild === false) {
+    args.push('--skip-categories=1') // Skipping syncing categories if not needed
   }
   return exec('yarn', args, { shell: true }, true);
 }
 
-export function storewiseImportProductsDifference (storeCode, skus) {
-  console.log(' == Running storewiseImportProductsDifference storeCode==', storeCode);
-  return exec('yarn', [
+export function storewiseRemoveProductFromCategory (storeCode, sku, category_id) {
+  return new Promise((resolve, reject) => {
+    console.log('skus to REMOVE', sku, 'from: ', category_id);
+
+    if (sku && category_id && !!config.storeViews[storeCode].elasticsearch.index) {
+      esClient.updateByQuery({ // requires ES 5.5
+        index: config.storeViews[storeCode].elasticsearch.index,
+        conflicts: 'proceed',
+        type: 'product',
+        body: {
+          script: {
+            source: 'ctx._source.category_ids.remove(params.category_id)',
+            lang: 'painless',
+            params: {
+              category_id: category_id
+            }
+          },
+          query: {
+            bool: {
+              must: {
+                term: { sku: sku }
+              }
+            }
+          }
+        }
+      }, (e) => {
+        if (e) {
+          console.log('ERROR storewiseRemoveProductFromCategory');
+          reject(e)
+        } else {
+          console.log('Removed product from category: ', sku);
+          resolve('Removed product from category: ' + sku)
+        }
+      });
+    }
+  });
+}
+export function storewiseRemoveProducts (storeCode, sync_options) {
+  return new Promise((resolve, reject) => {
+    let skus = sync_options.products_to_remove;
+    console.log('skus to REMOVE', skus);
+    if (skus && !!config.storeViews[storeCode].elasticsearch.index) {
+      esClient.deleteByQuery({ // requires ES 5.5
+        index: config.storeViews[storeCode].elasticsearch.index,
+        conflicts: 'proceed',
+        type: 'product',
+        body: {
+          query: {
+            bool: {
+              must: {
+                terms: {sku: skus}
+              }
+            }
+          }
+        }
+      }, (e) => {
+        if (e) {
+          console.log('ERROR ELASTICSEARCH CONNECTION');
+          reject(e)
+        } else {
+          // console.log('elasticsearch is running');
+          resolve('DELETED SKUs: ' + skus)
+        }
+      });
+    }
+  });
+}
+
+export function storewiseAddNewProducts (storeCode, sync_options) {
+  let skus = sync_options.products_to_add ? stringifySKUs(sync_options.products_to_add) : null;
+  console.log(' == Running storewiseAddNewProducts storeCode==', storeCode);
+  let args = [
     'mage2vs',
     'productsdelta',
-    '--removeNonExistent=0',
-    '--partitions==10',
-    '--store-code=' + storeCode,
-    '--skus=' + skus // NoT SURE IF NEEDED here
-  ], { shell: true }, true);
+    // '--removeNonExistent=0', // False by default
+    '--partitions=1',
+    '--partitionSize=20',
+    '--store-code=' + storeCode
+  ];
+  if (skus) {
+    args.push('--skus=' + skus)
+  } else {
+    return Promise.resolve()
+  }
+
+  return exec('yarn', args, { shell: true }, true);
 }
 
 export function createNewElasticSearchIndex (storeCode) {

@@ -186,7 +186,7 @@ program
     magentoConfig.SKIP_BLOCKS = true;
 
     const env = Object.assign({}, magentoConfig, process.env); // use process env as well
-    magentoConfig.GENERATE_UNIQUE_URL_KEYS = cmd.generateUniqueUrlKeys;
+    magentoConfig.GENERATE_UNIQUE_URL_KEYS = !!cmd.generateUniqueUrlKeys; // '!!' Added by Dan 30-11-2019, prevent too complicated category names
 
     console.log('=== The mage2vuestorefront full reindex is about to start. Using the following Magento2 config ===', magentoConfig);
 
@@ -221,7 +221,6 @@ program
           '--harmony',
           'node_modules/mage2vuestorefront/src/cli.js',
           'categories',
-          '--generateUniqueUrlKeys=false', // Added by Dan 30-11-2019, prevent random category names
           '--removeNonExistent=true',
           '--extendedCategories=true',
           `--generateUniqueUrlKeys=${magentoConfig.GENERATE_UNIQUE_URL_KEYS}`
