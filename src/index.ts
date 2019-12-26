@@ -15,12 +15,6 @@ import * as path from 'path'
 // import resolvers from './graphql/resolvers';
 // import typeDefs from './graphql/schema';
 
-// Added ProCCAPI to give the api some standard CAs to avoid -> 'first certificate error' at api call
-import { loadAdditionalCertificates } from './helpers/loadAdditionalCertificates';
-loadAdditionalCertificates();
-console.log('loadAdditionalCertificates LOADED')
-console.log('loadAdditionalCertificates LOADED')
-
 // Added ProCCAPI to global added by Dan to enable in typescript
 import ProCcApiRaw from './helpers/procc_api'
 console.log('AFTER process.env.NODE_ENV: ', process.env.NODE_ENV);
@@ -44,7 +38,7 @@ app.use(timeout(600000));
 // logger
 app.use(morgan('dev'));
 
-app.use('/media', express.static(path.join(__dirname, config.get(`${config.get('platform')}.assetPath`))));
+app.use('/media', express.static(path.join(__dirname, config.get(`${config.get('platform')}.assetPath`))))
 
 // 3rd party middleware
 app.use(cors({
@@ -55,7 +49,7 @@ app.use(bodyParser.json({
   limit: config.get('bodyLimit')
 }));
 
-// loadAdditionalCertificates()
+// loadAdditionalCertificates() //Disabled due to running error
 
 // connect to db
 initializeDb(db => {
@@ -68,8 +62,8 @@ initializeDb(db => {
   app.use('/img/:width/:height/:action/:image', (req, res, next) => {
     console.log(req.params)
   });
-  app.post('/invalidate', invalidateCache);
-  app.get('/invalidate', invalidateCache);
+  app.post('/invalidate', invalidateCache)
+  app.get('/invalidate', invalidateCache)
 
   const port = process.env.PORT || config.get('server.port');
   const host = process.env.HOST || config.get('server.host');
