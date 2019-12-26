@@ -52,109 +52,11 @@
   },
   "kue": {},
   "availableStores": [
-    "de",
-    "it",
-    "volkky"
   ],
   "storeViews": {
     "multistore": true,
     "mapStoreUrlsFor": [
-      "de",
-      "it",
-      "volkky"
-    ],
-    "de": {
-      "storeCode": "de",
-      "disabled": true,
-      "storeId": 3,
-      "websiteId": 1,
-      "name": "German Store",
-      "url": "/de",
-      "elasticsearch": {
-        "host": "http://localhost:8080/catalog",
-        "index": "vue_storefront_catalog_de"
-      },
-      "tax": {
-        "defaultCountry": "DE",
-        "defaultRegion": "",
-        "deprecatedPriceFieldsSupport": true,
-        "calculateServerSide": true,
-        "sourcePriceIncludesTax": false,
-        "finalPriceIncludesTax": true,
-        "userGroupId": null,
-        "useOnlyDefaultUserGroupId": false
-      },
-      "i18n": {
-        "fullCountryName": "Germany",
-        "fullLanguageName": "German",
-        "defaultLanguage": "DE",
-        "defaultCountry": "DE",
-        "defaultLocale": "de-DE",
-        "currencyCode": "EUR",
-        "currencySign": "EUR",
-        "dateFormat": "HH:mm D-M-YYYY"
-      }
-    },
-    "it": {
-      "storeCode": "it",
-      "disabled": true,
-      "storeId": 4,
-      "websiteId": 1,
-      "name": "Italian Store",
-      "url": "/it",
-      "elasticsearch": {
-        "host": "http://localhost:8080/catalog",
-        "index": "vue_storefront_catalog_it"
-      },
-      "tax": {
-        "defaultCountry": "IT",
-        "defaultRegion": "",
-        "calculateServerSide": true,
-        "sourcePriceIncludesTax": false,
-        "deprecatedPriceFieldsSupport": true,
-        "finalPriceIncludesTax": true,
-        "userGroupId": null,
-        "useOnlyDefaultUserGroupId": false
-      },
-      "i18n": {
-        "fullCountryName": "Italy",
-        "fullLanguageName": "Italian",
-        "defaultCountry": "IT",
-        "defaultLanguage": "IT",
-        "defaultLocale": "it-IT",
-        "currencyCode": "EUR",
-        "currencySign": "EUR",
-        "dateFormat": "HH:mm D-M-YYYY"
-      }
-    },
-    "volkky": {
-      "storeCode": "volkky",
-      "storeName": "Volkyyz Store",
-      "disabled": false,
-      "storeId": 23,
-      "name": "Volkyyz Store",
-      "url": "/volkky",
-      "elasticsearch": {
-        "host": "http://localhost:8080/catalog",
-        "index": "vue_storefront_catalog_volkky"
-      },
-      "tax": {
-        "defaultCountry": "BG",
-        "defaultRegion": "",
-        "calculateServerSide": true,
-        "sourcePriceIncludesTax": false
-      },
-      "i18n": {
-        "fullCountryName": "Bulgaria",
-        "fullLanguageName": "Bulgarian",
-        "defaultCountry": "BG",
-        "defaultLanguage": "EN",
-        "defaultLocale": "en-US",
-        "currencyCode": "EUR",
-        "currencySign": "EUR",
-        "dateFormat": "HH:mm D-M-YYYY"
-      }
-    }
+    ]
   },
   "authHashSecret": "__SECRET_CHANGE_ME__",
   "objHashSecret": "__SECRET_CHANGE_ME__",
