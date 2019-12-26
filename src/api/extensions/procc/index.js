@@ -7,16 +7,16 @@ import path from 'path';
 
 // console.log('jwtPrivateKey jwtPrivateKey - ')
 
-import { rebuildElasticSearchIndex, storewiseImportProductsDifference,
-   deleteElasticSearchIndex, buildAndRestartVueStorefront,
-   deleteVueStorefrontStoreConfig, storewiseImport } from './storeManagement';
+import { storewiseImportStore, storewiseAddNewProducts, storewiseRemoveProducts,
+  deleteElasticSearchIndex, buildAndRestartVueStorefront, storewiseRemoveProductFromCategory,
+  deleteVueStorefrontStoreConfig, rebuildElasticSearchIndex } from './storeManagement';
 
 import { createStoreIndexInBothServers,
   setProductBanners, setCategoryBanners,
-  healthCheck, healthCheckCore,
-} from './helpers';
+  healthCheck, healthCheckCore } from './helpers';
 
 import request from 'request';
+storewiseRemoveProductFromCategory('dev', 'DA003', '153');
 // TODO: we should use await/async/try/catch instead of request
 // import request_async from 'request-promise-native';
 //
@@ -58,6 +58,18 @@ module.exports = ({ config, db }) => {
     } catch (e) {
       return apiStatus(res, {error: e, health: health}, 502);
       // return apiStatus(res, 'ERROR ProCC VSF-API Not Connected', 502);
+    }
+  });
+
+  mcApi.post('/storewiseRemoveProductFromCategory', async (req, res) => {
+    try {
+      let storeCode = req.body.storeCode;
+      let sku = req.body.sku;
+      let category_id = req.body.category_id;
+      let result = await storewiseRemoveProductFromCategory(storeCode, sku, category_id);
+      return apiStatus(res, result, 200);
+    } catch (e) {
+      return apiStatus(res, e, 500);
     }
   });
 
@@ -190,8 +202,7 @@ module.exports = ({ config, db }) => {
     try {
       console.log('/populateM2StoreToES Starting');
       let storeCode = req.body.storeCode;
-      let skus = req.body.skus;
-      let force_all_skus = req.body.force_all_skus;
+      let sync_options = req.body.sync_options;
       let storeCodeForElastic = _.snakeCase(storeCode);
       let brand_id = req.body.brand_id;
       if (!storeCode || !brand_id) {
@@ -199,6 +210,7 @@ module.exports = ({ config, db }) => {
       }
       // console.log('populateM2StoreToES storefrontApiConfig', storefrontApiConfig.clone())
       console.log('storefrontApiConfig');
+
       // Check if store exists in configs TODO: add creation for all parts of the store related configs, if missing any part
       // if(!storefrontApiConfig.get('storeViews') || !storefrontApiConfig.get('storeViews.'+storeCode)
       //   || !storefrontApiConfig.get('storeViews.mapStoreUrlsFor') || ![...storefrontApiConfig.get('storeViews.mapStoreUrlsFor')].indexOf(storeCode) === -1
@@ -210,30 +222,23 @@ module.exports = ({ config, db }) => {
       // }
 
       if (!storeCode) return Promise.reject('Missing store code');
-      if (skus && _.isString(skus) && _.size(skus) > 3) { // Simple check for available SKUs (comma-delimited list)
-        console.time('storewiseImport');
-        console.log('storewiseImport');
-        if (force_all_skus) {
-          await storewiseImport(storeCodeForElastic, skus)
-        } else {
-          await storewiseImport(storeCodeForElastic, null);
-          console.log('skus', skus);
-          console.log('_.size(skus)', _.size(skus));
-          console.log('_.isString(skus)', _.isString(skus));
-          await storewiseImportProductsDifference(storeCodeForElastic, skus)
-        }
-        console.timeEnd('storewiseImport')
-      } else {
-        console.time('rebuildElasticSearchIndex');
-        console.log('rebuildElasticSearchIndex');
-        await rebuildElasticSearchIndex(storeCodeForElastic);
-        let time_ms = 2000;
-        console.log('Sleeping for ' + time_ms + ' ms to avoid sync bug');
-        await sleep(time_ms); // Needed to avoid issues with subsequent  setCategoryBanners ES queries
-        console.timeEnd('rebuildElasticSearchIndex')
+      console.time('storewiseImportStore');
+      console.log('storewiseImportStore');
+      console.log('sync_options', sync_options);
+      await storewiseImportStore(storeCodeForElastic, sync_options);
+      await storewiseRemoveProducts(storeCodeForElastic, sync_options);
+      await storewiseAddNewProducts(storeCodeForElastic, sync_options);
+      console.timeEnd('storewiseImportStore');
 
-        // return Promise.reject('Missing SKUs') // SKUs are needed, to avoid importing all products from all stores
-      }
+      console.time('rebuildElasticSearchIndex');
+      console.log('rebuildElasticSearchIndex');
+      await rebuildElasticSearchIndex(storeCodeForElastic);
+      let time_ms = 2234;
+      console.log('Sleeping for ' + time_ms + ' ms to avoid sync bug');
+      await sleep(time_ms); // Needed to avoid issues with subsequent  setCategoryBanners ES queries
+      console.timeEnd('rebuildElasticSearchIndex');
+
+      // return Promise.reject('Missing SKUs') // SKUs are needed, to avoid importing all products from all stores
       // Dump elastic Index to local
       // console.time('catalogFile.unlink')
       // console.log('catalogFile.unlink')
@@ -275,7 +280,7 @@ module.exports = ({ config, db }) => {
     try {
       console.log('/setupVSFConfig Starting');
       console.log('/setupVSFConfig Starting');
-      let storeData = req.body.storeData;
+      // let storeData = req.body.storeData;
       let storeCode = req.body.storeCode;
       let storeCodeForElastic = _.snakeCase(storeCode);
       let enableVSFRebuild = req.body.enableVSFRebuild;

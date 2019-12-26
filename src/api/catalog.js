@@ -91,7 +91,7 @@ export default ({config, db}) => function (req, res, body) {
       auth: auth
     }, (_err, _res, _resBody) => { // TODO: add caching layer to speed up SSR? How to invalidate products (checksum on the response BEFORE processing it)
       if (_resBody && _resBody.hits && _resBody.hits.hits) { // we're signing up all objects returned to the client to be able to validate them when (for example order)
-        console.log(_resBody.hits, '_resBody.hits');
+        // console.log(_resBody.hits.hits, '_resBody.hits');
         const factory = new ProcessorFactory(config);
         const tagsArray = [];
         if (config.server.useOutputCache && cache) {
