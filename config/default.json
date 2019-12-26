@@ -177,12 +177,6 @@
   "review": {
     "defaultReviewStatus": 2
   },
-  "review": {
-    "defaultReviewStatus": 2 
-  },
-  "review": {
-    "defaultReviewStatus": 2 
-  },
   "bodyLimit": "100kb",
   "corsHeaders": [
     "Link"

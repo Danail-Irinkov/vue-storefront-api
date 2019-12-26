@@ -6,9 +6,7 @@ import initializeDb from './db';
 import middleware from './middleware';
 import { loadAdditionalCertificates } from './helpers/loadAdditionalCertificates'
 import api from './api';
-console.log('BEFORE process.env.NODE_ENV: ', process.env.NODE_ENV)
 import config from 'config';
-console.log('AFTER process.env.NODE_ENV: ', process.env.NODE_ENV)
 import img from './api/img';
 import invalidateCache from './api/invalidate'
 import * as path from 'path'
@@ -16,12 +14,6 @@ import * as path from 'path'
 // import { makeExecutableSchema } from 'graphql-tools';
 // import resolvers from './graphql/resolvers';
 // import typeDefs from './graphql/schema';
-
-// Added ProCCAPI to give the api some standard CAs to avoid -> 'first certificate error' at api call
-import { loadAdditionalCertificates } from './helpers/loadAdditionalCertificates';
-loadAdditionalCertificates();
-console.log('loadAdditionalCertificates LOADED')
-console.log('loadAdditionalCertificates LOADED')
 
 // Added ProCCAPI to global added by Dan to enable in typescript
 import ProCcApiRaw from './helpers/procc_api'
@@ -38,8 +30,6 @@ console.log('AFTER process.env.NODE_ENV: ', process.env.NODE_ENV);
 
 // Added by dan-29-11-2019
 const timeout = require('connect-timeout');
-
-console.log('config Loaded - ', config)
 
 const app = express();
 // timeout middleware
