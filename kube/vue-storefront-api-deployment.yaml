@@ -35,13 +35,13 @@ spec:
             name: nfs-drive
         readinessProbe:
           httpGet:
-            path: /api/ext/procc/health
+            path: /api/ext/procc/health-core
             port: 8080
-          initialDelaySeconds: 60
+          initialDelaySeconds: 32
           periodSeconds: 33
-          timeoutSeconds: 5
-          successThreshold: 1
-          failureThreshold: 3
+          timeoutSeconds: 25
+          successThreshold: 2
+          failureThreshold: 5
         livenessProbe:
           httpGet:
             path: /api/
@@ -49,13 +49,15 @@ spec:
           initialDelaySeconds: 200
           periodSeconds: 10
           timeoutSeconds: 2
-          successThreshold: 2
-          failureThreshold: 3
+          successThreshold: 1
+          failureThreshold: 10
         resources:
           limits:
-            memory: 678Mi
+            cpu: 400m
+            memory: 1024Mi
           requests:
-            memory: 256Mi
+            cpu: 200m
+            memory: 512Mi
       volumes:
         - name: build-cache
           emptyDir:

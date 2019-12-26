@@ -1,7 +1,7 @@
 {
   "PROCC": {
     "API": "http://procc-dash-api:8081",
-    "URL": "https://procc.co/api"
+    "URL": "https://procc.co"
   },
   "vsf": {
     "host": "http://vue-storefront",
@@ -26,7 +26,7 @@
     "db": 0
   },
   "elasticsearch": {
-    "host": "magento-pre-req-elasticsearch-coordinating-only",
+    "host": "elastic5",
     "port": 9200,
     "protocol": "http",
     "min_score": 0.01,

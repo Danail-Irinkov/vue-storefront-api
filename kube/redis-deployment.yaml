@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: redis
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: redis
@@ -16,3 +17,10 @@ spec:
         image: redis:4-alpine
         ports:
         - containerPort: 6379
+        resources:
+          limits:
+            cpu: 100m
+            memory: 512Mi
+          requests:
+            cpu: 20m
+            memory: 50Mi

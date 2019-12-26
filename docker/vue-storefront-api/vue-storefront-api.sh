@@ -7,11 +7,10 @@ cp -a -r -f config_repo/. config
 
 yarn install || exit $?
 
-if [ "$VS_ENV" = 'dev' ]; then
-  yarn dev
-else
-  npm install pm2 -g
-  npm run build
-  set NODE_ENV=production
-  yarn startK
-fi
+#if [ "$VS_ENV" = 'dev' ]; then
+#  yarn dev
+#else
+#  npm install pm2 -g
+#  npm run build
+  yarn start2
+#fi
