@@ -38,7 +38,7 @@ app.use(timeout(600000));
 // logger
 app.use(morgan('dev'));
 
-app.use('/media', express.static(path.join(__dirname, config.get(`${config.get('platform')}.assetPath`))))
+app.use('/media', express.static(path.join(__dirname, config.get(`${config.get('platform')}.assetPath`))));
 
 // 3rd party middleware
 app.use(cors({
@@ -62,8 +62,8 @@ initializeDb(db => {
   app.use('/img/:width/:height/:action/:image', (req, res, next) => {
     console.log(req.params)
   });
-  app.post('/invalidate', invalidateCache)
-  app.get('/invalidate', invalidateCache)
+  app.post('/invalidate', invalidateCache);
+  app.get('/invalidate', invalidateCache);
 
   const port = process.env.PORT || config.get('server.port');
   const host = process.env.HOST || config.get('server.host');

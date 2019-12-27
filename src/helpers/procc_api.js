@@ -1,6 +1,5 @@
 import axios from 'axios'
 import jwt from 'jsonwebtoken'
-// import jwtPrivateKey from '../../config/jwt.jst'
 import config from 'config';
 
 export default (baseURL = config.PROCC.API + '/api/') => {

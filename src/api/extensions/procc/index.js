@@ -7,30 +7,73 @@ import path from 'path';
 
 // console.log('jwtPrivateKey jwtPrivateKey - ')
 
-import { rebuildElasticSearchIndex, dumpStoreIndex, restoreStoreIndex,
-  createNewElasticSearchIndex, deleteElasticSearchIndex, buildAndRestartVueStorefront,
-  startVueStorefrontAPI } from './storeManagement';
+import { storewiseImportStore, storewiseAddNewProducts, storewiseRemoveProducts,
+  deleteElasticSearchIndex, buildAndRestartVueStorefront, storewiseRemoveProductFromCategory,
+  deleteVueStorefrontStoreConfig, rebuildElasticSearchIndex } from './storeManagement';
+
+import { createStoreIndexInBothServers,
+  setProductBanners, setCategoryBanners,
+  healthCheck, healthCheckCore } from './helpers';
 
 import request from 'request';
+storewiseRemoveProductFromCategory('dev', 'DA003', '153');
+// TODO: we should use await/async/try/catch instead of request
+// import request_async from 'request-promise-native';
+//
+// import fs from 'fs';
 // import jwtPrivateKey from '../../config/jwt.js'
 
 let appDir = path.dirname(require.main.filename);
-appDir = path.dirname(appDir)
-console.log('appDir appDirappDir - ', appDir)
+appDir = path.dirname(appDir);
+console.log('appDir appDirappDir - ', appDir);
 
-// TODO: Get the storefront config via api?
-const storefront = {};
-// const storefront = new Store({path: path.resolve('../vue-storefront/config/production.json') });
-
-const storefrontApi = new Store({path: path.resolve('../../../../config/production.json')});
-console.log('path.resolve', path.resolve('../vue-storefront/config/production.json'))
-console.log('storefront', storefront)
-console.log('storefrontApi', storefrontApi)
+let storefrontApiConfig;
+if (process.env.NODE_ENV === 'development') {
+  storefrontApiConfig = new Store({path: path.resolve('./config/local.json')});
+} else { storefrontApiConfig = new Store({path: path.resolve('./config/production.json')}); }
+console.log('START process.env.NODE_ENV: ', process.env.NODE_ENV);
+// console.log('START storefrontApiConfig: ', storefrontApiConfig.clone())
+// console.log('START storefrontApiConfig: ', path.resolve('./config/production.json'))
+console.log('END storefrontApiConfig! ');
 
 module.exports = ({ config, db }) => {
   let mcApi = Router();
 
-  mcApi.post('/settings', (req, res) => {
+  mcApi.get('/health', async (req, res) => {
+    let health;
+    try {
+      health = await healthCheck(config);
+      return apiStatus(res, 'ProCC VSF-API Online', 200);
+    } catch (e) {
+      return apiStatus(res, {error: e, health: health}, 502);
+      // return apiStatus(res, 'ERROR ProCC VSF-API Not Connected', 502);
+    }
+  });
+
+  mcApi.get('/health-core', async (req, res) => {
+    let health;
+    try {
+      health = await healthCheckCore(config);
+      return apiStatus(res, 'ProCC VSF-API Online', 200);
+    } catch (e) {
+      return apiStatus(res, {error: e, health: health}, 502);
+      // return apiStatus(res, 'ERROR ProCC VSF-API Not Connected', 502);
+    }
+  });
+
+  mcApi.post('/storewiseRemoveProductFromCategory', async (req, res) => {
+    try {
+      let storeCode = req.body.storeCode;
+      let sku = req.body.sku;
+      let category_id = req.body.category_id;
+      let result = await storewiseRemoveProductFromCategory(storeCode, sku, category_id);
+      return apiStatus(res, result, 200);
+    } catch (e) {
+      return apiStatus(res, e, 500);
+    }
+  });
+
+  mcApi.post('/updateStorefrontSettings', (req, res) => {
     let storeData = req.body;
     let store_data = {
       storeCode: storeData.storefront_url,
@@ -40,7 +83,7 @@ module.exports = ({ config, db }) => {
       name: _.startCase(storeData.magento_store_name),
       url: `/${storeData.storefront_url}`,
       elasticsearch: {
-        host: 'https://store.procc.co/api/catalog',
+        host: config.server.url + '/api/catalog', // NEED to be with domain, it is sent to the frontend
         index: `vue_storefront_catalog_${_.snakeCase(storeData.storefront_url)}`
       },
       tax: {
@@ -59,185 +102,92 @@ module.exports = ({ config, db }) => {
         currencySign: 'EUR',
         dateFormat: 'HH:mm D-M-YYYY'
       }
-    }
-    /* let storefront_setting=storeData.storefront_setting
-    let storeMainImage = {
-      "working_hours": storefront_setting.working_hours,
-      "title": storefront_setting.banner.title,
-      "subtitle": storefront_setting.banner.subtitle,
-      "logo":storefront_setting.store_logo.original,
-      "link": storefront_setting.banner.link,
-      "image":  storefront_setting.banner.banner_photo.optimized,
-      "contact_information": storefront_setting.contact_information,
-      "about_text": storefront_setting.about_text,
-      "brand": storeData.brand._id,
-      "is_cc_store": storeData.brand.is_cc
-    }; */
-    // banners file
-    /* const mainImage = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/banners/${store_data.storeCode}_main-image.json`)});
-    const StoreCategories = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/banners/${store_data.storeCode}_store_categories.json`)});
-    const storePolicies = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/policies/${store_data.storeCode}_store_policies.json`)});
-    if ((storefront.has(`storeViews.${store_data.storeCode}`)) || (storefrontApi.has(`storeViews.${store_data.storeCode}`))) {
-       storefront.del(`storeViews.${store_data.storeCode}`);
-       storefrontApi.del(`storeViews.${store_data.storeCode}`);
-       mainImage.unlink();
-       StoreCategories.unlink();
-    } */
-    if (storefrontApi.has(`storeViews.${store_data.storeCode}`)) {
-      storefrontApi.del(`storeViews.${store_data.storeCode}`);
-    }
-    if ((!storefrontApi.has(`storeViews.${store_data.storeCode}`))) {
-      let mapStoreUrlsFor = storefrontApi.get('storeViews.mapStoreUrlsFor');
+    };
+    // console.log('storefrontApiConfig: ', storefrontApiConfig.clone())
 
-      if (!_.includes(storefrontApi.get('availableStores'), store_data.storeCode)) {
+    if (storefrontApiConfig.has(`storeViews.${store_data.storeCode}`)) {
+      storefrontApiConfig.del(`storeViews.${store_data.storeCode}`);
+    }
+    if ((!storefrontApiConfig.has(`storeViews.${store_data.storeCode}`))) {
+      let mapStoreUrlsFor = storefrontApiConfig.get('storeViews.mapStoreUrlsFor');
+
+      if (!_.includes(storefrontApiConfig.get('availableStores'), store_data.storeCode)) {
         // set available stores
-        storefrontApi.set('availableStores', (_.concat(storefrontApi.get('availableStores'), store_data.storeCode)));
+        storefrontApiConfig.set('availableStores', (_.concat(storefrontApiConfig.get('availableStores'), store_data.storeCode)));
       }
 
-      if (!_.includes(storefrontApi.get('elasticsearch.indices'), store_data.elasticsearch.index)) {
+      console.log('storefrontApiConfig.get("elasticsearch.indices")0', storefrontApiConfig.get('elasticsearch.indices'));
+      if (!_.includes(storefrontApiConfig.get('elasticsearch.indices'), store_data.elasticsearch.index)) {
         // set indices of the store
-        storefrontApi.set('elasticsearch.indices', (_.concat(storefrontApi.get('elasticsearch.indices'), store_data.elasticsearch.index)));
-
-        config.elasticsearch.indices = storefrontApi.get('elasticsearch.indices')
-        // console.log('//procc index.js store_data.config.elasticsearch.indices ', config.elasticsearch.indices )
+        storefrontApiConfig.set('elasticsearch.indices', _.concat(storefrontApiConfig.get('elasticsearch.indices'), store_data.elasticsearch.index));
+        console.log('storefrontApiConfig.get("elasticsearch.indices")1', storefrontApiConfig.get('elasticsearch.indices'))
       }
 
-      if ((!_.includes(mapStoreUrlsFor, store_data.storeCode)) || (!_.includes(storefrontApi.get('storeViews.mapStoreUrlsFor'), store_data.storeCode))) {
+      if ((!_.includes(mapStoreUrlsFor, store_data.storeCode)) || (!_.includes(storefrontApiConfig.get('storeViews.mapStoreUrlsFor'), store_data.storeCode))) {
         // set value in mapStoreUrlsFor
-        mapStoreUrlsFor = _.concat(mapStoreUrlsFor, store_data.storeCode)
-        storefrontApi.set('storeViews.mapStoreUrlsFor', _.concat(storefrontApi.get('storeViews.mapStoreUrlsFor'), store_data.storeCode));
-        // storefront.set("storeViews.mapStoreUrlsFor", mapStoreUrlsFor);
+        storefrontApiConfig.set('storeViews.mapStoreUrlsFor', _.concat(storefrontApiConfig.get('storeViews.mapStoreUrlsFor'), store_data.storeCode));
       }
 
-      if (!(storefrontApi.get(`storeViews.${store_data.storeCode}`))) {
+      if (!(storefrontApiConfig.get(`storeViews.${store_data.storeCode}`))) {
         // set obj of store
-        storefrontApi.set(`storeViews.${store_data.storeCode}`, store_data);
+        storefrontApiConfig.set(`storeViews.${store_data.storeCode}`, store_data);
         // storefront.set(`storeViews.${store_data.storeCode}`, store_data);
       }
     }
-    // StoreCategories.set(defaultStoreCategories.clone())
-    /* let magentoStoreCategories = _.take(_.orderBy(_.filter(storeData.store_categories,{"isCategoryCreatedInMagento":true}),'createdAt','desc'),3);
-    let countCategories = magentoStoreCategories.length;
-    let mainBanners = [];
-    let smallBanners = [];
-    if(countCategories >= 1) {
-         mainBanners = [
-          {
-            "title": magentoStoreCategories[0].name,
-            "subtitle": magentoStoreCategories[0].description,
-            "image": magentoStoreCategories[0].cover_photo.optimized,
-            "link": '/'+_.kebabCase(magentoStoreCategories[0].name),
-            "storeCode": storeData.storefront_url,
-            "productCount": magentoStoreCategories[0].products.length,
-            "category_id": parseInt(magentoStoreCategories[0].magento_category_id)
-          }
-        ];
-        if (countCategories >= 2){
-           smallBanners = [
-            {
-              "title": magentoStoreCategories[1].name,
-              "subtitle": magentoStoreCategories[1].description,
-              "image": magentoStoreCategories[1].cover_photo.optimized,
-              "link": '/'+_.kebabCase(magentoStoreCategories[1].name),
-              "storeCode": storeData.storefront_url,
-              "productCount": magentoStoreCategories[1].products.length,
-              "category_id": parseInt(magentoStoreCategories[1].magento_category_id)
-            }
-            ]
-          if(countCategories >=3){
-            smallBanners.push({
-              "title": magentoStoreCategories[2].name,
-              "subtitle": magentoStoreCategories[2].description,
-              "image": magentoStoreCategories[2].cover_photo.optimized,
-              "link": '/'+_.kebabCase(magentoStoreCategories[2].name),
-              "storeCode": storeData.storefront_url,
-              "productCount": magentoStoreCategories[2].products.length,
-              "category_id": parseInt(magentoStoreCategories[2].magento_category_id)
-            });
-          }
-      }
-      StoreCategories.set('mainBanners',mainBanners);
-      StoreCategories.set('smallBanners',smallBanners);
-   }
-    mainImage.set("image", storeMainImage)
-
-    let policies = []
-
-    if(!_.isUndefined(storefront_setting.privacy_policy) && !_.isNull(storefront_setting.privacy_policy)){
-      policies.push(storefront_setting.privacy_policy.policy);
-    }
-
-    if(!_.isUndefined(storefront_setting.shipping_policy) && !_.isNull(storefront_setting.shipping_policy)){
-      policies.push(storefront_setting.shipping_policy.policy);
-    }
-
-    if(!_.isUndefined(storefront_setting.warranty_policy) && !_.isNull(storefront_setting.warranty_policy)){
-      policies.push(storefront_setting.warranty_policy.policy);
-    }
-
-    storePolicies.set('policy', policies); */
-
-    request({
+    console.log('updateStorefrontSettings req.body', req.body.brand = {});
+    console.log('updateStorefrontSettings req.body  END');
+    return request({
       // create store in vs
-      uri: 'http://localhost:3000/create-store',
+      uri: config.vsf.host + ':' + config.vsf.port + '/updateStorefrontSettings',
       method: 'POST',
       body: req.body,
       json: true
     },
     (_err, _res, _resBody) => {
-      console.log('Response', _resBody)
+      console.log('/updateStorefrontSettings Response', _resBody);
+      return apiStatus(res, 200);
     })
-    return apiStatus(res, 200);
   });
   /**
-   * POST create an user
+   * POST TEST api
    */
+  mcApi.get('/test', async (req, res) => {
+    let storeCodeForElastic = 'dev';
+    console.time(' setCategoryBanners');
+    console.log(' setCategoryBanners');
+    await setCategoryBanners(config, storeCodeForElastic);
+    console.timeEnd(' setCategoryBanners')
 
-  mcApi.get('/health', (req, res) => {
-    return apiStatus(res, 200);
-  })
-
-  // mcApi.post('/test', (req, res) => {
-  //   let storeCode = req.body.storeCode;
-  //   setCategoryBanner(storeCode).then( () => {
-  //     setProductBanner(config,storeCode).then( () => {
-  //       console.log('Done! Bye Bye!');
-  //     });
-  //   });
-  //   return apiStatus(res, 200);
-  // })
-  mcApi.post('/test', (req, res) => {
+    // console.time('setProductBanners')
+    // console.log('setProductBanners')
+    // await setProductBanners(config, storeCodeForElastic)
+    // console.timeEnd('setProductBanners')
+    // return apiStatus(res, 200);
+  });
+  mcApi.get('/backup-config', (req, res) => {
     request({
       // store url with custom function
-      uri: 'http://localhost:3000/create-store',
+      uri: config.vsf.host + ':' + config.vsf.port + '/backup-config',
       method: 'POST',
       body: req.body,
       json: true
     },
     (_err, _res, _resBody) => {
-      console.log('Response', _resBody)
+      // console.log(req.body, 'req.body')
+      // console.log(_resBody, '_resBody')
+      // console.log(_err, '_err')
+      let backupConfigFiles = {'vsf_config_data': _resBody, 'vsf_api_config_data': config};
+      return apiStatus(res, backupConfigFiles, 200);
     })
-    return apiStatus(res, 200);
+    // let backupConfigFiles = {"vsf_config_data": 'sdfsf', "vsf_api_config_data": 'sdfsdf'}
+    // return apiStatus(res, backupConfigFiles, 200);
   });
 
   mcApi.post('/create-store-index', async (req, res) => {
     try {
+      console.log('/create-store-index', req.body.storeCode);
       let storeCode = req.body.storeCode;
-      let storeCodeForElastic = _.snakeCase(storeCode)
-      let storeIndex = `vue_storefront_catalog_${storeCodeForElastic}`
-
-      if (!_.includes(storefrontApi.get('elasticsearch.indices'), storeIndex)) {
-        storefrontApi.set('elasticsearch.indices', (_.concat(storefrontApi.get('elasticsearch.indices'), storeIndex)));
-      }
-
-      console.time('createNewElasticSearchIndex')
-      await createNewElasticSearchIndex(storeCodeForElastic)
-      console.timeEnd('createNewElasticSearchIndex')
-
-      console.time('startVueStorefrontAPI')
-      await startVueStorefrontAPI()
-      console.timeEnd('startVueStorefrontAPI')
-      console.log('Done! You can start Selling!');
+      await createStoreIndexInBothServers(storeCode);
 
       return apiStatus(res, 200);
     } catch (e) {
@@ -248,105 +198,165 @@ module.exports = ({ config, db }) => {
     }
   });
 
-  mcApi.post('/manage-store', async (req, res) => {
+  mcApi.post('/populateM2StoreToES', async (req, res) => {
     try {
+      console.log('/populateM2StoreToES Starting');
       let storeCode = req.body.storeCode;
-      let enableVSFRebuild = req.body.enableVSFRebuild
-      const mainImage = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/banners/${storeCode}_main-image.json`)});
-      let image = mainImage.get('image')
-      let brand_id = !_.isUndefined(_.get(image, 'brand')) ? _.get(image, 'brand') : 0
-      let storeCodeForElastic = _.snakeCase(storeCode)
+      let sync_options = req.body.sync_options;
+      let storeCodeForElastic = _.snakeCase(storeCode);
+      let brand_id = req.body.brand_id;
+      if (!storeCode || !brand_id) {
+        return Promise.reject('Insufficient Parameters')
+      }
+      // console.log('populateM2StoreToES storefrontApiConfig', storefrontApiConfig.clone())
+      console.log('storefrontApiConfig');
 
-      console.time('rebuildElasticSearchIndex')
-      await rebuildElasticSearchIndex(storeCodeForElastic)
-      console.timeEnd('rebuildElasticSearchIndex')
+      // Check if store exists in configs TODO: add creation for all parts of the store related configs, if missing any part
+      // if(!storefrontApiConfig.get('storeViews') || !storefrontApiConfig.get('storeViews.'+storeCode)
+      //   || !storefrontApiConfig.get('storeViews.mapStoreUrlsFor') || ![...storefrontApiConfig.get('storeViews.mapStoreUrlsFor')].indexOf(storeCode) === -1
+      //   || !storefrontApiConfig.get('elasticsearch.indices') || ![...storefrontApiConfig.get('elasticsearch.indices')].indexOf(storeCode) === -1
+      //   || !storefrontApiConfig.get('availableStores') || ![...storefrontApiConfig.get('availableStores')].indexOf(storeCode) === -1
+      // ){
+      //   // Creating New Store Configs
+      //   await createStoreIndexInBothServers(storeCode)
+      // }
 
-      console.time('catalogFile.unlink')
-      const catalogFile = new Store({path: path.resolve(`../vue-storefront-api/var/catalog_${storeCodeForElastic}.json`)});
-      catalogFile.unlink();
-      console.timeEnd('catalogFile.unlink')
+      if (!storeCode) return Promise.reject('Missing store code');
+      console.time('storewiseImportStore');
+      console.log('storewiseImportStore');
+      console.log('sync_options', sync_options);
+      await storewiseImportStore(storeCodeForElastic, sync_options);
+      await storewiseRemoveProducts(storeCodeForElastic, sync_options);
+      await storewiseAddNewProducts(storeCodeForElastic, sync_options);
+      console.timeEnd('storewiseImportStore');
 
-      console.time('dumpStoreIndex')
-      await dumpStoreIndex(storeCodeForElastic)
-      console.timeEnd('dumpStoreIndex')
+      console.time('rebuildElasticSearchIndex');
+      console.log('rebuildElasticSearchIndex');
+      await rebuildElasticSearchIndex(storeCodeForElastic);
+      let time_ms = 2234;
+      console.log('Sleeping for ' + time_ms + ' ms to avoid sync bug');
+      await sleep(time_ms); // Needed to avoid issues with subsequent  setCategoryBanners ES queries
+      console.timeEnd('rebuildElasticSearchIndex');
 
-      console.time('restoreStoreIndex')
-      await restoreStoreIndex(storeCodeForElastic)
-      console.timeEnd('restoreStoreIndex')
+      // return Promise.reject('Missing SKUs') // SKUs are needed, to avoid importing all products from all stores
+      // Dump elastic Index to local
+      // console.time('catalogFile.unlink')
+      // console.log('catalogFile.unlink')
+      // console.log('path.resolve(`/var/catalog_${storeCodeForElastic}.json`)', path.resolve(`./var/catalog_${storeCodeForElastic}.json`))
+      // const catalogFile = new Store({path: path.resolve(`./var/catalog_${storeCodeForElastic}.json`)});
+      // catalogFile.unlink();
+      // console.timeEnd('catalogFile.unlink')
 
-      console.time('setCategoryBanner')
-      await setCategoryBanner(storeCodeForElastic)
-      console.timeEnd('setCategoryBanner')
+      // Not needed when we are importing the store directly from M2
+      // console.time('dumpStoreIndex')
+      // console.log('dumpStoreIndex')
+      // await dumpStoreIndex(storeCodeForElastic)
+      // console.timeEnd('dumpStoreIndex')
+      //
+      // Restore dumped index to ES
+      // console.time('restoreStoreIndex')
+      // console.log('restoreStoreIndex')
+      // await restoreStoreIndex(storeCodeForElastic)
+      // console.timeEnd('restoreStoreIndex')
+      console.log('store_wise_import_done - brand_id: ', brand_id);
+      ProCcAPI.store_wise_import_done({success: true, brand_id}, brand_id);
 
-      console.time('setProductBanner')
-      await setProductBanner(config, storeCodeForElastic)
-      console.timeEnd('setProductBanner')
-
-      console.time('buildAndRestartVueStorefront')
-      await buildAndRestartVueStorefront(req, res, brand_id, enableVSFRebuild);
-      console.timeEnd('buildAndRestartVueStorefront')
-      console.log('buildAndRestartVueStorefront Done! Store is ready to function!');
-
-      return apiStatus(res, 200);
+      res.status(200);
+      res.end();
     } catch (e) {
-      console.log('----------------------------')
-      console.log('----------------------------')
-      console.log('/manage-store ERROR', e)
-      console.log('----------------------------')
-      console.log('----------------------------')
+      console.log('----------------------------');
+      console.log('----------------------------');
+      console.log('/import Store ERROR', e);
+      console.log('----------------------------');
+      console.log('----------------------------');
       res.send({
         message_type: 'error',
         message: e
       });
-    };
+    }
+  });
+
+  mcApi.post('/setupVSFConfig', async (req, res) => {
+    try {
+      console.log('/setupVSFConfig Starting');
+      console.log('/setupVSFConfig Starting');
+      // let storeData = req.body.storeData;
+      let storeCode = req.body.storeCode;
+      let storeCodeForElastic = _.snakeCase(storeCode);
+      let enableVSFRebuild = req.body.enableVSFRebuild;
+      let brand_id = req.body.brand_id;
+
+      // TODO: ON FIRST STORE CREATE
+      // TODO:  setCategoryBanners is searching for a non-existent index in ES
+      // TODO: WE NEED TO MAKE SURE THE INDEX EXISTS AND IS ACCESSIBLE BEFORE THIS FUNC
+      console.time(' setCategoryBanners');
+      console.log(' setCategoryBanners');
+      await setCategoryBanners(config, storeCodeForElastic);
+      console.timeEnd(' setCategoryBanners');
+
+      console.time('setProductBanners');
+      console.log('setProductBanners');
+      await setProductBanners(config, storeCodeForElastic);
+      console.timeEnd('setProductBanners');
+
+      console.time('buildAndRestartVueStorefront');
+      console.log('buildAndRestartVueStorefront');
+      let brand_data = await buildAndRestartVueStorefront(req, res, brand_id, enableVSFRebuild, config);
+      console.timeEnd('buildAndRestartVueStorefront');
+      console.log('buildAndRestartVueStorefront Done! Store is ready to function! StoreCode: ', storeCodeForElastic);
+
+      // TODO: send info to ProCC about success and error as part of the queue procedures -> update the queue object status
+      console.time('updateVsfSyncStatusToProCC');
+      console.log('updateVsfSyncStatusToProCC brand_id: ', brand_id);
+      if (!enableVSFRebuild || process.env.NODE_ENV === 'development') { ProCcAPI.updateStoreSyncQueWaiting({success: true, brand_id}, brand_id) }
+      // await ProCcAPI.updateVsfSyncStatus(brand_data, brand_id); // DEPRECATED
+      console.timeEnd('updateVsfSyncStatusToProCC');
+
+      res.status(200);
+      res.end();
+    } catch (e) {
+      console.log('----------------------------');
+      console.log('----------------------------');
+      console.log('/setupVSFConfig ERROR', e);
+      console.log('----------------------------');
+      console.log('----------------------------');
+      res.send({
+        message_type: 'error',
+        message: e
+      });
+    }
   });
 
   /**
    *  Delete a store
    */
-  mcApi.post('/delete-store', (req, res) => {
+  mcApi.post('/delete-store', async (req, res) => {
     console.log('Here in delete store', req.body);
-    let userData = req.body.storeData;
-    let storeData = {
-      storeCode: userData.store_code,
-      index: `vue_storefront_catalog_${_.snakeCase(userData.store_code)}`
-    }
-    // const mainImage = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/banners/${storeData.storeCode}_main-image.json`)});
-    // const StoreCategories = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/banners/${storeData.storeCode}_store_categories.json`)});
-    // const storePolicies = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/policies/${storeData.storeCode}_store_policies.json`)});
-    const catalogFile = new Store({path: path.resolve(`../vue-storefront-api/var/catalog_${storeData.storeCode}.json`)});
+    let store_code = req.body.storeData.storefront_url;
+    let store_index = `vue_storefront_catalog_${_.snakeCase(store_code)}`;
 
-    if (storefrontApi.has(`storeViews.${storeData.storeCode}`)) {
-      // remove storeview data from the storefront
-      // storefront.del(`storeViews.${storeData.storeCode}`)
-      // storefront.set("storeViews.mapStoreUrlsFor", _.pull(storefront.get("storeViews.mapStoreUrlsFor"),storeData.storeCode))
+    const catalogFile = new Store({path: path.resolve(`var/catalog_${store_code}.json`)});
+    console.log('Config path.resolve', path.resolve(`var/catalog_${store_code}.json`));
+    console.log('Config path.resolve', path.resolve(`./var/catalog_${store_code}.json`));
 
+    if (storefrontApiConfig.has(`storeViews.${store_code}`)) {
       // remove storeview data from the storefront-api
-      storefrontApi.set('elasticsearch.indices', _.pull(storefrontApi.get('elasticsearch.indices'), storeData.index))
-      storefrontApi.set('availableStores', _.pull(storefrontApi.get('availableStores'), storeData.storeCode))
-      storefrontApi.set('storeViews.mapStoreUrlsFor', _.pull(storefrontApi.get('storeViews.mapStoreUrlsFor'), storeData.storeCode))
-      storefrontApi.del(`storeViews.${storeData.storeCode}`)
+      storefrontApiConfig.set('elasticsearch.indices', _.pull(storefrontApiConfig.get('elasticsearch.indices'), store_index));
+      console.log('storefrontApiConfig.get("elasticsearch.indices")2', storefrontApiConfig.get('elasticsearch.indices'));
 
-      // remove the banners, policies, main image and catalog files
-      // mainImage.unlink()
-      // StoreCategories.unlink()
-      // storePolicies.unlink()
-      request({
-        // delete store in vs
-        uri: 'http://localhost:3000/delete-store',
-        method: 'POST',
-        body: storeData,
-        json: true
-      },
-      (_err, _res, _resBody) => {
-        console.log('Response', _resBody)
-      })
-      catalogFile.unlink()
-      deleteElasticSearchIndex(storeData.storeCode);
-      console.log('Store view data deleted')
+      storefrontApiConfig.set('availableStores', _.pull(storefrontApiConfig.get('availableStores'), store_code));
+      storefrontApiConfig.set('storeViews.mapStoreUrlsFor', _.pull(storefrontApiConfig.get('storeViews.mapStoreUrlsFor'), store_code));
+      storefrontApiConfig.del(`storeViews.${store_code}`);
+
+      // remove the banners, policies, main image and catalog files in Vue-storefront configs
+      await deleteVueStorefrontStoreConfig({storeCode: store_code, index: store_index}, config);
+
+      catalogFile.unlink();
+      await deleteElasticSearchIndex(store_index, config);
+      console.log('Store view data deleted');
       apiStatus(res, 200);
     } else {
-      console.log(storeData)
+      console.log('/delete-store ERROR', store_code, store_index);
       apiStatus(res, 500);
     }
   });
@@ -355,172 +365,27 @@ module.exports = ({ config, db }) => {
    *  Disable store
    */
   mcApi.post('/disable-store', (req, res) => {
-    console.log('Here in disable store', req.body)
+    console.log('Here in disable store', req.body);
     let storeData = req.body.storeData;
     let status = !storeData.status; // current store status
 
-    if (storefrontApi.has(`storeViews.${storeData.store_code}.disabled`)) {
+    if (storefrontApiConfig.has(`storeViews.${storeData.store_code}.disabled`)) {
       // storefront.set(`storeViews.${storeData.store_code}.disabled`,status)
-      storefrontApi.set(`storeViews.${storeData.store_code}.disabled`, status)
+      storefrontApiConfig.set(`storeViews.${storeData.store_code}.disabled`, status)
     }
     request({
       // disable store in vs
-      uri: 'http://localhost:3000/disable-store',
+      uri: config.vsf.host + ':' + config.vsf.port + '/disable-store',
       method: 'POST',
       body: {'storeData': storeData, 'status': status},
       json: true
     },
     (_err, _res, _resBody) => {
-      console.log('Response', _resBody)
-    })
+      console.log('/disable-store Response', _resBody)
+    });
+
     apiStatus(res, 200);
   });
-
+  healthCheck(config);
   return mcApi;
 };
-
-function parse_resBody (_resBody) {
-  if (_resBody.indexOf('Error') === -1 && _resBody.charAt(0) == '{') {
-    return JSON.parse(_resBody)
-  } else {
-    let body_start = _resBody.indexOf('<body>')
-    let body_end = _resBody.indexOf('</body>') + 7
-    let err_string = _resBody.slice(body_start, body_end)
-    console.log('parse_resBody FAILED')
-    console.log(err_string)
-    console.log('parse_resBody FAILED')
-    return 0
-  }
-}
-function getTotalHits (storeCode, search) {
-  return new Promise((resolve, reject) => {
-    request({uri: `https://store.procc.co/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?filter_path=hits.total`, method: 'GET'},
-      (_err, _res, _resBody) => {
-        console.log('_resBody', _resBody)
-        if (_resBody.indexOf('Error') === -1) {
-          _resBody = parse_resBody(_resBody)
-          resolve(_resBody.hits);
-        } else {
-          console.log('getTotalHits FAILED -> unaddressable index')
-          console.log(`https://store.procc.co/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?filter_path=hits.total`)
-          resolve(0)
-        }
-      });
-  });
-}
-function searchCatalogUrl (storeCode, search) {
-  return new Promise((resolve, reject) => {
-    getTotalHits(storeCode, search).then((res) => {
-      if (res.total) {
-        resolve(`https://store.procc.co/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?size=${res.total}`); // limiting results, not filtering by product size
-      } else {
-        resolve(`https://store.procc.co/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search`);
-      }
-    }
-    );
-  });
-}
-
-// function searchCatalogUrl(storeCode,search) {
-//   return `https://store.procc.co/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search`;
-// }
-
-function setProductBanner (config, storeCode) {
-  return new Promise((resolve, reject) => {
-    const StoreCategories = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/banners/${storeCode}_store_categories.json`)});
-    searchCatalogUrl(storeCode, 'product').then((res) => {
-      request({uri: res, method: 'POST'}, (_err, _res, _resBody) => {
-        _resBody = parse_resBody(_resBody)
-        let catalogProducts = _.get(_.get(_resBody, 'hits'), 'hits');
-        // depend upon the synced product with category ids
-        let products = [];
-        if (_resBody && _resBody.hits && catalogProducts) { // we're signing up all objects returned to the client to be able to validate them when (for example order)
-          products = _.take(_.filter(catalogProducts, ['_source.type_id', 'configurable']), 6);
-          // start set to product banners link in vue storefront pass with store code { 'products': products, 'storeCode': storeCode }
-          /* let productBanners = [];
-          let category_ids =[];
-          if(StoreCategories.has("mainBanners")) {
-            category_ids.push(StoreCategories.get("mainBanners.0.category_id"));
-          }
-          if(StoreCategories.has("smallBanners")) {
-            category_ids.push(StoreCategories.get("smallBanners.0.category_id"));
-          }
-          if(StoreCategories.has("smallBanners")) {
-            category_ids.push(StoreCategories.get("smallBanners.1.category_id"));
-          }
-          _.forEach(products, (product) => {
-            if(_.includes(category_ids, _.get(_.find(_.get(product,'_source.category'),'category_id'),'category_id'))) {
-              let link = !_.isUndefined(product._source.url_path) ? product._source.url_path : product._source.url_key;
-              let Banner = {
-                'title': product._source.name,
-                'subtitle': product._source.description,
-                'image': config.magento2.imgUrl + product._source.image,
-                'link': `/p/${product._source.sku}/${link}`,
-                'category': product._source.category
-              };
-              productBanners.push(Banner);
-            }
-          });
-          StoreCategories.set("productBanners",productBanners); */
-          request({
-            uri: 'http://localhost:3000/product-link',
-            method: 'POST',
-            body: { 'products': products, 'storeCode': storeCode },
-            json: true
-          }, (_err, _res, _resBody) => {
-            resolve();
-          })
-          // end set to product banners
-        }
-        resolve();
-      });
-    });
-  });
-}
-
-function setCategoryBanner (storeCode) {
-  return new Promise((resolve, reject) => {
-    const StoreCategories = new Store({path: path.resolve(`../vue-storefront/src/themes/default/resource/banners/${storeCode}_store_categories.json`)});
-    searchCatalogUrl(storeCode, 'category').then((res) => {
-      request({ // do the elasticsearch request
-        uri: res,
-        method: 'POST'
-      }, (_err, _res, _resBody) => { // TODO: add caching layer to speed up SSR? How to invalidate products (checksum on the response BEFORE processing it)
-        _resBody = parse_resBody(_resBody)
-        let categoryData = !_.isUndefined(_.first(_.get(_.get(_resBody, 'hits'), 'hits'))) ? _.first(_.get(_.get(_resBody, 'hits'), 'hits')) : {};
-        console.log('_resBody', _resBody)
-        if (_resBody && _resBody.hits && categoryData) { // we're signing up all objects returned to the client to be able to validate them when (for example order)
-          let children_data = !_.isUndefined(_.get(_.get(categoryData, '_source'), 'children_data')) ? _.get(_.get(categoryData, '_source'), 'children_data') : [];
-          // start with in Vue storefront side pass the store code { 'childrenData': children_data, 'storeCode': storeCode }
-          /* let MainBanners = !_.isUndefined(StoreCategories.get('mainBanners')) ? StoreCategories.get('mainBanners') : [];
-          let TopAndBottomSideBanners = _.isUndefined(StoreCategories.get('smallBanners')) ? StoreCategories.get('smallBanners') : [];
-          if (children_data.length >= 1 && MainBanners.length > 0) {
-            MainBanners[0].link = `/${_.get(_.find(children_data, ['name', _.get(_.find(MainBanners, 'title'), 'title')]), 'url_path')}`;
-            StoreCategories.set('mainBanners', MainBanners);
-            if (children_data.length >= 2 && TopAndBottomSideBanners.length > 0) {
-              TopAndBottomSideBanners[0].link = `/${_.get(_.find(children_data, ['name', _.get(_.find(TopAndBottomSideBanners, 'title'), 'title')]), 'url_path')}`;
-              StoreCategories.set('smallBanners', TopAndBottomSideBanners);
-              if (children_data.length >= 3 && TopAndBottomSideBanners.length > 1) {
-                TopAndBottomSideBanners[1].link = `/${_.get(_.find(children_data, ['name', _.get(_.find(TopAndBottomSideBanners, 'title'), 'title')]), 'url_path')}`;
-                StoreCategories.set('smallBanners', TopAndBottomSideBanners);
-              }
-            }
-          } */
-          request({
-            uri: 'http://localhost:3000/category-link',
-            method: 'POST',
-            body: { 'childrenData': children_data, 'storeCode': storeCode },
-            json: true
-          }, (_err, _res, _resBody) => {
-            resolve();
-          })
-
-          // end with vue storefront side
-          console.log('mainBanners', StoreCategories.get('mainBanners'))
-          console.log('smallBanners', StoreCategories.get('smallBanners'))
-        }
-        resolve();
-      });
-    });
-  });
-}
