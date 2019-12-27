@@ -61,9 +61,9 @@ export function storewiseImportStore (storeCode, sync_options) {
   let args = [
     'mage2vs',
     'import',
-    '--partitions=1', // How many requests to run in parallel
-    '--partitionSize=20', // Size of request
-    '--initQueue=0', // Need this to enable partitions > 1
+    // '--partitions=1', // How many requests to run in parallel
+    // '--partitionSize=20', // Size of request
+    // '--initQueue=0', // Need this to enable partitions > 1
     '--store-code=' + storeCode,
     '--skip-products=1', // Importing the products separately in Delta mode
     '--skip-pages=1', // Still not implemented
@@ -86,7 +86,7 @@ export function storewiseRemoveProductFromCategory (storeCode, sku, category_id)
         type: 'product',
         body: {
           script: {
-            source: 'ctx._source.category_ids.remove(params.category_id)',
+            source: 'ctx._source.category_ids.remove(ctx._source.category_ids.indexOf(params.category_id)',
             lang: 'painless',
             params: {
               category_id: category_id
