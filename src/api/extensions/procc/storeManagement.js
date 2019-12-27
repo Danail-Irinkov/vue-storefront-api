@@ -212,14 +212,14 @@ export function buildVueStorefrontDocker () {
     'docker', 'exec', 'storefront', 'pm2', 'restart', '0'
   ], { shell: true });
 }
-export function buildVueStorefrontAPI () {
+export function buildVueStorefrontAPI () { // LEGACY
   console.log(' == Building Vuestorefront API ==');
   return exec('yarn', [
     'build'
   ], { shell: true });
 }
 
-export function startVueStorefrontAPI () {
+export function startVueStorefrontAPI () { // LEGACY
   console.log(' == Start Vuestorefront API ==');
 
   if (process.env.NODE_ENV === 'development') {
@@ -228,7 +228,7 @@ export function startVueStorefrontAPI () {
   } else { return exec('yarn', ['startK2'], { shell: true }); }
 }
 
-export function buildVueStorefront (config) {
+export function buildVueStorefront (config) { // LEGACY
   return new Promise((resolve, reject) => {
     console.log(' == Building VueStorefront ==');
     request({
