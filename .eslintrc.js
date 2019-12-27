@@ -51,7 +51,7 @@ module.exports = {
       // This is an issue with interfaces so we need to wait until it fixed.
       files: ['core/**/*.ts'],
       rules: {
-        'no-undef': 1
+        'no-undef': 0
       }
     }
   ]

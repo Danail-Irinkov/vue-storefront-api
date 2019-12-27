@@ -86,7 +86,7 @@ export function storewiseRemoveProductFromCategory (storeCode, sku, category_id)
         type: 'product',
         body: {
           script: {
-            source: 'ctx._source.category_ids.remove(ctx._source.category_ids.indexOf(params.category_id)',
+            source: 'ctx._source.category_ids -= params.category_id',
             lang: 'painless',
             params: {
               category_id: category_id

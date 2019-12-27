@@ -49,9 +49,6 @@
     "setup": "npm run restore; npm run migrate",
     "lint": "eslint --ext .js,.ts src migrations scripts --fix"
   },
-  "pre-commit": [
-    "lint"
-  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/DivanteLtd/vue-storefront-api.git"
