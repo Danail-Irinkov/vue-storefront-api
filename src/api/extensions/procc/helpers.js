@@ -300,7 +300,7 @@ export async function healthCheck (config) {
     console.log('VSF-API IS HEALTHY');
     return result;
   } catch (e) {
-    console.log('VSF-API IS DOWN', e);
+    console.log('VSF-API IS DOWN', e.message);
     return Promise.reject(e)
   }
 }
@@ -316,7 +316,7 @@ export async function healthCheckCore (config) {
     console.log('VSF-API IS HEALTHY');
     return result;
   } catch (e) {
-    console.log('VSF-API IS DOWN', e);
+    console.log('VSF-API IS DOWN', e.message);
     return Promise.reject(e)
   }
 }
