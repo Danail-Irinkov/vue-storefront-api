@@ -15,19 +15,6 @@ import * as path from 'path'
 // import resolvers from './graphql/resolvers';
 // import typeDefs from './graphql/schema';
 
-// Added ProCCAPI to global added by Dan to enable in typescript
-import ProCcApiRaw from './helpers/procc_api'
-console.log('AFTER process.env.NODE_ENV: ', process.env.NODE_ENV);
-
-(global as any).ProCcAPI = ProCcApiRaw();
-(global as any).sleep = (ms) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve('slept for ' + ms + 'ms')
-    }, ms)
-  })
-};
-
 // Added by dan-29-11-2019
 const timeout = require('connect-timeout');
 

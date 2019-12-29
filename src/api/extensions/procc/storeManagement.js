@@ -72,6 +72,7 @@ export function storewiseImportStore (storeCode, sync_options) {
   if (sync_options.categories_rebuild === false) {
     args.push('--skip-categories=1') // Skipping syncing categories if not needed
   }
+
   return exec('yarn', args, { shell: true }, true);
 }
 
@@ -116,7 +117,7 @@ export function storewiseRemoveProducts (storeCode, sync_options) {
   return new Promise((resolve, reject) => {
     let skus = sync_options.products_to_remove;
     console.log('skus to REMOVE', skus);
-    if (skus && !!config.storeViews[storeCode].elasticsearch.index) {
+    if (skus && !!config.storeViews[storeCode] && !!config.storeViews[storeCode].elasticsearch.index) {
       esClient.deleteByQuery({ // requires ES 5.5
         index: config.storeViews[storeCode].elasticsearch.index,
         conflicts: 'proceed',
@@ -154,10 +155,16 @@ export function storewiseAddNewProducts (storeCode, sync_options) {
     '--partitionSize=20',
     '--store-code=' + storeCode
   ];
+
   if (skus) {
     args.push('--skus=' + skus)
   } else {
+    // It is not recomended to run product sync without skus, because it takes too much time and server resource
     return Promise.resolve()
+  }
+
+  if (sync_options.force_all_products === true) {
+    args.push('--removeNonExistent=1') // Cleanup of all store products before syncing
   }
 
   return exec('yarn', args, { shell: true }, true);

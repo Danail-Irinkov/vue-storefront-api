@@ -16,6 +16,19 @@ import { createStoreIndexInBothServers,
   healthCheck, healthCheckCore } from './helpers';
 
 import request from 'request';
+
+// Added ProCCAPI to global added by Dan to enable in typescript
+import ProCcApiRaw from './procc_api.js'
+const ProCcAPI = ProCcApiRaw();
+
+const sleep = (ms) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve('slept for ' + ms + 'ms')
+    }, ms)
+  })
+};
+
 storewiseRemoveProductFromCategory('dev', 'DA003', '153');
 // TODO: we should use await/async/try/catch instead of request
 // import request_async from 'request-promise-native';
@@ -301,15 +314,16 @@ module.exports = ({ config, db }) => {
 
       console.time('buildAndRestartVueStorefront');
       console.log('buildAndRestartVueStorefront');
-      let brand_data = await buildAndRestartVueStorefront(req, res, brand_id, enableVSFRebuild, config);
+      await buildAndRestartVueStorefront(req, res, brand_id, enableVSFRebuild, config);
       console.timeEnd('buildAndRestartVueStorefront');
       console.log('buildAndRestartVueStorefront Done! Store is ready to function! StoreCode: ', storeCodeForElastic);
 
       // TODO: send info to ProCC about success and error as part of the queue procedures -> update the queue object status
       console.time('updateVsfSyncStatusToProCC');
       console.log('updateVsfSyncStatusToProCC brand_id: ', brand_id);
-      if (!enableVSFRebuild || process.env.NODE_ENV === 'development') { ProCcAPI.updateStoreSyncQueWaiting({success: true, brand_id}, brand_id) }
-      // await ProCcAPI.updateVsfSyncStatus(brand_data, brand_id); // DEPRECATED
+      if (!enableVSFRebuild || process.env.NODE_ENV === 'development') {
+        ProCcAPI.updateStoreSyncQueWaiting({success: true, brand_id}, brand_id)
+      }
       console.timeEnd('updateVsfSyncStatusToProCC');
 
       res.status(200);
