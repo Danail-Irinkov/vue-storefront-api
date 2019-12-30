@@ -5,7 +5,7 @@ import { get, isUndefined } from 'lodash';
 import PlatformFactory from '../platform/factory';
 
 // Added ProCCAPI to global added by Dan to enable in typescript
-import ProCcApiRaw from './procc_api.js'
+import ProCcApiRaw from './extensions/procc/procc_api.js'
 const ProCcAPI = ProCcApiRaw();
 
 const Ajv = require('ajv'); // json validator
