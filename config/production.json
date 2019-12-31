@@ -264,6 +264,7 @@
     "configurable_children.sku": 1
   },
   "PROCC": {
-    "API": "procc-dash-api:8081"
+    "API": "http://procc-dash-api:8081",
+    "URL": "https://procc.co"
   }
 }

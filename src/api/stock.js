@@ -45,10 +45,13 @@ export default ({ config, db }) => {
       return apiStatus(res, 'sku parameter is required', 500);
     }
 
+    console.log('/check.req.query.sku: ', req.query.sku)
+    console.log('/check.stockId: ', config.msi.enabled ? (req.query.stockId ? req.query.stockId : _getStockId(req.query.storeCode)) : null)
     stockProxy.check({
       sku: req.query.sku,
       stockId: config.msi.enabled ? (req.query.stockId ? req.query.stockId : _getStockId(req.query.storeCode)) : null
     }).then((result) => {
+      console.log('/check.result: ', result)
       apiStatus(res, result, 200);
     }).catch(err => {
       apiStatus(res, err, 500);

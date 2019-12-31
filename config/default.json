@@ -1,8 +1,4 @@
 {
-  "PROCC": {
-    "API": "http://procc-dash-api:8081",
-    "URL": "https://procc.co"
-  },
   "vsf": {
     "host": "http://vue-storefront",
     "port": 3000

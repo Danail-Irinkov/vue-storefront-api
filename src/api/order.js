@@ -95,7 +95,7 @@ export default ({ config, db }) => resource({
           let orderData = req.body;
           orderData.order_id = result.magentoOrderId;
           ProCcAPI.addNewOrder(orderData, brand_id).then((resp) => {
-            console.log('addNewOrder Response2:');
+            console.log('addNewOrder Response2:', resp);
           });
           apiStatus(res, result, 200);
         }).catch(err => {
