@@ -4,6 +4,14 @@ import config from 'config';
 import { getESClient } from './helpers';
 const esClient = getESClient();
 
+const sleep = (ms) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve('slept for ' + ms + 'ms')
+    }, ms)
+  })
+};
+
 const spawn = require('child_process').spawn;
 function exec (cmd, args, opts, enableLogging = false, limit_output = false) {
   return new Promise((resolve, reject) => {
@@ -76,22 +84,36 @@ export function storewiseImportStore (storeCode, sync_options) {
   return exec('yarn', args, { shell: true }, true);
 }
 
-export function storewiseRemoveProductFromCategory (storeCode, sku, category_id) {
-  return new Promise((resolve, reject) => {
-    console.log('skus to REMOVE', sku, 'from: ', category_id);
-
+export async function storewiseRemoveProductFromCategory (storeCode, sku, category_id) {
+  try {
     if (sku && category_id && !!config.storeViews[storeCode].elasticsearch.index) {
-      esClient.updateByQuery({ // requires ES 5.5
+      const result = await esClient.search({
+        index: config.storeViews[storeCode].elasticsearch.index,
+        size: 10,
+        body: {
+          query: {
+            bool: {
+              must: {
+                term: { sku: sku }
+              }
+            }
+          }
+        }
+      }, {
+        ignore: [404],
+        maxRetries: 3
+      })
+      console.log('storeCode: ', storeCode, 'sku to REMOVE', sku, 'from category Id: ', category_id);
+      console.log('esClient.search result', result.hits.hits[0]._source.category_ids)
+
+      await esClient.updateByQuery({ // requires ES 5.5
         index: config.storeViews[storeCode].elasticsearch.index,
         conflicts: 'proceed',
         type: 'product',
         body: {
           script: {
-            source: 'ctx._source.category_ids -= params.category_id',
-            lang: 'painless',
-            params: {
-              category_id: category_id
-            }
+            source: 'ctx._source.category_ids.add(' + category_id + ')',
+            lang: 'painless'
           },
           query: {
             bool: {
@@ -101,18 +123,75 @@ export function storewiseRemoveProductFromCategory (storeCode, sku, category_id)
             }
           }
         }
-      }, (e) => {
-        if (e) {
-          console.log('ERROR storewiseRemoveProductFromCategory');
-          reject(e)
-        } else {
-          console.log('Removed product from category: ', sku);
-          resolve('Removed product from category: ' + sku)
+      })
+
+      await sleep(2000)
+
+      console.log('Added product to category: ', sku);
+      const result2 = await esClient.search({
+        index: config.storeViews[storeCode].elasticsearch.index,
+        size: 10,
+        body: {
+          query: {
+            bool: {
+              must: {
+                term: { sku: sku }
+              }
+            }
+          }
         }
-      });
+      }, {
+        ignore: [404],
+        maxRetries: 3
+      })
+      console.log('esClient.search result2', result2.hits.hits[0]._source.category_ids)
+
+      await esClient.updateByQuery({ // requires ES 5.5
+        index: config.storeViews[storeCode].elasticsearch.index,
+        conflicts: 'proceed',
+        type: 'product',
+        body: {
+          script: {
+            source: 'ctx._source.category_ids.remove(ctx._source.category_ids.indexOf(' + category_id + '))',
+            lang: 'painless'
+          },
+          query: {
+            bool: {
+              must: {
+                term: { sku: sku }
+              }
+            }
+          }
+        }
+      })
+
+      console.log('Removed product from category: ', sku);
+      await sleep(2000)
+
+      const result3 = await esClient.search({
+        index: config.storeViews[storeCode].elasticsearch.index,
+        size: 10,
+        body: {
+          query: {
+            bool: {
+              must: {
+                term: { sku: sku }
+              }
+            }
+          }
+        }
+      }, {
+        ignore: [404],
+        maxRetries: 3
+      })
+      console.log('esClient.search result2', result3.hits.hits[0]._source.category_ids)
     }
-  });
+  } catch (e) {
+    console.log('ERROR storewiseRemoveProductFromCategory');
+    return Promise.reject(e)
+  }
 }
+
 export function storewiseRemoveProducts (storeCode, sync_options) {
   return new Promise((resolve, reject) => {
     let skus = sync_options.products_to_remove;

@@ -29,7 +29,9 @@ const sleep = (ms) => {
   })
 };
 
-storewiseRemoveProductFromCategory('dev', 'DA003', '153');
+storewiseRemoveProductFromCategory('dev', 'DA003', '153').catch((e) => {
+  console.log(e, 'Error storewiseRemoveProductFromCategory')
+});
 // TODO: we should use await/async/try/catch instead of request
 // import request_async from 'request-promise-native';
 //
