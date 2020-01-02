@@ -52,7 +52,7 @@ export default (baseURL = config.PROCC.API + '/api/') => {
   const updateTransactionStatus = (data, brandId) => api.post('mangopay/updateTransactionStatus', data, getHeader(brandId))
   const getSizeChart = (product, brandId) => api.get(`sizeChart/getVSFSizeChartById/${product}?brand_id=${brandId}`, getHeader(brandId))
   const updateVsfSyncStatus = (brandData, brandId) => api.post('vsf/updateVsfSyncStatus', {brandData}, getHeader(brandId))
-  const updateStoreSyncQueWaiting = (data, brandId) => api.post('storefront/updateStoreSyncQueWaiting', {data}, getHeader(brandId))
+  const storeSyncFinishedKubeRestart = (data, brandId) => api.post('storefront/storeSyncFinishedKubeRestart', {data}, getHeader(brandId))
   const store_wise_import_done = (data, brandId) => api.post('storefront/store_wise_import_done', {data}, getHeader(brandId))
   const getProductDeliveryPolicy = () => api.get('policy/getProductDeliveryPolicy')
 
@@ -62,7 +62,7 @@ export default (baseURL = config.PROCC.API + '/api/') => {
     getSizeChart,
     mangoPayCheckIn,
     updateTransactionStatus,
-    updateStoreSyncQueWaiting,
+    storeSyncFinishedKubeRestart,
     store_wise_import_done,
     updateVsfSyncStatus
   }

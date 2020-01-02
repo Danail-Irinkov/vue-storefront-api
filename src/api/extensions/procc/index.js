@@ -8,7 +8,8 @@ import path from 'path';
 // console.log('jwtPrivateKey jwtPrivateKey - ')
 
 import { storewiseImportStore, storewiseAddNewProducts, storewiseRemoveProducts,
-  deleteElasticSearchIndex, buildAndRestartVueStorefront, storewiseRemoveProductFromCategory,
+  deleteElasticSearchIndex, buildAndRestartVueStorefront,
+  storewiseRemoveProductFromCategory, storewiseAddProductToCategory,
   deleteVueStorefrontStoreConfig, rebuildElasticSearchIndex } from './storeManagement';
 
 import { createStoreIndexInBothServers,
@@ -29,9 +30,6 @@ const sleep = (ms) => {
   })
 };
 
-storewiseRemoveProductFromCategory('dev', 'DA003', '153').catch((e) => {
-  console.log(e, 'Error storewiseRemoveProductFromCategory')
-});
 // TODO: we should use await/async/try/catch instead of request
 // import request_async from 'request-promise-native';
 //
@@ -82,6 +80,18 @@ module.exports = ({ config, db }) => {
       let sku = req.body.sku;
       let category_id = req.body.category_id;
       let result = await storewiseRemoveProductFromCategory(storeCode, sku, category_id);
+      return apiStatus(res, result, 200);
+    } catch (e) {
+      return apiStatus(res, e, 500);
+    }
+  });
+
+  mcApi.post('/storewiseAddProductToCategory', async (req, res) => {
+    try {
+      let storeCode = req.body.storeCode;
+      let sku = req.body.sku;
+      let category_id = req.body.category_id;
+      let result = await storewiseAddProductToCategory(storeCode, sku, category_id);
       return apiStatus(res, result, 200);
     } catch (e) {
       return apiStatus(res, e, 500);
@@ -149,7 +159,7 @@ module.exports = ({ config, db }) => {
         // storefront.set(`storeViews.${store_data.storeCode}`, store_data);
       }
     }
-    console.log('updateStorefrontSettings req.body', req.body.brand = {});
+    console.log('updateStorefrontSettings req.body', req.body);
     console.log('updateStorefrontSettings req.body  END');
     return request({
       // create store in vs
@@ -227,11 +237,11 @@ module.exports = ({ config, db }) => {
       console.log('storefrontApiConfig');
 
       // Check if store exists in configs TODO: add creation for all parts of the store related configs, if missing any part
-      // if(!storefrontApiConfig.get('storeViews') || !storefrontApiConfig.get('storeViews.'+storeCode)
+      // if (!storefrontApiConfig.get('storeViews') || !storefrontApiConfig.get('storeViews.'+storeCode)
       //   || !storefrontApiConfig.get('storeViews.mapStoreUrlsFor') || ![...storefrontApiConfig.get('storeViews.mapStoreUrlsFor')].indexOf(storeCode) === -1
       //   || !storefrontApiConfig.get('elasticsearch.indices') || ![...storefrontApiConfig.get('elasticsearch.indices')].indexOf(storeCode) === -1
       //   || !storefrontApiConfig.get('availableStores') || ![...storefrontApiConfig.get('availableStores')].indexOf(storeCode) === -1
-      // ){
+      // ) {
       //   // Creating New Store Configs
       //   await createStoreIndexInBothServers(storeCode)
       // }
@@ -323,8 +333,8 @@ module.exports = ({ config, db }) => {
       // TODO: send info to ProCC about success and error as part of the queue procedures -> update the queue object status
       console.time('updateVsfSyncStatusToProCC');
       console.log('updateVsfSyncStatusToProCC brand_id: ', brand_id);
-      if (!enableVSFRebuild || process.env.NODE_ENV === 'development') {
-        ProCcAPI.updateStoreSyncQueWaiting({success: true, brand_id}, brand_id)
+      if (!enableVSFRebuild) {
+        ProCcAPI.storeSyncFinishedKubeRestart({success: true, brand_id}, brand_id)
       }
       console.timeEnd('updateVsfSyncStatusToProCC');
 

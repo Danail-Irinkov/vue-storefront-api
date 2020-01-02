@@ -183,7 +183,7 @@ export function setCategoryBanners (config, storeCode) {
   });
 }
 // DEPRECATED OLD FUNCTION WITH WIERD ES CATEGORY SEARCH WHICH I REPLACED WITH QUERY TO PROCC API
-// export function  setCategoryBanners(config, storeCode){
+// export function  setCategoryBanners(config, storeCode) {
 //   return new Promise((resolve, reject) => {
 //     searchCatalogUrl(config, storeCode, 'category')
 //       .then((search_url) => {
@@ -191,7 +191,7 @@ export function setCategoryBanners (config, storeCode) {
 //           uri: search_url,
 //           method: 'GET',
 //         }, function (_err, _res, _resBody) { // TODO: add caching layer to speed up SSR? How to invalidate products (checksum on the response BEFORE processing it)
-//           if(_err){
+//           if (_err) {
 //             console.log(' setCategoryBanners Error', _err)
 //             console.log('config.server.url:', search_url)
 //             reject(_err)
