@@ -1,15 +1,14 @@
 {
   "PROCC": {
-    "API": "http://procc:8081",
+    "API": "http://localhost:8081",
     "URL": "https://procc.co"
   },
   "vsf": {
-    "host": "http://storefront",
+    "host": "http://localhost",
     "port": 3000
   },
   "server": {
-    "url": "http://storefront_api:8080",
-    "host": "storefront_api",
+    "host": "localhost",
     "port": 8080,
     "searchEngine": "elasticsearch"
   },
@@ -20,13 +19,15 @@
     "excludeDisabledProducts": false
   },
   "elasticsearch": {
-    "host": "es1",
+    "host": "localhost",
     "port": 9200,
     "protocol": "http",
     "min_score": 0.01,
     "indices": [
       "vue_storefront_catalog",
-      "vue_storefront_catalog_dev"
+      "vue_storefront_catalog_dev",
+      "vue_storefront_catalog_judy",
+      "vue_storefront_catalog_aa"
     ],
     "indexTypes": [
       "product",
@@ -39,18 +40,25 @@
     "apiVersion": "5.6"
   },
   "redis": {
-    "host": "redis",
+    "host": "localhost",
     "port": 6379,
     "db": 0
   },
   "kue": {},
   "availableStores": [
-    "dev"
+    "dev",
+    "judy",
+    "aa"
   ],
   "storeViews": {
     "multistore": true,
     "mapStoreUrlsFor": [
-      "dev"
+      "de",
+      "it",
+      "volkky",
+      "dev",
+      "judy",
+      "aa"
     ],
     "dev": {
       "storeCode": "dev",
@@ -60,8 +68,64 @@
       "name": "Dev Acc Store",
       "url": "/dev",
       "elasticsearch": {
-        "host": "http://storefront_api:8080/api/catalog",
+        "host": "http://localhost:8080/api/catalog",
         "index": "vue_storefront_catalog_dev"
+      },
+      "tax": {
+        "defaultCountry": "BG",
+        "defaultRegion": "",
+        "calculateServerSide": true,
+        "sourcePriceIncludesTax": false
+      },
+      "i18n": {
+        "fullCountryName": "Bulgaria",
+        "fullLanguageName": "Bulgarian",
+        "defaultCountry": "BG",
+        "defaultLanguage": "EN",
+        "defaultLocale": "en-US",
+        "currencyCode": "EUR",
+        "currencySign": "EUR",
+        "dateFormat": "HH:mm D-M-YYYY"
+      }
+    },
+    "aa": {
+      "storeCode": "aa",
+      "storeName": "Mashup Store",
+      "disabled": false,
+      "storeId": 68,
+      "name": "Mashup Store",
+      "url": "/aa",
+      "elasticsearch": {
+        "host": "http://localhost:8080/api/catalog",
+        "index": "vue_storefront_catalog_aa"
+      },
+      "tax": {
+        "defaultCountry": "BG",
+        "defaultRegion": "",
+        "calculateServerSide": true,
+        "sourcePriceIncludesTax": false
+      },
+      "i18n": {
+        "fullCountryName": "Bulgaria",
+        "fullLanguageName": "Bulgarian",
+        "defaultCountry": "BG",
+        "defaultLanguage": "EN",
+        "defaultLocale": "en-US",
+        "currencyCode": "EUR",
+        "currencySign": "EUR",
+        "dateFormat": "HH:mm D-M-YYYY"
+      }
+    },
+    "judy": {
+      "storeCode": "judy",
+      "storeName": "Test Judy Store",
+      "disabled": false,
+      "storeId": 73,
+      "name": "Test Judy Store",
+      "url": "/judy",
+      "elasticsearch": {
+        "host": "http://localhost:8080/api/catalog",
+        "index": "vue_storefront_catalog_judy"
       },
       "tax": {
         "defaultCountry": "BG",
