@@ -31,4 +31,6 @@ COPY ./docker ./docker
 COPY docker/vue-storefront-api/vue-storefront-api.sh /usr/local/bin/
 RUN chmod 774 /usr/local/bin/vue-storefront-api.sh
 
+EXPOSE 8080
+
 CMD ["vue-storefront-api.sh"]
