@@ -35,10 +35,11 @@ services:
     container_name: storefront_api
     build:
       context: .
-      dockerfile: ./docker/vue-storefront-api/Dockerfile
+      dockerfile: docker/vue-storefront-api/dev/Dockerfile
     volumes:
       - ./:/var/www
       - /var/www/node_modules
+      - /var/www/config #isolate local config
     ports:
       - '8080:8080'
     command: "/bin/sh"
