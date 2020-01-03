@@ -4,12 +4,10 @@ ENV VS_ENV prod
 
 WORKDIR /var/www
 
-RUN apk add --no-cache curl git
-
 COPY package.json ./
 COPY yarn.lock ./
 
-RUN apk add --no-cache --virtual .build-deps ca-certificates wget && \
+RUN apk add --no-cache --virtual .build-deps ca-certificates wget curl git && \
     yarn install --no-cache
 
 RUN npm install -g typescript@3.3.3
