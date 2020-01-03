@@ -14,7 +14,7 @@ jobs:
     - &build
       stage: Build
       script:
-      - yarn lint
+#      - yarn lint
       - yarn build
       node_js: '10'
 

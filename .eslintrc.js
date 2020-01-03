@@ -14,7 +14,6 @@ module.exports = {
   plugins: ['vue-storefront', '@typescript-eslint'],
   // add your custom rules here
   rules: {
-    '@typescript-eslint/no-var-requires': 1,
     '@typescript-eslint/indent': ['error', 2],
     '@typescript-eslint/camelcase': 0,
     semi: 'off',
