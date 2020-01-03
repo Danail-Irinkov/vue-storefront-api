@@ -13,10 +13,12 @@ RUN apk add --no-cache --virtual .build-deps ca-certificates wget curl git && \
 RUN npm install -g typescript@3.3.3
 
 COPY ./config ./config_repo
-
-COPY docker/vue-storefront-api/dev/dev_entrypoint.sh /usr/local/bin/
-RUN chmod 774 /usr/local/bin/dev_entrypoint.sh
+RUN chmod 774 ./config_repo/production.json
 
 EXPOSE 8080
 
-CMD ["dev_entrypoint.sh"]
+COPY docker/vue-storefront-api/dev/dev_entrypoint.sh /usr/local/bin/dev_entrypoint.sh
+RUN chmod +x /usr/local/bin/dev_entrypoint.sh
+
+RUN ["cat", "/usr/local/bin/dev_entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/dev_entrypoint.sh"]
