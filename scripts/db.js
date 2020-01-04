@@ -1,4 +1,5 @@
 const program = require('commander')
+console.log('Config:!!!!!!!! ')
 const config = require('config')
 const common = require('../migrations/.common')
 const es = require('../src/lib/elastic')

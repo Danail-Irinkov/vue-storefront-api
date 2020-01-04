@@ -14,6 +14,7 @@ RUN apk add --no-cache --virtual .build-deps ca-certificates wget && \
     apk del .build-deps
 
 RUN npm install -g typescript@3.3.3
+RUN npm install -g nodemon
 
 COPY ./ecosystem.json ./ecosystem.json
 COPY ./tsconfig.json ./tsconfig.json

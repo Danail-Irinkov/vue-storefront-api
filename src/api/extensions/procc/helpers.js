@@ -1,5 +1,7 @@
 import _ from 'lodash';
-import {createNewElasticSearchIndex, startVueStorefrontAPI} from './storeManagement';
+import {createNewElasticSearchIndex, startVueStorefrontAPI,
+  storewiseImportStore, storewiseAddNewProducts,
+  createMainStoreElasticSearchIndex} from './storeManagement';
 import request from 'request';
 import config from 'config';
 import Store from 'data-store';
@@ -79,14 +81,20 @@ export function parse_resBody (_resBody) {
 }
 export function getTotalHits (config, storeCode, search) {
   return new Promise((resolve, reject) => {
-    request({uri: `${config.server.url}/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?filter_path=hits.total`, method: 'GET'},
-      (_err, _res, _resBody) => {
+    request({uri: `${config.server.url}/api/catalog/vue_storefront_catalog${storeCode ? '_'+storeCode : ''}/${search}/_search?filter_path=hits.total`, method: 'GET'},
+      async (_err, _res, _resBody) => {
         if (_err) {
           console.log('getTotalHits Error', _err);
           console.log('config.server.url:', config.server.url);
           reject(_err)
         }
         console.log('_resBody', _resBody);
+        if(_resBody.indexOf('inaccessible index name given in the URL') !== -1){
+          // Index is missing -> trying to recreate store
+          console.log('emmergency await createStoreIndexInBothServers(storeCode);')
+
+          await createStoreIndexInBothServers(storeCode).catch((e)=>{reject(e)});
+        }
         if (_resBody.indexOf('Error') === -1) {
           _resBody = parse_resBody(_resBody);
           resolve(_resBody.hits);
@@ -101,20 +109,42 @@ export function getTotalHits (config, storeCode, search) {
 }
 export function searchCatalogUrl (config, storeCode, search) {
   return new Promise((resolve, reject) => {
-    getTotalHits(config, storeCode, search).then((res) => {
-      if (res.total) {
+    getTotalHits(config, storeCode, search)
+    .then((res) => {
+      if (res && res.total) {
         resolve(`${config.server.url}/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?size=${res.total}`); // limiting results, not filtering by product size
       } else {
         resolve(`${config.server.url}/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search`);
       }
     }
-    );
+    ).catch((e)=>{
+      reject(e)
+    });
   });
 }
 
 // export function searchCatalogUrl(storeCode,search) {
 //   return `${config.server.url}/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search`;
 // }
+
+export async function installMainStore () {
+  let checkIfMainStoreExists = await getTotalHits (config, '', 'review')
+  console.log('checkIfMainStoreExists', checkIfMainStoreExists)
+  if(!(checkIfMainStoreExists && checkIfMainStoreExists.total && checkIfMainStoreExists.total > 0)){
+    await createMainStoreElasticSearchIndex()
+  }
+  return true 
+}
+
+export async function installDevStore () {
+  let checkIfStoreExists = await getTotalHits (config, 'dev', 'product')
+  console.log('checkIfStoreExists', checkIfStoreExists)
+  if(!(checkIfStoreExists && checkIfStoreExists.total && checkIfStoreExists.total > 0)){
+    storewiseImportStore('dev')
+    storewiseAddNewProducts('dev', {products_to_add: 'DA001,DA002,DA003,DA004,DA005,DA006,DA007,DA008,DA009'})
+  }
+  return true 
+}
 
 export function setProductBanners (config, storeCode) {
   return new Promise((resolve, reject) => {

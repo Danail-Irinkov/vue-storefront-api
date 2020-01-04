@@ -57,9 +57,13 @@ function exec (cmd, args, opts, enableLogging = false, limit_output = false) {
 
 export function stringifySKUs (skus_array) {
   let skus = '';
-  for (let sku of skus_array) {
-    if (skus !== '')skus = skus + ',';
-    skus = skus + sku
+  if(typeof skus_array === 'string'){
+    skus = skus_array
+  }else{
+    for (let sku of skus_array) {
+      if (skus !== '')skus = skus + ',';
+      skus = skus + sku
+    }
   }
   return skus
 }
@@ -77,7 +81,7 @@ export function storewiseImportStore (storeCode, sync_options) {
     '--skip-pages=1', // Still not implemented
     '--skip-blocks=1' // Still not implemented
   ];
-  if (sync_options.categories_rebuild === false) {
+  if (sync_options && sync_options.categories_rebuild === false) {
     args.push('--skip-categories=1') // Skipping syncing categories if not needed
   }
 
@@ -222,7 +226,7 @@ export function storewiseRemoveProducts (storeCode, sync_options) {
   });
 }
 
-export function storewiseAddNewProducts (storeCode, sync_options) {
+export function storewiseAddNewProducts (storeCode, sync_options = null) {
   let skus = sync_options.products_to_add ? stringifySKUs(sync_options.products_to_add) : null;
   console.log(' == Running storewiseAddNewProducts storeCode==', storeCode);
   let args = [
@@ -241,11 +245,23 @@ export function storewiseAddNewProducts (storeCode, sync_options) {
     return Promise.resolve()
   }
 
-  if (sync_options.force_all_products === true) {
+  if (sync_options && sync_options.force_all_products === true) {
     args.push('--removeNonExistent=1') // Cleanup of all store products before syncing
   }
 
   return exec('yarn', args, { shell: true }, true);
+}
+
+export function createMainStoreElasticSearchIndex () {
+  console.log(' == createMainStoreElasticSearchIndex ==');
+  return exec('node', [
+    'scripts/elastic.js' , 
+    'restore',, 
+    '--output-index=vue_storefront_catalog', 
+    '&&' , 
+    'node' , 'scripts/db.js',
+    'rebuild' 
+  ], { shell: true })
 }
 
 export function createNewElasticSearchIndex (storeCode) {

@@ -13,7 +13,7 @@ import { storewiseImportStore, storewiseAddNewProducts, storewiseRemoveProducts,
   deleteVueStorefrontStoreConfig, rebuildElasticSearchIndex } from './storeManagement';
 
 import { createStoreIndexInBothServers,
-  setProductBanners, setCategoryBanners,
+  setProductBanners, setCategoryBanners, installDevStore, installMainStore,
   healthCheck, healthCheckCore } from './helpers';
 
 import request from 'request';
@@ -40,8 +40,11 @@ let appDir = path.dirname(require.main.filename);
 appDir = path.dirname(appDir);
 console.log('appDir appDirappDir - ', appDir);
 
+installMainStore ()
+
 let storefrontApiConfig;
 if (process.env.NODE_ENV === 'development') {
+  installDevStore()
   storefrontApiConfig = new Store({path: path.resolve('./config/local.json')});
 } else { storefrontApiConfig = new Store({path: path.resolve('./config/production.json')}); }
 console.log('START process.env.NODE_ENV: ', process.env.NODE_ENV);
@@ -232,6 +235,9 @@ module.exports = ({ config, db }) => {
       let brand_id = req.body.brand_id;
       if (!storeCode || !brand_id) {
         return Promise.reject('Insufficient Parameters')
+      }else if(config.elasticsearch.indicies.indexOf(`vue_storefront_catalog_${storeCode}`) === -1){
+        await createStoreIndexInBothServers(storeCode);
+        console.log('emmergency await createStoreIndexInBothServers(storeCode);')
       }
       // console.log('populateM2StoreToES storefrontApiConfig', storefrontApiConfig.clone())
       console.log('storefrontApiConfig');

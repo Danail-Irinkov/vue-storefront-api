@@ -1,6 +1,7 @@
-FROM node:10-alpine
+FROM keymetrics/pm2:10-alpine
 
-ENV VS_ENV prod
+ENV VS_ENV dev
+ENV NODE_ENV developer
 
 WORKDIR /var/www
 
@@ -11,9 +12,10 @@ RUN apk add --no-cache --virtual .build-deps ca-certificates wget curl git && \
     yarn install --no-cache
 
 RUN npm install -g typescript@3.3.3
+RUN set -ex && apk --no-cache add sudo
 
-COPY ./config ./config_repo
-RUN chmod 774 ./config_repo/production.json
+COPY ./config /var/config_repo
+RUN chmod 774 /var/config_repo/production.json
 
 EXPOSE 8080
 

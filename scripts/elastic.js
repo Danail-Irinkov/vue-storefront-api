@@ -1,5 +1,7 @@
 const program = require('commander')
+console.log('Config: ')
 const config = require('config').elasticsearch
+console.log('Config: ', config)
 const spawnSync = require('child_process').spawnSync
 
 function stdOutErr (stdout, stderr) {

@@ -1,0 +1,16 @@
+{
+  "apps": [
+    {
+      "name": "api",
+      "script": "npm",
+      "args": "run dev",
+      "env": {
+        "NODE_ENV": "development",
+        "SEO_USE_URL_DISPATCHER":
+         "false"
+      },
+      "log_date_format": "YYYY-MM-DD HH:mm:ss",
+      "ignore_watch": ["node_modules"]
+    }
+  ]
+}
