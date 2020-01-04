@@ -1,6 +1,6 @@
 import { apiStatus } from '../../../lib/util';
 import { Router } from 'express';
-
+import { updateConfig, config } from '../../../index'
 import Store from 'data-store';
 import _ from 'lodash';
 import path from 'path';
@@ -101,7 +101,8 @@ module.exports = ({ config, db }) => {
     }
   });
 
-  mcApi.post('/updateStorefrontSettings', (req, res) => {
+  mcApi.post('/updateStorefrontSettings', async (req, res) => {
+    try{
     let storeData = req.body;
     let store_data = {
       storeCode: storeData.storefront_url,
@@ -162,6 +163,8 @@ module.exports = ({ config, db }) => {
         // storefront.set(`storeViews.${store_data.storeCode}`, store_data);
       }
     }
+    await updateConfig() // Updating config for entire API
+
     console.log('updateStorefrontSettings req.body', req.body);
     console.log('updateStorefrontSettings req.body  END');
     return request({
@@ -175,6 +178,9 @@ module.exports = ({ config, db }) => {
       console.log('/updateStorefrontSettings Response', _resBody);
       return apiStatus(res, 200);
     })
+  }catch(e){
+    return apiStatus(res, 502);
+  }
   });
   /**
    * POST TEST api
@@ -235,22 +241,10 @@ module.exports = ({ config, db }) => {
       let brand_id = req.body.brand_id;
       if (!storeCode || !brand_id) {
         return Promise.reject('Insufficient Parameters')
-      }else if(config.elasticsearch.indicies.indexOf(`vue_storefront_catalog_${storeCode}`) === -1){
+      }else if(config.elasticsearch.indices.indexOf(`vue_storefront_catalog_${storeCode}`) === -1){
         await createStoreIndexInBothServers(storeCode);
-        console.log('emmergency await createStoreIndexInBothServers(storeCode);')
+        console.log('emmergency createStoreIndexInBothServers(storeCode) END!')
       }
-      // console.log('populateM2StoreToES storefrontApiConfig', storefrontApiConfig.clone())
-      console.log('storefrontApiConfig');
-
-      // Check if store exists in configs TODO: add creation for all parts of the store related configs, if missing any part
-      // if (!storefrontApiConfig.get('storeViews') || !storefrontApiConfig.get('storeViews.'+storeCode)
-      //   || !storefrontApiConfig.get('storeViews.mapStoreUrlsFor') || ![...storefrontApiConfig.get('storeViews.mapStoreUrlsFor')].indexOf(storeCode) === -1
-      //   || !storefrontApiConfig.get('elasticsearch.indices') || ![...storefrontApiConfig.get('elasticsearch.indices')].indexOf(storeCode) === -1
-      //   || !storefrontApiConfig.get('availableStores') || ![...storefrontApiConfig.get('availableStores')].indexOf(storeCode) === -1
-      // ) {
-      //   // Creating New Store Configs
-      //   await createStoreIndexInBothServers(storeCode)
-      // }
 
       if (!storeCode) return Promise.reject('Missing store code');
       console.time('storewiseImportStore');
@@ -264,31 +258,12 @@ module.exports = ({ config, db }) => {
       console.time('rebuildElasticSearchIndex');
       console.log('rebuildElasticSearchIndex');
       await rebuildElasticSearchIndex(storeCodeForElastic);
+
       let time_ms = 2234;
       console.log('Sleeping for ' + time_ms + ' ms to avoid sync bug');
       await sleep(time_ms); // Needed to avoid issues with subsequent  setCategoryBanners ES queries
       console.timeEnd('rebuildElasticSearchIndex');
 
-      // return Promise.reject('Missing SKUs') // SKUs are needed, to avoid importing all products from all stores
-      // Dump elastic Index to local
-      // console.time('catalogFile.unlink')
-      // console.log('catalogFile.unlink')
-      // console.log('path.resolve(`/var/catalog_${storeCodeForElastic}.json`)', path.resolve(`./var/catalog_${storeCodeForElastic}.json`))
-      // const catalogFile = new Store({path: path.resolve(`./var/catalog_${storeCodeForElastic}.json`)});
-      // catalogFile.unlink();
-      // console.timeEnd('catalogFile.unlink')
-
-      // Not needed when we are importing the store directly from M2
-      // console.time('dumpStoreIndex')
-      // console.log('dumpStoreIndex')
-      // await dumpStoreIndex(storeCodeForElastic)
-      // console.timeEnd('dumpStoreIndex')
-      //
-      // Restore dumped index to ES
-      // console.time('restoreStoreIndex')
-      // console.log('restoreStoreIndex')
-      // await restoreStoreIndex(storeCodeForElastic)
-      // console.timeEnd('restoreStoreIndex')
       console.log('store_wise_import_done - brand_id: ', brand_id);
       ProCcAPI.store_wise_import_done({success: true, brand_id}, brand_id);
 

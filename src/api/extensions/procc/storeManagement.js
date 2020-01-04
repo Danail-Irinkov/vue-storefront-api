@@ -1,5 +1,5 @@
 import request from 'request';
-import config from 'config';
+import { updateConfig, config } from '../../../index'
 
 import { getESClient } from './helpers';
 const esClient = getESClient();
@@ -433,6 +433,8 @@ export async function buildAndRestartVueStorefront (req, res, brand_id, enableVS
     if (enableVSFRebuild) {
       if (process.env.NODE_ENV === 'development') {
         console.time('buildVueStorefrontDev');
+        await updateConfig() // Updating config for entire API
+
         await buildVueStorefrontDocker(); // Sync flow for the new Docker Dev Script get_procc.sh
         // await buildVueStorefront(config) // LEGACY
         // await buildVueStorefrontAPI(config) // LEGACY

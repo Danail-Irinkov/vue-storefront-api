@@ -1,9 +1,9 @@
 import _ from 'lodash';
 import {createNewElasticSearchIndex, startVueStorefrontAPI,
-  storewiseImportStore, storewiseAddNewProducts,
+  storewiseImportStore, storewiseAddNewProducts, dumpStoreIndex, restoreStoreIndex, 
   createMainStoreElasticSearchIndex} from './storeManagement';
+import { updateConfig, config } from '../../../index'
 import request from 'request';
-import config from 'config';
 import Store from 'data-store';
 import path from 'path';
 
@@ -47,6 +47,7 @@ export async function createStoreIndexInBothServers (storeCode) {
     if (!_.includes(storefrontApiConfig.get('elasticsearch.indices'), storeIndex)) {
       storefrontApiConfig.set('elasticsearch.indices', _.concat(storefrontApiConfig.get('elasticsearch.indices'), storeIndex));
       console.log('storefrontApiConfig.get("elasticsearch.indices")3', storefrontApiConfig.get('elasticsearch.indices'))
+      await updateConfig() // Updating config for entire API
     }
 
     console.time('createNewElasticSearchIndex');
@@ -349,4 +350,31 @@ export async function healthCheckCore (config) {
     console.log('VSF-API IS DOWN', e.message);
     return Promise.reject(e)
   }
+}
+
+export async function dumpESIndexToLocal(storeCode){
+  try{
+      // Dump elastic Index to local
+      console.time('catalogFile.unlink')
+      console.log('catalogFile.unlink')
+      console.log('path.resolve(`/var/catalog_${storeCode}.json`)', path.resolve(`./var/catalog_${storeCode}.json`))
+      const catalogFile = new Store({path: path.resolve(`./var/catalog_${storeCode}.json`)});
+      catalogFile.unlink();
+      console.timeEnd('catalogFile.unlink')
+
+      // Not needed when we are importing the store directly from M2
+      console.time('dumpStoreIndex')
+      console.log('dumpStoreIndex')
+      await dumpStoreIndex(storeCode)
+      console.timeEnd('dumpStoreIndex')
+      
+      // Restore dumped index to ES
+      console.time('restoreStoreIndex')
+      console.log('restoreStoreIndex')
+      await restoreStoreIndex(storeCode)
+      console.timeEnd('restoreStoreIndex')
+
+    }catch(e){
+      return Promise.reject(e)
+    }
 }

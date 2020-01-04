@@ -6,19 +6,35 @@ import initializeDb from './db';
 import middleware from './middleware';
 import { loadAdditionalCertificates } from './helpers/loadAdditionalCertificates'
 import api from './api';
-import config from 'config';
+import node_config from 'config'; // Edited by Dan to allow config reload
 import img from './api/img';
 import invalidateCache from './api/invalidate'
 import * as path from 'path'
+// Disabled by dan because yarn build crashing due to graphQL
 // import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 // import { makeExecutableSchema } from 'graphql-tools';
 // import resolvers from './graphql/resolvers';
 // import typeDefs from './graphql/schema';
 
+// Added by dan-03-12-2019 to allow dynamic reset of config after update
+let config = node_config
+
+async function updateConfig(){
+  try{
+    console.log('updateConfig updating API config')
+    config = await import('config');
+    return config
+  }catch(e){
+    console.log('Error: updateConfig Failed')
+    return Promise.reject(e)
+  }
+}
+
 // Added by dan-29-11-2019
 const timeout = require('connect-timeout');
 
 const app = express();
+
 // timeout middleware
 app.use(timeout(600000));
 
@@ -77,4 +93,4 @@ app.use(bodyParser.json());
 
 // app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
 
-export default app;
+export default {...app, config, updateConfig};
