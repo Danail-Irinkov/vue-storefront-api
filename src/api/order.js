@@ -6,7 +6,7 @@ import PlatformFactory from '../platform/factory';
 
 // Added ProCCAPI to global added by Dan to enable in typescript
 import ProCcApiRaw from './extensions/procc/procc_api.js'
-const ProCcAPI = ProCcApiRaw();
+let ProCcAPI
 
 const Ajv = require('ajv'); // json validator
 const fs = require('fs');
@@ -21,7 +21,6 @@ const _getProxy = (req, config) => {
 };
 
 export default ({ config, db }) => resource({
-
   /** Property name to store preloaded entity on `request`. */
   id: 'order',
 
@@ -29,6 +28,8 @@ export default ({ config, db }) => resource({
    * POST create an order with JSON payload compliant with models/order.md
    */
   create (req, res) {
+    ProCcAPI = ProCcApiRaw(config); // Added by Dan to keep config same as from TopLevel index.ts
+
     console.log('create Order Data: ', req.body);
     const ajv = new Ajv();
     require('ajv-keywords')(ajv, 'regexp');
@@ -81,12 +82,13 @@ export default ({ config, db }) => resource({
           } else {
             ProCcAPI.addNewOrder(req.body, brand_id).then((resp) => {
               console.log('addNewOrder Response1:');
-            });
+            })
+
             apiStatus(res, job.id, 200);
           }
         })
       } catch (e) {
-        apiStatus(res, e, 500);
+        apiError(res, e, 502);
       }
     } else {
       const orderProxy = _getProxy(req, config);

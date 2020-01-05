@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import {createNewElasticSearchIndex, startVueStorefrontAPI,
-  storewiseImportStore, storewiseAddNewProducts, dumpStoreIndex, restoreStoreIndex, 
+  storewiseImportStore, storewiseAddNewProducts, dumpStoreIndex, restoreStoreIndex,
   createMainStoreElasticSearchIndex} from './storeManagement';
-import { updateConfig, config } from '../../../index'
+// import { updateConfig, config } from '../../../index'
 import request from 'request';
 import Store from 'data-store';
 import path from 'path';
@@ -18,21 +18,28 @@ console.log('START process.env.NODE_ENV: ', process.env.NODE_ENV);
 // console.log('START storefrontApiConfig: ', storefrontApiConfig.clone())
 // console.log('START storefrontApiConfig: ', path.resolve('./config/production.json'))
 console.log('END storefrontApiConfig! ');
+
+let esCfg = storefrontApiConfig.get('elasticsearch')
+console.log('Before Error 0 ', esCfg)
 const esConfig = {
   host: {
-    host: config.elasticsearch.host,
-    port: config.elasticsearch.port
+    host: esCfg.host,
+    port: esCfg.port
   },
   // log: 'debug',
-  apiVersion: config.elasticsearch.apiVersion,
+  apiVersion: esCfg.apiVersion,
   requestTimeout: 1000 * 60 * 60,
   keepAlive: false
 };
-if (config.elasticsearch.user) {
-  esConfig.httpAuth = config.elasticsearch.user + ':' + config.elasticsearch.password
+if (esCfg.user) {
+  esConfig.httpAuth = esCfg.user + ':' + esCfg.password
 }
+
+console.log('Before Error 1 ')
 const esClient = new elasticsearch.Client(esConfig);
 export function getESClient () { return esClient }
+
+console.log('Before Error 2 ')
 // ELASTICSEARCH CLIENT - END
 
 export async function createStoreIndexInBothServers (storeCode) {
@@ -47,7 +54,7 @@ export async function createStoreIndexInBothServers (storeCode) {
     if (!_.includes(storefrontApiConfig.get('elasticsearch.indices'), storeIndex)) {
       storefrontApiConfig.set('elasticsearch.indices', _.concat(storefrontApiConfig.get('elasticsearch.indices'), storeIndex));
       console.log('storefrontApiConfig.get("elasticsearch.indices")3', storefrontApiConfig.get('elasticsearch.indices'))
-      await updateConfig() // Updating config for entire API
+      // await updateConfig() // Updating config for entire API
     }
 
     console.time('createNewElasticSearchIndex');
@@ -82,7 +89,7 @@ export function parse_resBody (_resBody) {
 }
 export function getTotalHits (config, storeCode, search) {
   return new Promise((resolve, reject) => {
-    request({uri: `${config.server.url}/api/catalog/vue_storefront_catalog${storeCode ? '_'+storeCode : ''}/${search}/_search?filter_path=hits.total`, method: 'GET'},
+    request({uri: `${config.server.url}/api/catalog/vue_storefront_catalog${storeCode ? '_' + storeCode : ''}/${search}/_search?filter_path=hits.total`, method: 'GET'},
       async (_err, _res, _resBody) => {
         if (_err) {
           console.log('getTotalHits Error', _err);
@@ -90,13 +97,13 @@ export function getTotalHits (config, storeCode, search) {
           reject(_err)
         }
         console.log('_resBody', _resBody);
-        if(_resBody.indexOf('inaccessible index name given in the URL') !== -1){
+        if (_resBody && _resBody.indexOf('inaccessible index name given in the URL') !== -1) {
           // Index is missing -> trying to recreate store
           console.log('emmergency await createStoreIndexInBothServers(storeCode);')
 
-          await createStoreIndexInBothServers(storeCode).catch((e)=>{reject(e)});
+          await createStoreIndexInBothServers(storeCode).catch((e) => { reject(e) });
         }
-        if (_resBody.indexOf('Error') === -1) {
+        if (_resBody && _resBody.indexOf('Error') === -1) {
           _resBody = parse_resBody(_resBody);
           resolve(_resBody.hits);
         } else {
@@ -111,16 +118,16 @@ export function getTotalHits (config, storeCode, search) {
 export function searchCatalogUrl (config, storeCode, search) {
   return new Promise((resolve, reject) => {
     getTotalHits(config, storeCode, search)
-    .then((res) => {
-      if (res && res.total) {
-        resolve(`${config.server.url}/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?size=${res.total}`); // limiting results, not filtering by product size
-      } else {
-        resolve(`${config.server.url}/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search`);
+      .then((res) => {
+        if (res && res.total) {
+          resolve(`${config.server.url}/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search?size=${res.total}`); // limiting results, not filtering by product size
+        } else {
+          resolve(`${config.server.url}/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search`);
+        }
       }
-    }
-    ).catch((e)=>{
-      reject(e)
-    });
+      ).catch((e) => {
+        reject(e)
+      });
   });
 }
 
@@ -128,23 +135,23 @@ export function searchCatalogUrl (config, storeCode, search) {
 //   return `${config.server.url}/api/catalog/vue_storefront_catalog_${storeCode}/${search}/_search`;
 // }
 
-export async function installMainStore () {
-  let checkIfMainStoreExists = await getTotalHits (config, '', 'review')
+export async function installMainStore (config) {
+  let checkIfMainStoreExists = await getTotalHits(config, '', 'review')
   console.log('checkIfMainStoreExists', checkIfMainStoreExists)
-  if(!(checkIfMainStoreExists && checkIfMainStoreExists.total && checkIfMainStoreExists.total > 0)){
+  if (!(checkIfMainStoreExists && checkIfMainStoreExists.total && checkIfMainStoreExists.total > 0)) {
     await createMainStoreElasticSearchIndex()
   }
-  return true 
+  return true
 }
 
-export async function installDevStore () {
-  let checkIfStoreExists = await getTotalHits (config, 'dev', 'product')
+export async function installDevStore (config) {
+  let checkIfStoreExists = await getTotalHits(config, 'dev', 'product')
   console.log('checkIfStoreExists', checkIfStoreExists)
-  if(!(checkIfStoreExists && checkIfStoreExists.total && checkIfStoreExists.total > 0)){
+  if (!(checkIfStoreExists && checkIfStoreExists.total && checkIfStoreExists.total > 0)) {
     storewiseImportStore('dev')
     storewiseAddNewProducts('dev', {products_to_add: 'DA001,DA002,DA003,DA004,DA005,DA006,DA007,DA008,DA009'})
   }
-  return true 
+  return true
 }
 
 export function setProductBanners (config, storeCode) {
@@ -352,29 +359,28 @@ export async function healthCheckCore (config) {
   }
 }
 
-export async function dumpESIndexToLocal(storeCode){
-  try{
-      // Dump elastic Index to local
-      console.time('catalogFile.unlink')
-      console.log('catalogFile.unlink')
-      console.log('path.resolve(`/var/catalog_${storeCode}.json`)', path.resolve(`./var/catalog_${storeCode}.json`))
-      const catalogFile = new Store({path: path.resolve(`./var/catalog_${storeCode}.json`)});
-      catalogFile.unlink();
-      console.timeEnd('catalogFile.unlink')
+export async function dumpESIndexToLocal (storeCode) {
+  try {
+    // Dump elastic Index to local
+    console.time('catalogFile.unlink')
+    console.log('catalogFile.unlink')
+    console.log('path.resolve(`/var/catalog_storeCode.json`)', path.resolve(`./var/catalog_${storeCode}.json`))
+    const catalogFile = new Store({path: path.resolve(`./var/catalog_${storeCode}.json`)});
+    catalogFile.unlink();
+    console.timeEnd('catalogFile.unlink')
 
-      // Not needed when we are importing the store directly from M2
-      console.time('dumpStoreIndex')
-      console.log('dumpStoreIndex')
-      await dumpStoreIndex(storeCode)
-      console.timeEnd('dumpStoreIndex')
-      
-      // Restore dumped index to ES
-      console.time('restoreStoreIndex')
-      console.log('restoreStoreIndex')
-      await restoreStoreIndex(storeCode)
-      console.timeEnd('restoreStoreIndex')
+    // Not needed when we are importing the store directly from M2
+    console.time('dumpStoreIndex')
+    console.log('dumpStoreIndex')
+    await dumpStoreIndex(storeCode)
+    console.timeEnd('dumpStoreIndex')
 
-    }catch(e){
-      return Promise.reject(e)
-    }
+    // Restore dumped index to ES
+    console.time('restoreStoreIndex')
+    console.log('restoreStoreIndex')
+    await restoreStoreIndex(storeCode)
+    console.timeEnd('restoreStoreIndex')
+  } catch (e) {
+    return Promise.reject(e)
+  }
 }

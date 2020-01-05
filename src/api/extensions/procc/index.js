@@ -1,6 +1,6 @@
 import { apiStatus } from '../../../lib/util';
 import { Router } from 'express';
-import { updateConfig, config } from '../../../index'
+// import { updateConfig } from '../../../index'
 import Store from 'data-store';
 import _ from 'lodash';
 import path from 'path';
@@ -20,7 +20,7 @@ import request from 'request';
 
 // Added ProCCAPI to global added by Dan to enable in typescript
 import ProCcApiRaw from './procc_api.js'
-const ProCcAPI = ProCcApiRaw();
+let ProCcAPI = {}
 
 const sleep = (ms) => {
   return new Promise((resolve) => {
@@ -40,11 +40,8 @@ let appDir = path.dirname(require.main.filename);
 appDir = path.dirname(appDir);
 console.log('appDir appDirappDir - ', appDir);
 
-installMainStore ()
-
 let storefrontApiConfig;
 if (process.env.NODE_ENV === 'development') {
-  installDevStore()
   storefrontApiConfig = new Store({path: path.resolve('./config/local.json')});
 } else { storefrontApiConfig = new Store({path: path.resolve('./config/production.json')}); }
 console.log('START process.env.NODE_ENV: ', process.env.NODE_ENV);
@@ -54,6 +51,12 @@ console.log('END storefrontApiConfig! ');
 
 module.exports = ({ config, db }) => {
   let mcApi = Router();
+
+  installMainStore(config).catch((e) => { console.log('installMainStore Error', e) })
+  if (process.env.NODE_ENV === 'development') {
+    installDevStore(config).catch((e) => { console.log('installDevStore Error', e) })
+  }
+  ProCcAPI = ProCcApiRaw(config);
 
   mcApi.get('/health', async (req, res) => {
     let health;
@@ -82,7 +85,7 @@ module.exports = ({ config, db }) => {
       let storeCode = req.body.storeCode;
       let sku = req.body.sku;
       let category_id = req.body.category_id;
-      let result = await storewiseRemoveProductFromCategory(storeCode, sku, category_id);
+      let result = await storewiseRemoveProductFromCategory(config, storeCode, sku, category_id);
       return apiStatus(res, result, 200);
     } catch (e) {
       return apiStatus(res, e, 500);
@@ -94,7 +97,7 @@ module.exports = ({ config, db }) => {
       let storeCode = req.body.storeCode;
       let sku = req.body.sku;
       let category_id = req.body.category_id;
-      let result = await storewiseAddProductToCategory(storeCode, sku, category_id);
+      let result = await storewiseAddProductToCategory(config, storeCode, sku, category_id);
       return apiStatus(res, result, 200);
     } catch (e) {
       return apiStatus(res, e, 500);
@@ -102,85 +105,85 @@ module.exports = ({ config, db }) => {
   });
 
   mcApi.post('/updateStorefrontSettings', async (req, res) => {
-    try{
-    let storeData = req.body;
-    let store_data = {
-      storeCode: storeData.storefront_url,
-      storeName: _.startCase(storeData.magento_store_name),
-      disabled: false,
-      storeId: parseInt(storeData.magento_store_id),
-      name: _.startCase(storeData.magento_store_name),
-      url: `/${storeData.storefront_url}`,
-      elasticsearch: {
-        host: config.server.url + '/api/catalog', // NEED to be with domain, it is sent to the frontend
-        index: `vue_storefront_catalog_${_.snakeCase(storeData.storefront_url)}`
-      },
-      tax: {
-        defaultCountry: 'BG',
-        defaultRegion: '',
-        calculateServerSide: true,
-        sourcePriceIncludesTax: false
-      },
-      i18n: {
-        fullCountryName: 'Bulgaria',
-        fullLanguageName: 'Bulgarian',
-        defaultCountry: 'BG',
-        defaultLanguage: 'EN',
-        defaultLocale: 'en-US',
-        currencyCode: 'EUR',
-        currencySign: 'EUR',
-        dateFormat: 'HH:mm D-M-YYYY'
+    try {
+      let storeData = req.body;
+      let store_data = {
+        storeCode: storeData.storefront_url,
+        storeName: _.startCase(storeData.magento_store_name),
+        disabled: false,
+        storeId: parseInt(storeData.magento_store_id),
+        name: _.startCase(storeData.magento_store_name),
+        url: `/${storeData.storefront_url}`,
+        elasticsearch: {
+          host: config.server.url + '/api/catalog', // NEED to be with domain, it is sent to the frontend
+          index: `vue_storefront_catalog_${_.snakeCase(storeData.storefront_url)}`
+        },
+        tax: {
+          defaultCountry: 'BG',
+          defaultRegion: '',
+          calculateServerSide: true,
+          sourcePriceIncludesTax: false
+        },
+        i18n: {
+          fullCountryName: 'Bulgaria',
+          fullLanguageName: 'Bulgarian',
+          defaultCountry: 'BG',
+          defaultLanguage: 'EN',
+          defaultLocale: 'en-US',
+          currencyCode: 'EUR',
+          currencySign: 'EUR',
+          dateFormat: 'HH:mm D-M-YYYY'
+        }
+      };
+      // console.log('storefrontApiConfig: ', storefrontApiConfig.clone())
+
+      if (storefrontApiConfig.has(`storeViews.${store_data.storeCode}`)) {
+        storefrontApiConfig.del(`storeViews.${store_data.storeCode}`);
       }
-    };
-    // console.log('storefrontApiConfig: ', storefrontApiConfig.clone())
+      if ((!storefrontApiConfig.has(`storeViews.${store_data.storeCode}`))) {
+        let mapStoreUrlsFor = storefrontApiConfig.get('storeViews.mapStoreUrlsFor');
 
-    if (storefrontApiConfig.has(`storeViews.${store_data.storeCode}`)) {
-      storefrontApiConfig.del(`storeViews.${store_data.storeCode}`);
-    }
-    if ((!storefrontApiConfig.has(`storeViews.${store_data.storeCode}`))) {
-      let mapStoreUrlsFor = storefrontApiConfig.get('storeViews.mapStoreUrlsFor');
-
-      if (!_.includes(storefrontApiConfig.get('availableStores'), store_data.storeCode)) {
+        if (!_.includes(storefrontApiConfig.get('availableStores'), store_data.storeCode)) {
         // set available stores
-        storefrontApiConfig.set('availableStores', (_.concat(storefrontApiConfig.get('availableStores'), store_data.storeCode)));
-      }
+          storefrontApiConfig.set('availableStores', (_.concat(storefrontApiConfig.get('availableStores'), store_data.storeCode)));
+        }
 
-      console.log('storefrontApiConfig.get("elasticsearch.indices")0', storefrontApiConfig.get('elasticsearch.indices'));
-      if (!_.includes(storefrontApiConfig.get('elasticsearch.indices'), store_data.elasticsearch.index)) {
+        console.log('storefrontApiConfig.get("elasticsearch.indices")0', storefrontApiConfig.get('elasticsearch.indices'));
+        if (!_.includes(storefrontApiConfig.get('elasticsearch.indices'), store_data.elasticsearch.index)) {
         // set indices of the store
-        storefrontApiConfig.set('elasticsearch.indices', _.concat(storefrontApiConfig.get('elasticsearch.indices'), store_data.elasticsearch.index));
-        console.log('storefrontApiConfig.get("elasticsearch.indices")1', storefrontApiConfig.get('elasticsearch.indices'))
-      }
+          storefrontApiConfig.set('elasticsearch.indices', _.concat(storefrontApiConfig.get('elasticsearch.indices'), store_data.elasticsearch.index));
+          console.log('storefrontApiConfig.get("elasticsearch.indices")1', storefrontApiConfig.get('elasticsearch.indices'))
+        }
 
-      if ((!_.includes(mapStoreUrlsFor, store_data.storeCode)) || (!_.includes(storefrontApiConfig.get('storeViews.mapStoreUrlsFor'), store_data.storeCode))) {
+        if ((!_.includes(mapStoreUrlsFor, store_data.storeCode)) || (!_.includes(storefrontApiConfig.get('storeViews.mapStoreUrlsFor'), store_data.storeCode))) {
         // set value in mapStoreUrlsFor
-        storefrontApiConfig.set('storeViews.mapStoreUrlsFor', _.concat(storefrontApiConfig.get('storeViews.mapStoreUrlsFor'), store_data.storeCode));
-      }
+          storefrontApiConfig.set('storeViews.mapStoreUrlsFor', _.concat(storefrontApiConfig.get('storeViews.mapStoreUrlsFor'), store_data.storeCode));
+        }
 
-      if (!(storefrontApiConfig.get(`storeViews.${store_data.storeCode}`))) {
+        if (!(storefrontApiConfig.get(`storeViews.${store_data.storeCode}`))) {
         // set obj of store
-        storefrontApiConfig.set(`storeViews.${store_data.storeCode}`, store_data);
+          storefrontApiConfig.set(`storeViews.${store_data.storeCode}`, store_data);
         // storefront.set(`storeViews.${store_data.storeCode}`, store_data);
+        }
       }
-    }
-    await updateConfig() // Updating config for entire API
+      // await updateConfig() // Updating config for entire API
 
-    console.log('updateStorefrontSettings req.body', req.body);
-    console.log('updateStorefrontSettings req.body  END');
-    return request({
+      console.log('updateStorefrontSettings req.body', req.body);
+      console.log('updateStorefrontSettings req.body  END');
+      return request({
       // create store in vs
-      uri: config.vsf.host + ':' + config.vsf.port + '/updateStorefrontSettings',
-      method: 'POST',
-      body: req.body,
-      json: true
-    },
-    (_err, _res, _resBody) => {
-      console.log('/updateStorefrontSettings Response', _resBody);
-      return apiStatus(res, 200);
-    })
-  }catch(e){
-    return apiStatus(res, 502);
-  }
+        uri: config.vsf.host + ':' + config.vsf.port + '/updateStorefrontSettings',
+        method: 'POST',
+        body: req.body,
+        json: true
+      },
+      (_err, _res, _resBody) => {
+        console.log('/updateStorefrontSettings Response', _resBody);
+        return apiStatus(res, 200);
+      })
+    } catch (e) {
+      return apiStatus(res, 502);
+    }
   });
   /**
    * POST TEST api
@@ -241,7 +244,7 @@ module.exports = ({ config, db }) => {
       let brand_id = req.body.brand_id;
       if (!storeCode || !brand_id) {
         return Promise.reject('Insufficient Parameters')
-      }else if(config.elasticsearch.indices.indexOf(`vue_storefront_catalog_${storeCode}`) === -1){
+      } else if (config.elasticsearch.indices.indexOf(`vue_storefront_catalog_${storeCode}`) === -1) {
         await createStoreIndexInBothServers(storeCode);
         console.log('emmergency createStoreIndexInBothServers(storeCode) END!')
       }
@@ -251,7 +254,7 @@ module.exports = ({ config, db }) => {
       console.log('storewiseImportStore');
       console.log('sync_options', sync_options);
       await storewiseImportStore(storeCodeForElastic, sync_options);
-      await storewiseRemoveProducts(storeCodeForElastic, sync_options);
+      await storewiseRemoveProducts(config, storeCodeForElastic, sync_options);
       await storewiseAddNewProducts(storeCodeForElastic, sync_options);
       console.timeEnd('storewiseImportStore');
 
@@ -275,6 +278,7 @@ module.exports = ({ config, db }) => {
       console.log('/import Store ERROR', e);
       console.log('----------------------------');
       console.log('----------------------------');
+      res.status(502)
       res.send({
         message_type: 'error',
         message: e
@@ -394,5 +398,6 @@ module.exports = ({ config, db }) => {
     apiStatus(res, 200);
   });
   healthCheck(config);
+
   return mcApi;
 };

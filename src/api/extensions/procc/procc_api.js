@@ -1,9 +1,8 @@
 import axios from 'axios'
 import jwt from 'jsonwebtoken'
-import { updateConfig, config } from '../../../index'
-console.log('updateConfig', updateConfig)
-console.log('CONFIG', config)
-export default (baseURL = config.PROCC.API + '/api/') => {
+
+export default (config) => {
+  let baseURL = config.PROCC.API + '/api/'
   // ------
   // STEP 1
   // ------

@@ -1,5 +1,5 @@
 import request from 'request';
-import { updateConfig, config } from '../../../index'
+// import { updateConfig, config } from '../../../index'
 
 import { getESClient } from './helpers';
 const esClient = getESClient();
@@ -57,9 +57,9 @@ function exec (cmd, args, opts, enableLogging = false, limit_output = false) {
 
 export function stringifySKUs (skus_array) {
   let skus = '';
-  if(typeof skus_array === 'string'){
+  if (typeof skus_array === 'string') {
     skus = skus_array
-  }else{
+  } else {
     for (let sku of skus_array) {
       if (skus !== '')skus = skus + ',';
       skus = skus + sku
@@ -88,7 +88,7 @@ export function storewiseImportStore (storeCode, sync_options) {
   return exec('yarn', args, { shell: true }, true);
 }
 
-export async function storewiseRemoveProductFromCategory (storeCode, sku, category_id) {
+export async function storewiseRemoveProductFromCategory (config, storeCode, sku, category_id) {
   try {
     if (sku && category_id && !!config.storeViews[storeCode].elasticsearch.index) {
       console.log('Added product to category: ', sku);
@@ -142,7 +142,7 @@ export async function storewiseRemoveProductFromCategory (storeCode, sku, catego
   }
 }
 
-export async function storewiseAddProductToCategory (storeCode, sku, category_id) {
+export async function storewiseAddProductToCategory (config, storeCode, sku, category_id) {
   try {
     if (sku && category_id && !!config.storeViews[storeCode].elasticsearch.index) {
       const result = await esClient.search({
@@ -195,7 +195,7 @@ export async function storewiseAddProductToCategory (storeCode, sku, category_id
   }
 }
 
-export function storewiseRemoveProducts (storeCode, sync_options) {
+export function storewiseRemoveProducts (config, storeCode, sync_options) {
   return new Promise((resolve, reject) => {
     let skus = sync_options.products_to_remove;
     console.log('skus to REMOVE', skus);
@@ -255,12 +255,12 @@ export function storewiseAddNewProducts (storeCode, sync_options = null) {
 export function createMainStoreElasticSearchIndex () {
   console.log(' == createMainStoreElasticSearchIndex ==');
   return exec('node', [
-    'scripts/elastic.js' , 
-    'restore',, 
-    '--output-index=vue_storefront_catalog', 
-    '&&' , 
-    'node' , 'scripts/db.js',
-    'rebuild' 
+    'scripts/elastic.js',
+    'restore',
+    '--output-index=vue_storefront_catalog',
+    '&&',
+    'node', 'scripts/db.js',
+    'rebuild'
   ], { shell: true })
 }
 
@@ -433,7 +433,7 @@ export async function buildAndRestartVueStorefront (req, res, brand_id, enableVS
     if (enableVSFRebuild) {
       if (process.env.NODE_ENV === 'development') {
         console.time('buildVueStorefrontDev');
-        await updateConfig() // Updating config for entire API
+        // await updateConfig() // Updating config for entire API
 
         await buildVueStorefrontDocker(); // Sync flow for the new Docker Dev Script get_procc.sh
         // await buildVueStorefront(config) // LEGACY
@@ -464,7 +464,7 @@ process.on('uncaughtException', (exception) => {
 });
 
 // Example ES Queries
-export async function exampleAddQueryRemoveProductFromCategory (storeCode, sku, category_id) {
+export async function exampleAddQueryRemoveProductFromCategory (config, storeCode, sku, category_id) {
   try {
     if (sku && category_id && !!config.storeViews[storeCode].elasticsearch.index) {
       const result = await esClient.search({

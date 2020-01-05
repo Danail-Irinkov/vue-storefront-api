@@ -28,6 +28,7 @@ services:
 #      - es1
 
   redis:
+    container_name: redis
     image: 'redis:4-alpine'
     ports:
       - '6379:6379'
