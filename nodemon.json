@@ -2,7 +2,7 @@
   "verbose": true,
   "debug": false,
   "exec": "ts-node src",
-  "watch": ["./src"],
+  "watch": ["./src", "./core"],
   "ext": "ts, js",
   "inspect": true,
   "env": {

@@ -12,7 +12,7 @@ function _cacheStorageHandler (config, result, hash, tags) {
       result,
       tags
     ).catch((err) => {
-      console.error(err)
+      console.error('aaa'+err)
     })
   }
 }
@@ -79,7 +79,7 @@ export default ({config, db}) => function (req, res, body) {
   }
   const s = Date.now();
   const reqHash = sha3_224(`${JSON.stringify(requestBody)}${req.url}`);
-  console.log('ES requestBody', req.method + ' - ' + elasticBackendUrl + ' - ' + require('util').inspect(requestBody, false, null, true /* enable colors */));
+  // console.log('ES requestBody', req.method + ' - ' + elasticBackendUrl + ' - ' + require('util').inspect(requestBody, false, null, true /* enable colors */));
   // console.log('ES requestBody', req.method+' - '+url+'\n'+require('util').inspect(requestBody, false, null, true /* enable colors */))
 
   const dynamicRequestHandler = () => {
@@ -91,7 +91,7 @@ export default ({config, db}) => function (req, res, body) {
       auth: auth
     }, (_err, _res, _resBody) => { // TODO: add caching layer to speed up SSR? How to invalidate products (checksum on the response BEFORE processing it)
       if (_resBody && _resBody.hits && _resBody.hits.hits) { // we're signing up all objects returned to the client to be able to validate them when (for example order)
-        // console.log(_resBody.hits.hits, '_resBody.hits');
+        console.log(_resBody.hits.hits[0], '_resBody.hits');
         const factory = new ProcessorFactory(config);
         const tagsArray = [];
         if (config.server.useOutputCache && cache) {
@@ -114,7 +114,7 @@ export default ({config, db}) => function (req, res, body) {
             _cacheStorageHandler(config, _resBody, reqHash, tagsArray);
             res.json(_resBody);
           }).catch((err) => {
-            console.error(err)
+            console.error('sss'+err)
           })
         } else {
           resultProcessor.process(_resBody.hits.hits).then((result) => {
@@ -122,7 +122,7 @@ export default ({config, db}) => function (req, res, body) {
             _cacheStorageHandler(config, _resBody, reqHash, tagsArray);
             res.json(_resBody);
           }).catch((err) => {
-            console.error(err)
+            console.error('ddd'+err)
           })
         }
       } else { // no cache storage if no results from Elastic
@@ -144,7 +144,7 @@ export default ({config, db}) => function (req, res, body) {
         console.log(`cache miss [${req.url}], request: ${Date.now() - s}ms`);
         dynamicRequestHandler()
       }
-    }).catch(err => console.error(err))
+    }).catch(err => console.error('fff'+err))
   } else {
     dynamicRequestHandler()
   }

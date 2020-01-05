@@ -17,5 +17,6 @@
   },
   "include": [
     "src/**/*"
-  ]
+  ],
+  "files":["ProCCtypes.d.ts"]
 }
