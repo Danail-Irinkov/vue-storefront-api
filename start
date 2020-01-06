@@ -1,5 +1,10 @@
 #!/bin/sh
 
+### Fixing issue with files created by the docker containers in root mode...
+echo "   ---   Fixing issue with files created by the docker containers in root mode..."
+echo "running sudo chmod -R 777 ."
+sudo chmod -R 777 .
+
 docker-compose -f docker-compose-dev.yml up -d
 
 echo " === VSF API -> storefront_api Restarted \n"
@@ -7,6 +12,3 @@ echo "docker storefront logs       ->   (VSF Vue)"
 echo "docker storefront_api logs    ->   (VSF API)"
 echo "docker procc logs            ->   (ProCC Vue)"
 echo "docker procc logs            ->   (ProCC API)"
-
-/bin/sh
-exec "$@"

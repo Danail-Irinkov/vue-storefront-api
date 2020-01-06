@@ -3,6 +3,3 @@
 docker-compose -f docker-compose-dev.yml down
 
 echo -e "=== VSF-API Docker Containers are Down"
-
-/bin/sh
-exec "$@"
