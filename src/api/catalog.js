@@ -12,7 +12,7 @@ function _cacheStorageHandler (config, result, hash, tags) {
       result,
       tags
     ).catch((err) => {
-      console.error('aaa'+err)
+      console.error('aaa' + err)
     })
   }
 }
@@ -114,7 +114,7 @@ export default ({config, db}) => function (req, res, body) {
             _cacheStorageHandler(config, _resBody, reqHash, tagsArray);
             res.json(_resBody);
           }).catch((err) => {
-            console.error('sss'+err)
+            console.error('sss' + err)
           })
         } else {
           resultProcessor.process(_resBody.hits.hits).then((result) => {
@@ -122,7 +122,7 @@ export default ({config, db}) => function (req, res, body) {
             _cacheStorageHandler(config, _resBody, reqHash, tagsArray);
             res.json(_resBody);
           }).catch((err) => {
-            console.error('ddd'+err)
+            console.error('ddd' + err)
           })
         }
       } else { // no cache storage if no results from Elastic
@@ -144,7 +144,7 @@ export default ({config, db}) => function (req, res, body) {
         console.log(`cache miss [${req.url}], request: ${Date.now() - s}ms`);
         dynamicRequestHandler()
       }
-    }).catch(err => console.error('fff'+err))
+    }).catch(err => console.error('fff' + err))
   } else {
     dynamicRequestHandler()
   }

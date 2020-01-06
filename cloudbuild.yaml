@@ -29,7 +29,7 @@ steps:
       - 'kube'
       - '--location=${_K8S_ZONE}'
       - '--cluster=${_K8S_CLUSTER}'
-    timeout: '500s'
+    timeout: '120s'
 
   # patch kubernetes deployment to trigger rolling update
   - name: 'gcr.io/cloud-builders/kubectl'
