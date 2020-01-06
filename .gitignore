@@ -19,3 +19,6 @@ var/magento2-sample-data/
 !/docker/elasticsearch/data/.gitkeep
 /docker/elasticsearch7/data/
 !/docker/elasticsearch7/data/.gitkeep
+
+## ProCC added
+latest*
