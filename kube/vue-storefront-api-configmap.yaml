@@ -10,4 +10,3 @@ data:
   REDIS_PORT: "6379"
   REDIS_DB: "0"
   VS_ENV: prod
-  NODE_ENV: production
