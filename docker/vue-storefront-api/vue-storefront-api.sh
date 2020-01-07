@@ -12,6 +12,6 @@ yarn install || exit $?
 #else
 #  npm install pm2 -g
 #  npm run build
-  yarn start2 
+  yarn start2
 #  yarn startK2
 #fi
