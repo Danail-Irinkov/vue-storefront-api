@@ -18,7 +18,7 @@
     "availableCacheTags": ["P", "C", "T", "A", "product", "category", "attribute", "taxrule"],
     "invalidateCacheKey": "aeSu7aip",
     "invalidateCacheForwarding": false,
-    "invalidateCacheForwardUrl": "http://localhost:3000/invalidate?key=aeSu7aip&tag="
+    "invalidateCacheForwardUrl": "http://vue-storefront:3000/invalidate?key=aeSu7aip&tag="
   },
   "redis": {
     "host": "redis",
