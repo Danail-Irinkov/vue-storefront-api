@@ -99,4 +99,5 @@ app.use(bodyParser.json());
 
 // app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
 
+export default app;
 // export default {...app, config, updateConfig};
