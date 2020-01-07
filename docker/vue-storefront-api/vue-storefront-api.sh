@@ -5,8 +5,9 @@ set -e
 rm -f ./config_repo/production.json
 cp -a -r -f config_repo/. config
 
-yarn install || exit $?
+npm config set scripts-prepend-node-path true
 
+yarn install || exit $?
 #if [ "$VS_ENV" = 'dev' ]; then
 #  yarn dev
 #else
