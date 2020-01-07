@@ -320,8 +320,8 @@ export function buildVueStorefrontAPI () { // LEGACY
   ], { shell: true });
 }
 
-export function startVueStorefrontAPI () { // LEGACY
-  console.log(' == Start Vuestorefront API ==');
+export function restartVueStorefrontAPI () { // LEGACY
+  console.log(' == Re-Start Vue-storefront API ==');
 
   if (process.env.NODE_ENV === 'development') {
     console.log('Skipping restart in Development Mode(suggest an improvement)');

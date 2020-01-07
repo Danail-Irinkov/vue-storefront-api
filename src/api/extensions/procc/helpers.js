@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import {createNewElasticSearchIndex, startVueStorefrontAPI,
+import {createNewElasticSearchIndex, restartVueStorefrontAPI,
   storewiseImportStore, storewiseAddNewProducts, dumpStoreIndex, restoreStoreIndex,
   createMainStoreElasticSearchIndex} from './storeManagement';
 // import { updateConfig, config } from '../../../index'
@@ -60,10 +60,11 @@ export async function createStoreIndexInBothServers (storeCode) {
 
     // TODO: configure all indices in one command for the store code if error was found
 
-    console.time('startVueStorefrontAPI');
-    await startVueStorefrontAPI();
-    console.timeEnd('startVueStorefrontAPI');
-    console.log('Done! You can start Selling!');
+    // console.time('restartVueStorefrontAPI'); // Not sure how to restart the server to refresh the config
+    // await restartVueStorefrontAPI();
+    // console.timeEnd('restartVueStorefrontAPI');
+
+    console.log('Done! createStoreIndexInBothServers');
 
     return Promise.resolve(true)
   } catch (e) {
