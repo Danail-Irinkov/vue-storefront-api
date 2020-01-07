@@ -53,5 +53,5 @@ substitutions:
 
 images: ['gcr.io/$PROJECT_ID/$_DEPLOYMENT']
 
-options:
-  machineType: 'N1_HIGHCPU_8'
+#options:
+#  machineType: 'N1_HIGHCPU_8'
