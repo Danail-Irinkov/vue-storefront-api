@@ -325,8 +325,8 @@ export function startVueStorefrontAPI () { // LEGACY
 
   if (process.env.NODE_ENV === 'development') {
     console.log('Skipping restart in Development Mode(suggest an improvement)');
-    return true // TODO: how to restart nodemon dev server? maybe change a file? maybe done in other func
-  } else { return exec('pm2', ['restart', 'all'], { shell: true }); }
+    return true // TODO: how to restart nodemon dev server? maybe change a file?  maybe done in other func
+  } else { return exec('yarn', ['start2'], { shell: true }); }
 }
 
 export function buildVueStorefront (config) { // LEGACY
