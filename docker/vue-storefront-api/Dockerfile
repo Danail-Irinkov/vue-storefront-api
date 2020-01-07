@@ -1,4 +1,4 @@
-FROM keymetrics/pm2:10-alpine
+FROM node:10-alpine
 
 ENV VS_ENV prod
 
@@ -15,6 +15,7 @@ RUN apk add --no-cache --virtual .build-deps ca-certificates wget && \
 
 RUN npm install -g typescript@3.3.3
 RUN npm install -g nodemon
+RUN npm install -g pm2
 
 COPY ./ecosystem.json ./ecosystem.json
 COPY ./tsconfig.json ./tsconfig.json
