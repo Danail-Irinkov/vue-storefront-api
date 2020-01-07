@@ -6,7 +6,7 @@ WORKDIR /var/www
 
 RUN apk add --no-cache curl git
 #
-#RUN npm install -g typescript@3.3.3
+RUN npm install -g typescript@3.3.3
 #RUN npm install @types/node --save-dev
 #RUN npm install -g nodemon
 #RUN npm install -g pm2
