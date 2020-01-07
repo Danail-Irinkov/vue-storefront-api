@@ -20,7 +20,6 @@ console.log('START process.env.NODE_ENV: ', process.env.NODE_ENV);
 console.log('END storefrontApiConfig! ');
 
 let esCfg = storefrontApiConfig.get('elasticsearch')
-console.log('Before Error 0 ', esCfg)
 const esConfig = {
   host: {
     host: esCfg.host,
@@ -35,11 +34,9 @@ if (esCfg.user) {
   esConfig.httpAuth = esCfg.user + ':' + esCfg.password
 }
 
-console.log('Before Error 1 ')
 const esClient = new elasticsearch.Client(esConfig);
 export function getESClient () { return esClient }
 
-console.log('Before Error 2 ')
 // ELASTICSEARCH CLIENT - END
 
 export async function createStoreIndexInBothServers (storeCode) {

@@ -22,7 +22,7 @@
     "password": "myElasticPass11",
     "min_score": 0.01,
     "indices": [
-      "vue_storefront_catalog",
+      "vue_storefront_catalog"
     ],
     "indexTypes": [
       "product",
@@ -262,9 +262,5 @@
     "description": 1,
     "sku": 1,
     "configurable_children.sku": 1
-  },
-  "PROCC": {
-    "API": "http://procc-dash-api:8081",
-    "URL": "https://procc.co"
   }
 }
