@@ -58,11 +58,12 @@ export async function createStoreIndexInBothServers (storeCode) {
     await createNewElasticSearchIndex(storeCodeForElastic);
     console.timeEnd('createNewElasticSearchIndex');
 
-    // TODO: configure all indices in one command for the store code if error was found
+    // TODO: need to force the API to update the Configs, I cant find a way to trigger the function in index.ts updateConfig()
 
-    console.time('startVueStorefrontAPI');
-    await startVueStorefrontAPI();
-    console.timeEnd('startVueStorefrontAPI');
+    // console.time('startVueStorefrontAPI');
+    // await startVueStorefrontAPI();
+    // console.timeEnd('startVueStorefrontAPI');
+
     console.log('Done! You can start Selling!');
 
     return Promise.resolve(true)
