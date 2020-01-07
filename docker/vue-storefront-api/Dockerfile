@@ -12,7 +12,7 @@ RUN apk add --no-cache curl git
 #RUN npm install -g pm2
 
 COPY package.json ./
-COPY yarn.lock ./
+#COPY yarn.lock ./
 
 RUN apk update
 RUN apk add --no-cache --virtual .build-deps ca-certificates wget && \
