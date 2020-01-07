@@ -5,11 +5,6 @@ ENV VS_ENV prod
 WORKDIR /var/www
 
 RUN apk add --no-cache curl git
-#
-RUN npm install -g typescript@3.3.3
-#RUN npm install @types/node --save-dev
-#RUN npm install -g nodemon
-#RUN npm install -g pm2
 
 COPY package.json ./
 #COPY yarn.lock ./
@@ -19,10 +14,15 @@ RUN apk add --no-cache --virtual .build-deps ca-certificates wget && \
     yarn install --no-cache && \
     apk del .build-deps
 
+#
+RUN npm install -g typescript@3.3.3
+#RUN npm install @types/node --save-dev
+#RUN npm install -g nodemon
+#RUN npm install -g pm2
 
 COPY ./ecosystem.json ./ecosystem.json
 COPY ./tsconfig.json ./tsconfig.json
-COPY ./nodemon.json ./nodemon.json
+#COPY ./nodemon.json ./nodemon.json
 COPY ./babel.config.js ./babel.config.js
 
 #COPY ./config ./config
