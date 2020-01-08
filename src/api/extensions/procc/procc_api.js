@@ -54,6 +54,7 @@ export default (config) => {
   const updateVsfSyncStatus = (brandData, brandId) => api.post('vsf/updateVsfSyncStatus', {brandData}, getHeader(brandId))
   const storeSyncFinishedKubeRestart = (data, brandId) => api.post('storefront/storeSyncFinishedKubeRestart', {data}, getHeader(brandId))
   const store_wise_import_done = (data, brandId) => api.post('storefront/store_wise_import_done', {data}, getHeader(brandId))
+  const product_sync_done = (data, brandId) => api.post('storefront/product_sync_done', {data}, getHeader(brandId))
   const getProductDeliveryPolicy = () => api.get('policy/getProductDeliveryPolicy')
 
   return {
@@ -64,6 +65,7 @@ export default (config) => {
     updateTransactionStatus,
     storeSyncFinishedKubeRestart,
     store_wise_import_done,
+    product_sync_done,
     updateVsfSyncStatus
   }
 }

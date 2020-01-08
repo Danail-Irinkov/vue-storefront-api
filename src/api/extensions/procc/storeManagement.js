@@ -222,6 +222,8 @@ export function storewiseRemoveProducts (config, storeCode, sync_options) {
           resolve('DELETED SKUs: ' + skus)
         }
       });
+    } else {
+      resolve()
     }
   });
 }

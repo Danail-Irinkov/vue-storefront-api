@@ -286,6 +286,55 @@ module.exports = ({ config, db }) => {
     }
   });
 
+  mcApi.post('/syncProduct', async (req, res) => {
+    try {
+      console.log('/syncProduct Starting');
+      let storeCode = req.body.storeCode;
+      let sync_options = req.body.sync_options;
+      let storeCodeForElastic = _.snakeCase(storeCode);
+      let brand_id = req.body.brand_id;
+
+      if (!storeCode) {
+        return Promise.reject('Missing store code');
+      } else if (!brand_id) {
+        return Promise.reject('Insufficient Brand Parameters')
+      } else if (config.elasticsearch.indices.indexOf(`vue_storefront_catalog_${storeCode}`) === -1) {
+        return Promise.reject('Store ' + storeCode + ' does not exist')
+      }
+
+      console.log('sync_options', sync_options);
+      await storewiseRemoveProducts(config, storeCodeForElastic, sync_options);
+      await storewiseAddNewProducts(storeCodeForElastic, sync_options);
+      console.timeEnd('storewiseImportStore');
+
+      // console.time('rebuildElasticSearchIndex');
+      // console.log('rebuildElasticSearchIndex');
+      // await rebuildElasticSearchIndex(storeCodeForElastic);
+      //
+      // let time_ms = 2234;
+      // console.log('Sleeping for ' + time_ms + ' ms to avoid sync bug');
+      // await sleep(time_ms); // Needed to avoid issues with subsequent  setCategoryBanners ES queries
+      // console.timeEnd('rebuildElasticSearchIndex');
+
+      console.log('store_wise_import_done - brand_id: ', brand_id);
+      ProCcAPI.product_sync_done({success: true, brand_id}, brand_id);
+
+      res.status(200);
+      res.end();
+    } catch (e) {
+      console.log('----------------------------');
+      console.log('----------------------------');
+      console.log('/import Store ERROR', e);
+      console.log('----------------------------');
+      console.log('----------------------------');
+      res.status(502)
+      res.send({
+        message_type: 'error',
+        message: e
+      });
+    }
+  });
+
   mcApi.post('/setupVSFConfig', async (req, res) => {
     try {
       console.log('/setupVSFConfig Starting');
