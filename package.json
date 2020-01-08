@@ -19,6 +19,8 @@
     "startK2": "pm2-runtime start ecosystem.json --no-daemon",
     "start2": "yarn build && pm2 start ecosystem.json --no-daemon",
     "stop": "pm2 stop ecosystem.json",
+    "delK": "docker rm -f vsf-api",
+    "testK": "docker build -t vsf-api -f docker/vue-storefront-api/Dockerfile . && docker run -p 8082:8081 --name vsf-api vsf-api",
     "db": "node scripts/db.js",
     "db7": "node scripts/db7.js",
     "cache": "node ./scripts/cache",

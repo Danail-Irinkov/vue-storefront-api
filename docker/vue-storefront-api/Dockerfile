@@ -14,11 +14,10 @@ RUN apk add --no-cache --virtual .build-deps ca-certificates wget && \
     apk del .build-deps
 
 RUN npm install -g typescript@3.3.3
-RUN npm install -g nodemon
 
 COPY ./ecosystem.json ./ecosystem.json
 COPY ./tsconfig.json ./tsconfig.json
-COPY ./nodemon.json ./nodemon.json
+#COPY ./nodemon.json ./nodemon.json
 COPY ./babel.config.js ./babel.config.js
 
 #COPY ./config ./config
@@ -33,7 +32,5 @@ COPY docker/vue-storefront-api/vue-storefront-api.sh /usr/local/bin/
 RUN chmod 774 /usr/local/bin/vue-storefront-api.sh
 
 EXPOSE 8080
-
-RUN sudo sysctl fs.inotify.max_user_watches=582222000 && sudo sysctl -p
 
 CMD ["vue-storefront-api.sh"]
