@@ -3,7 +3,7 @@
 docker restart storefront_api
 
 echo " === VSF API -> storefront_api Restarted \n"
-echo "docker storefront logs       ->   (VSF Vue)"
-echo "docker storefront_api logs    ->   (VSF API)"
-echo "docker procc logs            ->   (ProCC Vue)"
-echo "docker procc logs            ->   (ProCC API)"
+echo "docker logs storefront -f       ->   (VSF Vue)"
+echo "docker logs storefront_api -f   ->   (VSF API)"
+echo "docker logs procc -f            ->   (ProCC Vue)"
+echo "docker logs procc -f            ->   (ProCC API)"

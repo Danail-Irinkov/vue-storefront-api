@@ -34,4 +34,6 @@ RUN chmod 774 /usr/local/bin/vue-storefront-api.sh
 
 EXPOSE 8080
 
+RUN sudo sysctl fs.inotify.max_user_watches=582222000 && sudo sysctl -p
+
 CMD ["vue-storefront-api.sh"]

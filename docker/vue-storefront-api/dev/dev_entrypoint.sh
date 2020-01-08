@@ -13,8 +13,8 @@ yarn install
 # yarn mage2vs productsdelta --store-code=dev --partitions=1 --partitionSize=20 --skus=DA001,DA002,DA003,DA004,DA005,DA006,DA007,DA008,DA009
 
 # Setting prevents server crash at "pm2 restart all"
-echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf
-sudo sysctl -p
+echo "call watch from VSF API in dev-ent"
 
+sudo sysctl fs.inotify.max_user_watches=582222000 && sudo sysctl -p
 npm install
 pm2-runtime start 'ecosystem-dev.json'
