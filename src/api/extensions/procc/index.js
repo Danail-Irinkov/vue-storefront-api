@@ -303,21 +303,17 @@ module.exports = ({ config, db }) => {
       }
 
       console.log('sync_options', sync_options);
-      await storewiseRemoveProducts(config, storeCodeForElastic, sync_options);
+      await storewiseRemoveProducts(config, storeCodeForElastic, sync_options); // Not Sure when is required to remove the product first, but keeping it for now
       await storewiseAddNewProducts(storeCodeForElastic, sync_options);
       console.timeEnd('storewiseImportStore');
 
-      // console.time('rebuildElasticSearchIndex');
-      // console.log('rebuildElasticSearchIndex');
-      // await rebuildElasticSearchIndex(storeCodeForElastic);
-      //
-      // let time_ms = 2234;
-      // console.log('Sleeping for ' + time_ms + ' ms to avoid sync bug');
-      // await sleep(time_ms); // Needed to avoid issues with subsequent  setCategoryBanners ES queries
-      // console.timeEnd('rebuildElasticSearchIndex');
+      console.time('rebuildElasticSearchIndex');
+      console.log('rebuildElasticSearchIndex');
+      await rebuildElasticSearchIndex(storeCodeForElastic); // Not sure when is needed, but keeping it for now
+      console.timeEnd('rebuildElasticSearchIndex');
 
       console.log('store_wise_import_done - brand_id: ', brand_id);
-      ProCcAPI.product_sync_done({success: true, brand_id}, brand_id);
+      await ProCcAPI.product_sync_done({success: true, brand_id}, brand_id);
 
       res.status(200);
       res.end();

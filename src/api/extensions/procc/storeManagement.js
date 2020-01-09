@@ -198,7 +198,7 @@ export async function storewiseAddProductToCategory (config, storeCode, sku, cat
 export function storewiseRemoveProducts (config, storeCode, sync_options) {
   return new Promise((resolve, reject) => {
     let skus = sync_options.products_to_remove;
-    console.log('skus to REMOVE', skus);
+    console.log('storewiseRemoveProducts -> skus to REMOVE', skus);
     if (skus && !!config.storeViews[storeCode] && !!config.storeViews[storeCode].elasticsearch.index) {
       esClient.deleteByQuery({ // requires ES 5.5
         index: config.storeViews[storeCode].elasticsearch.index,
