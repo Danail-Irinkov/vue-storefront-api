@@ -56,6 +56,7 @@ export default (config) => {
   const store_wise_import_done = (data, brandId) => api.post('storefront/store_wise_import_done', {data}, getHeader(brandId))
   const product_sync_done = (data, brandId) => api.post('storefront/product_sync_done', {data}, getHeader(brandId))
   const getProductDeliveryPolicy = () => api.get('policy/getProductDeliveryPolicy')
+  const updateOrderFromVSF = (orderData, brandId) => api.post('order/updateOrderFromVSF', orderData, getHeader(brandId))
 
   return {
     addNewOrder,
@@ -66,6 +67,7 @@ export default (config) => {
     storeSyncFinishedKubeRestart,
     store_wise_import_done,
     product_sync_done,
-    updateVsfSyncStatus
+    updateVsfSyncStatus,
+    updateOrderFromVSF
   }
 }
