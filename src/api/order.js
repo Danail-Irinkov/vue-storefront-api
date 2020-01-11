@@ -80,10 +80,6 @@ export default ({ config, db }) => resource({
             console.error(err);
             apiError(res, err);
           } else {
-            ProCcAPI.addNewOrder(req.body, brand_id).then((resp) => {
-              console.log('addNewOrder Response1:');
-            })
-
             apiStatus(res, job.id, 200);
           }
         })
@@ -95,9 +91,13 @@ export default ({ config, db }) => resource({
       orderProxy.create(req.body)
         .then((result) => {
           let orderData = req.body;
-          orderData.order_id = result.magentoOrderId;
-          ProCcAPI.addNewOrder(orderData, brand_id).then((resp) => {
-            console.log('addNewOrder Response2:', resp);
+          // change by shabbir for add magento order in order schema
+          let update_data = {
+            order_ids: orderData.order_ids,
+            magento_order: result.magentoOrderId
+          }
+          ProCcAPI.updateOrderFromVSF(update_data, brand_id).then((resp) => {
+            console.log('updateOrderFromVSF Response2:', resp.date);
           });
           apiStatus(res, result, 200);
         }).catch(err => {
