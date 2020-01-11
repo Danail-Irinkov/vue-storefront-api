@@ -4,6 +4,8 @@ import ProcessorFactory from '../processor/factory';
 import { adjustBackendProxyUrl } from '../lib/elastic'
 import cache from '../lib/cache-instance'
 import { sha3_224 } from 'js-sha3'
+import Store from 'data-store';
+import path from 'path';
 
 function _cacheStorageHandler (config, result, hash, tags) {
   if (config.server.useOutputCache && cache) {
@@ -45,7 +47,15 @@ export default ({config, db}) => function (req, res, body) {
     if (urlSegments.length > 2) { entityType = urlSegments[2] }
 
     if (config.elasticsearch.indices.indexOf(indexName) < 0) {
-      throw new Error('Invalid / inaccessible index "' + indexName + '" given in the URL. Please do use following URL format: /api/catalog/<index_name>/_search')
+      // Added by Dan to avoid issue with the APi not being restarted and config reloaded
+      let storefrontApiConfig;
+      if (process.env.NODE_ENV === 'development') {
+        storefrontApiConfig = new Store({path: path.resolve('./config/local.json')});
+      } else { storefrontApiConfig = new Store({path: path.resolve('./config/production.json')}); }
+      if (storefrontApiConfig.elasticsearch.indices.indexOf(indexName) < 0) {
+        // Added By Dan FIx - END
+        throw new Error('Invalid / inaccessible index "' + indexName + '" given in the URL. Please do use following URL format: /api/catalog/<index_name>/_search')
+      }
     }
 
     if (urlSegments[urlSegments.length - 1].indexOf('_search') !== 0) {

@@ -344,6 +344,7 @@ module.exports = ({ config, db }) => {
       // TODO: ON FIRST STORE CREATE
       // TODO:  setCategoryBanners is searching for a non-existent index in ES
       // TODO: WE NEED TO MAKE SURE THE INDEX EXISTS AND IS ACCESSIBLE BEFORE THIS FUNC
+
       console.time(' setCategoryBanners');
       console.log(' setCategoryBanners');
       await setCategoryBanners(config, storeCodeForElastic);
