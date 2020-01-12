@@ -405,10 +405,13 @@ module.exports = ({ config, db }) => {
       storefrontApiConfig.set('storeViews.mapStoreUrlsFor', _.pull(storefrontApiConfig.get('storeViews.mapStoreUrlsFor'), store_code));
       storefrontApiConfig.del(`storeViews.${store_code}`);
 
+      console.log('BEFORE ERROR 1');
       // remove the banners, policies, main image and catalog files in Vue-storefront configs
       await deleteVueStorefrontStoreConfig({storeCode: store_code, index: store_index}, config);
 
+      console.log('BEFORE ERROR 2');
       catalogFile.unlink();
+      console.log('BEFORE ERROR 3');
       await deleteElasticSearchIndex(store_index, config);
       console.log('Store view data deleted');
       apiStatus(res, 200);

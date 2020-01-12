@@ -50,12 +50,17 @@ export default ({config, db}) => function (req, res, body) {
       // Added by Dan to avoid issue with the APi not being restarted and config reloaded
       let storefrontApiConfig;
       if (process.env.NODE_ENV === 'development') {
-        storefrontApiConfig = new Store({path: path.resolve('./config/local.json')});
-      } else { storefrontApiConfig = new Store({path: path.resolve('./config/production.json')}); }
-      if (storefrontApiConfig.elasticsearch.indices.indexOf(indexName) < 0) {
-        // Added By Dan FIx - END
+        storefrontApiConfig = new Store({path: path.resolve('./config/local.json')})
+      } else {
+        storefrontApiConfig = new Store({path: path.resolve('./config/production.json')})
+      }
+      console.log('storefrontApiConfig.get(\'elasticsearch.indices\')', storefrontApiConfig.get('elasticsearch.indices'))
+      console.log('storefrontApiConfig index exists? ', storefrontApiConfig.get('elasticsearch.indices').indexOf(indexName))
+      if (storefrontApiConfig.get('elasticsearch.indices').indexOf(indexName) < 0) {
         throw new Error('Invalid / inaccessible index "' + indexName + '" given in the URL. Please do use following URL format: /api/catalog/<index_name>/_search')
       }
+      // Added By Dan FIx - END
+      // throw new Error('Invalid / inaccessible index name given in the URL. Please do use following URL format: /api/catalog/<index_name>/_search')
     }
 
     if (urlSegments[urlSegments.length - 1].indexOf('_search') !== 0) {
