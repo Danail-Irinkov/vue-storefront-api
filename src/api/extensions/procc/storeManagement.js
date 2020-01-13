@@ -108,9 +108,10 @@ export async function storewiseRemoveProductFromCategory (config, storeCode, sku
         ignore: [404],
         maxRetries: 3
       })
-      console.log('esClient.search result2', result2.hits.hits[0]._source.category_ids)
+      console.log('storeCode: ', storeCode, 'sku to REMOVE ', sku, 'from category Id: ', category_id);
 
-      if (result2.hits.hits[0]._source.category_ids && result2.hits.hits[0]._source.category_ids.indexOf(category_id) !== -1) {
+      if (result2.hits.hits[0] && result2.hits.hits[0]._source && result2.hits.hits[0]._source.category_ids && result2.hits.hits[0]._source.category_ids.indexOf(category_id) !== -1) {
+        console.log('esClient.search result2', result2.hits.hits[0]._source.category_ids)
         await esClient.updateByQuery({ // requires ES 5.5
           index: config.storeViews[storeCode].elasticsearch.index,
           conflicts: 'proceed',
@@ -137,7 +138,7 @@ export async function storewiseRemoveProductFromCategory (config, storeCode, sku
       }
     }
   } catch (e) {
-    console.log('ERROR storewiseRemoveProductFromCategory');
+    console.log('ERROR storewiseRemoveProductFromCategory', e);
     return Promise.reject(e)
   }
 }
@@ -161,10 +162,11 @@ export async function storewiseAddProductToCategory (config, storeCode, sku, cat
         ignore: [404],
         maxRetries: 3
       })
-      console.log('storeCode: ', storeCode, 'sku to REMOVE', sku, 'from category Id: ', category_id);
-      console.log('esClient.search result', result.hits.hits[0]._source.category_ids)
+      console.log('storeCode: ', storeCode, 'sku to ADD ', sku, 'to category Id: ', category_id);
 
-      if (result.hits.hits[0]._source.category_ids && result.hits.hits[0]._source.category_ids.indexOf(category_id) === -1) {
+      if (result.hits.hits[0] && result.hits.hits[0]._source && result.hits.hits[0]._source.category_ids && result.hits.hits[0]._source.category_ids.indexOf(category_id) === -1) {
+        console.log('esClient.search result', result.hits.hits[0]._source.category_ids)
+        console.log('esClient.search result indexOf', result.hits.hits[0]._source.category_ids.indexOf(category_id))
         await esClient.updateByQuery({ // requires ES 5.5
           index: config.storeViews[storeCode].elasticsearch.index,
           conflicts: 'proceed',
@@ -190,7 +192,7 @@ export async function storewiseAddProductToCategory (config, storeCode, sku, cat
       }
     }
   } catch (e) {
-    console.log('ERROR storewiseAddProductToCategory');
+    console.log('ERROR storewiseAddProductToCategory', e);
     return Promise.reject(e)
   }
 }

@@ -82,25 +82,25 @@ module.exports = ({ config, db }) => {
 
   mcApi.post('/storewiseRemoveProductFromCategory', async (req, res) => {
     try {
-      let storeCode = req.body.storeCode;
-      let sku = req.body.sku;
-      let category_id = req.body.category_id;
-      let result = await storewiseRemoveProductFromCategory(config, storeCode, sku, category_id);
-      return apiStatus(res, result, 200);
+      let storeCode = req.body.storeCode
+      let sku = req.body.sku
+      let category_id = parseInt(req.body.category_id)
+      let result = await storewiseRemoveProductFromCategory(config, storeCode, sku, category_id)
+      return apiStatus(res, result, 200)
     } catch (e) {
-      return apiStatus(res, e, 500);
+      return apiStatus(res, e, 502)
     }
   });
 
   mcApi.post('/storewiseAddProductToCategory', async (req, res) => {
     try {
-      let storeCode = req.body.storeCode;
-      let sku = req.body.sku;
-      let category_id = req.body.category_id;
-      let result = await storewiseAddProductToCategory(config, storeCode, sku, category_id);
-      return apiStatus(res, result, 200);
+      let storeCode = req.body.storeCode
+      let sku = req.body.sku
+      let category_id = parseInt(req.body.category_id)
+      let result = await storewiseAddProductToCategory(config, storeCode, sku, category_id)
+      return apiStatus(res, result, 200)
     } catch (e) {
-      return apiStatus(res, e, 500);
+      return apiStatus(res, e, 502)
     }
   });
 
@@ -295,11 +295,11 @@ module.exports = ({ config, db }) => {
       let brand_id = req.body.brand_id;
 
       if (!storeCode) {
-        return Promise.reject('Missing store code');
+        throw new Error('Missing store code')
       } else if (!brand_id) {
-        return Promise.reject('Insufficient Brand Parameters')
+        throw new Error('Insufficient Brand Parameters')
       } else if (config.elasticsearch.indices.indexOf(`vue_storefront_catalog_${storeCode}`) === -1) {
-        return Promise.reject('Store ' + storeCode + ' does not exist')
+        throw new Error('Store ' + storeCode + ' does not exist')
       }
 
       console.log('sync_options', sync_options);
