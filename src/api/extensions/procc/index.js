@@ -47,7 +47,7 @@ if (process.env.NODE_ENV === 'development') {
 console.log('START process.env.NODE_ENV: ', process.env.NODE_ENV);
 // console.log('START storefrontApiConfig: ', storefrontApiConfig.clone())
 // console.log('START storefrontApiConfig: ', path.resolve('./config/production.json'))
-console.log('END storefrontApiConfig! ');
+console.log('END storefrontApiConfig! ', storefrontApiConfig.get('elasticsearch') ? 'Config LOADED' : 'ERROR!! CONFIG NOT FOUND -> config/local.json');
 
 module.exports = ({ config, db }) => {
   let mcApi = Router();
@@ -433,6 +433,7 @@ module.exports = ({ config, db }) => {
       // storefront.set(`storeViews.${storeData.store_code}.disabled`,status)
       storefrontApiConfig.set(`storeViews.${storeData.store_code}.disabled`, status)
     }
+    // TODO: NEED TO REFRESH THE CONFIG HERE!!
     request({
       // disable store in vs
       uri: config.vsf.host + ':' + config.vsf.port + '/disable-store',

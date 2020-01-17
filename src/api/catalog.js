@@ -94,10 +94,11 @@ export default ({config, db}) => function (req, res, body) {
   }
   const s = Date.now();
   const reqHash = sha3_224(`${JSON.stringify(requestBody)}${req.url}`);
-  // console.log('ES requestBody', req.method + ' - ' + elasticBackendUrl + ' - ' + require('util').inspect(requestBody, false, null, true /* enable colors */));
+  // console.log('ES requestBody', req.method + ' - ' + elasticBackendUrl + ' - ' + require('util').inspect(kgprequestBody, false, null, true /* enable colors */));
   // console.log('ES requestBody', req.method+' - '+url+'\n'+require('util').inspect(requestBody, false, null, true /* enable colors */))
 
   const dynamicRequestHandler = () => {
+    console.info('requestBody:', require('util').inspect(requestBody, false, null, true /* enable colors */), 'requestBody')
     request({ // do the elasticsearch request
       uri: elasticBackendUrl,
       method: req.method,
@@ -107,7 +108,7 @@ export default ({config, db}) => function (req, res, body) {
     }, (_err, _res, _resBody) => { // TODO: add caching layer to speed up SSR? How to invalidate products (checksum on the response BEFORE processing it)
       if (_resBody && _resBody.hits && _resBody.hits.hits) { // we're signing up all objects returned to the client to be able to validate them when (for example order)
         if (elasticBackendUrl.indexOf('attribute') === -1) { // Added By Dan
-          console.log(_resBody.hits.hits, '_resBody.hits');
+          console.log('_resBody.hits', _resBody.hits.hits, '_resBody.hits');
         }
 
         const factory = new ProcessorFactory(config);
