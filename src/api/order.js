@@ -94,7 +94,7 @@ export default ({ config, db }) => resource({
           // change by shabbir for add magento order in order schema
           let update_data = {
             order_ids: orderData.order_ids,
-            magento_order: result.magentoOrderId
+            magento_order: result.orderNumber
           }
           ProCcAPI.updateOrderFromVSF(update_data, brand_id).then((resp) => {
             console.log('updateOrderFromVSF Response2:', resp.date);
