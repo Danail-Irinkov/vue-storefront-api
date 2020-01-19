@@ -49,7 +49,7 @@ export default (config) => {
 
   const addNewOrder = (orderData, brandId) => api.post('order/addNewOrder', orderData, getHeader(brandId))
   const mangoPayCheckIn = (data, brandId) => api.post('mangopay/VSFOrderPayment', data, getHeader(brandId))
-  const updateTransactionStatus = (data, brandId) => api.post('mangopay/updateTransactionStatus', data, getHeader(brandId))
+  const updateTransactionStatus = (data, brandId) => api.post('mangopay/updateTransactionStatusVSF', data, getHeader(brandId))
   const getSizeChart = (product, brandId) => api.get(`sizeChart/getVSFSizeChartById/${product}?brand_id=${brandId}`, getHeader(brandId))
   const updateVsfSyncStatus = (brandData, brandId) => api.post('vsf/updateVsfSyncStatus', {brandData}, getHeader(brandId))
   const storeSyncFinishedKubeRestart = (data, brandId) => api.post('storefront/storeSyncFinishedKubeRestart', {data}, getHeader(brandId))
