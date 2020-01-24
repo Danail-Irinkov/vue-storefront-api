@@ -205,12 +205,12 @@ export function setProductBanners (config, storeCode) {
   });
 }
 
-export function setCategoryBanners (config, storeCode) {
+export function setCategoryBanners (config, storeCode, brand_id) {
   return new Promise((resolve, reject) => {
     request({
       uri: config.vsf.host + ':' + config.vsf.port + '/category-link',
       method: 'POST',
-      body: { 'storeCode': storeCode },
+      body: { 'storeCode': storeCode, brand_id: brand_id },
       json: true
     }, (_err, _res, _resBody) => {
       resolve();

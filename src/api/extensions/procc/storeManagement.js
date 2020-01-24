@@ -84,6 +84,7 @@ export function storewiseImportStore (storeCode, sync_options) {
   if (sync_options && sync_options.categories_rebuild === false) {
     args.push('--skip-categories=1') // Skipping syncing categories if not needed
   }
+  console.log(' == Running import args==', args);
 
   return exec('yarn', args, { shell: true }, true);
 }

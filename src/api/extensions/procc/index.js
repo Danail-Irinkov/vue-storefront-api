@@ -252,7 +252,7 @@ module.exports = ({ config, db }) => {
       if (!storeCode) return Promise.reject('Missing store code');
       console.time('storewiseImportStore');
       console.log('storewiseImportStore');
-      console.log('sync_options', sync_options);
+      console.log('populateM2StoreToES sync_options', storeCodeForElastic, sync_options);
       await storewiseImportStore(storeCodeForElastic, sync_options);
       await storewiseRemoveProducts(config, storeCodeForElastic, sync_options);
       await storewiseAddNewProducts(storeCodeForElastic, sync_options);
@@ -347,7 +347,7 @@ module.exports = ({ config, db }) => {
 
       console.time(' setCategoryBanners');
       console.log(' setCategoryBanners');
-      await setCategoryBanners(config, storeCodeForElastic);
+      await setCategoryBanners(config, storeCodeForElastic, brand_id);
       console.timeEnd(' setCategoryBanners');
 
       console.time('setProductBanners');
@@ -364,9 +364,9 @@ module.exports = ({ config, db }) => {
       // TODO: send info to ProCC about success and error as part of the queue procedures -> update the queue object status
       console.time('updateVsfSyncStatusToProCC');
       console.log('updateVsfSyncStatusToProCC brand_id: ', brand_id);
-      if (!enableVSFRebuild) {
-        ProCcAPI.storeSyncFinishedKubeRestart({success: true, brand_id}, brand_id)
-      }
+      // if (!enableVSFRebuild) {
+      ProCcAPI.storeSyncFinishedKubeRestart({success: true, brand_id}, brand_id)
+      // }
       console.timeEnd('updateVsfSyncStatusToProCC');
 
       res.status(200);
