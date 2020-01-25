@@ -108,6 +108,7 @@ module.exports = ({ config, db }) => {
     try {
       let storeData = req.body;
       let store_data = {
+        store_brand_id: storeData.brand._id,
         storeCode: storeData.storefront_url,
         storeName: _.startCase(storeData.magento_store_name),
         disabled: false,
