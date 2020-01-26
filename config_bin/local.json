@@ -129,16 +129,16 @@
     },
     "mailService": {
       "transport": {
-        "host": "smtp.gmail.com",
+        "host": "smtp.eu.mailgun.org",
         "port": 465,
         "secure": true,
-        "user": "vuestorefront",
-        "pass": "vuestorefront.io"
+        "user": "support@procc.co",
+        "pass": "205e100888a8ec9c6afe589d51ad75a9-19f318b0-5acb6645"
       },
       "targetAddressWhitelist": [
-        "contributors@vuestorefront.io"
+        "support@procc.co"
       ],
-      "secretString": "__THIS_IS_SO_SECRET__"
+      "secretString": "customerEmailerSecretString4449547"
     }
   },
   "magento2": {
