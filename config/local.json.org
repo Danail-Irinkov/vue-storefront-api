@@ -1,0 +1,590 @@
+{
+  "PROCC": {
+    "API": "http://localhost:8081",
+    "URL": "https://procc.co"
+  },
+  "vsf": {
+    "host": "http://localhost",
+    "port": 3000
+  },
+  "server": {
+    "host": "localhost",
+    "port": 8080,
+    "searchEngine": "elasticsearch"
+  },
+  "orders": {
+    "useServerQueue": false
+  },
+  "catalog": {
+    "excludeDisabledProducts": false
+  },
+  "elasticsearch": {
+    "host": "localhost",
+    "port": 9200,
+    "protocol": "http",
+    "min_score": 0.01,
+    "indices": [
+      "vue_storefront_catalog",
+      "vue_storefront_catalog_judy",
+      "vue_storefront_catalog_aa",
+      "vue_storefront_catalog_nike_demo",
+      "vue_storefront_catalog_vent",
+      "vue_storefront_catalog_ss",
+      "vue_storefront_catalog_yolo_2",
+      "vue_storefront_catalog_nikestore",
+      "vue_storefront_catalog_ali",
+      "vue_storefront_catalog_dev"
+    ],
+    "indexTypes": [
+      "product",
+      "category",
+      "cms",
+      "attribute",
+      "taxrule",
+      "review"
+    ],
+    "apiVersion": "5.6"
+  },
+  "redis": {
+    "host": "localhost",
+    "port": 6379,
+    "db": 0
+  },
+  "kue": {},
+  "availableStores": [
+    "judy",
+    "aa",
+    "nike_demo",
+    "vent",
+    "ss",
+    "yolo_2",
+    "nikestore",
+    "ali",
+    "dev"
+  ],
+  "storeViews": {
+    "multistore": true,
+    "mapStoreUrlsFor": [
+      "de",
+      "it",
+      "judy",
+      "aa",
+      "nike_demo",
+      "vent",
+      "ss",
+      "yolo_2",
+      "nikestore",
+      "ali",
+      "dev"
+    ],
+    "aa": {
+      "storeCode": "aa",
+      "storeName": "Mashup Store",
+      "disabled": false,
+      "storeId": 68,
+      "name": "Mashup Store",
+      "url": "/aa",
+      "elasticsearch": {
+        "host": "http://localhost:8080/api/catalog",
+        "index": "vue_storefront_catalog_aa"
+      },
+      "tax": {
+        "defaultCountry": "BG",
+        "defaultRegion": "",
+        "calculateServerSide": true,
+        "sourcePriceIncludesTax": false
+      },
+      "i18n": {
+        "fullCountryName": "Bulgaria",
+        "fullLanguageName": "Bulgarian",
+        "defaultCountry": "BG",
+        "defaultLanguage": "EN",
+        "defaultLocale": "en-US",
+        "currencyCode": "EUR",
+        "currencySign": "EUR",
+        "dateFormat": "HH:mm D-M-YYYY"
+      }
+    },
+    "nike_demo": {
+      "storeCode": "nike_demo",
+      "storeName": "Nike Store",
+      "disabled": false,
+      "storeId": 39,
+      "name": "Nike Store",
+      "url": "/nike_demo",
+      "elasticsearch": {
+        "host": "http://localhost:8080/api/catalog",
+        "index": "vue_storefront_catalog_nike_demo"
+      },
+      "tax": {
+        "defaultCountry": "BG",
+        "defaultRegion": "",
+        "calculateServerSide": true,
+        "sourcePriceIncludesTax": false
+      },
+      "i18n": {
+        "fullCountryName": "Bulgaria",
+        "fullLanguageName": "Bulgarian",
+        "defaultCountry": "BG",
+        "defaultLanguage": "EN",
+        "defaultLocale": "en-US",
+        "currencyCode": "EUR",
+        "currencySign": "EUR",
+        "dateFormat": "HH:mm D-M-YYYY"
+      }
+    },
+    "vent": {
+      "storeCode": "vent",
+      "storeName": "Ven T Store",
+      "disabled": false,
+      "storeId": 75,
+      "name": "Ven T Store",
+      "url": "/vent",
+      "elasticsearch": {
+        "host": "http://localhost:8080/api/catalog",
+        "index": "vue_storefront_catalog_vent"
+      },
+      "tax": {
+        "defaultCountry": "BG",
+        "defaultRegion": "",
+        "calculateServerSide": true,
+        "sourcePriceIncludesTax": false
+      },
+      "i18n": {
+        "fullCountryName": "Bulgaria",
+        "fullLanguageName": "Bulgarian",
+        "defaultCountry": "BG",
+        "defaultLanguage": "EN",
+        "defaultLocale": "en-US",
+        "currencyCode": "EUR",
+        "currencySign": "EUR",
+        "dateFormat": "HH:mm D-M-YYYY"
+      }
+    },
+    "ss": {
+      "storeCode": "ss",
+      "storeName": "Alina Volkanova Store",
+      "disabled": false,
+      "storeId": 63,
+      "name": "Alina Volkanova Store",
+      "url": "/ss",
+      "elasticsearch": {
+        "host": "http://localhost:8080/api/catalog",
+        "index": "vue_storefront_catalog_ss"
+      },
+      "tax": {
+        "defaultCountry": "BG",
+        "defaultRegion": "",
+        "calculateServerSide": true,
+        "sourcePriceIncludesTax": false
+      },
+      "i18n": {
+        "fullCountryName": "Bulgaria",
+        "fullLanguageName": "Bulgarian",
+        "defaultCountry": "BG",
+        "defaultLanguage": "EN",
+        "defaultLocale": "en-US",
+        "currencyCode": "EUR",
+        "currencySign": "EUR",
+        "dateFormat": "HH:mm D-M-YYYY"
+      }
+    },
+    "yolo_2": {
+      "storeCode": "yolo_2",
+      "storeName": "Yolo Store",
+      "disabled": false,
+      "storeId": 82,
+      "name": "Yolo Store",
+      "url": "/yolo_2",
+      "elasticsearch": {
+        "host": "http://localhost:8080/api/catalog",
+        "index": "vue_storefront_catalog_yolo_2"
+      },
+      "tax": {
+        "defaultCountry": "BG",
+        "defaultRegion": "",
+        "calculateServerSide": true,
+        "sourcePriceIncludesTax": false
+      },
+      "i18n": {
+        "fullCountryName": "Bulgaria",
+        "fullLanguageName": "Bulgarian",
+        "defaultCountry": "BG",
+        "defaultLanguage": "EN",
+        "defaultLocale": "en-US",
+        "currencyCode": "EUR",
+        "currencySign": "EUR",
+        "dateFormat": "HH:mm D-M-YYYY"
+      }
+    },
+    "nikestore": {
+      "storeCode": "nikestore",
+      "storeName": "Nike Store",
+      "disabled": false,
+      "storeId": 74,
+      "name": "Nike Store",
+      "url": "/nikestore",
+      "elasticsearch": {
+        "host": "http://localhost:8080/api/catalog",
+        "index": "vue_storefront_catalog_nikestore"
+      },
+      "tax": {
+        "defaultCountry": "BG",
+        "defaultRegion": "",
+        "calculateServerSide": true,
+        "sourcePriceIncludesTax": false
+      },
+      "i18n": {
+        "fullCountryName": "Bulgaria",
+        "fullLanguageName": "Bulgarian",
+        "defaultCountry": "BG",
+        "defaultLanguage": "EN",
+        "defaultLocale": "en-US",
+        "currencyCode": "EUR",
+        "currencySign": "EUR",
+        "dateFormat": "HH:mm D-M-YYYY"
+      }
+    },
+    "dev": {
+      "store_brand_id": "5dfd22ae43f1670037a23fac",
+      "storeCode": "dev",
+      "storeName": "Dev Acc Store",
+      "disabled": false,
+      "storeId": 72,
+      "name": "Dev Acc Store",
+      "url": "/dev",
+      "elasticsearch": {
+        "host": "http://localhost:8080/api/catalog",
+        "index": "vue_storefront_catalog_dev"
+      },
+      "tax": {
+        "defaultCountry": "BG",
+        "defaultRegion": "",
+        "calculateServerSide": true,
+        "sourcePriceIncludesTax": false
+      },
+      "i18n": {
+        "fullCountryName": "Bulgaria",
+        "fullLanguageName": "Bulgarian",
+        "defaultCountry": "BG",
+        "defaultLanguage": "EN",
+        "defaultLocale": "en-US",
+        "currencyCode": "EUR",
+        "currencySign": "EUR",
+        "dateFormat": "HH:mm D-M-YYYY"
+      }
+    },
+    "ali": {
+      "store_brand_id": "5e207aec4af97200369e834c",
+      "storeCode": "ali",
+      "storeName": "Alina Volkanova Store",
+      "disabled": false,
+      "storeId": 86,
+      "name": "Alina Volkanova Store",
+      "url": "/ali",
+      "elasticsearch": {
+        "host": "http://localhost:8080/api/catalog",
+        "index": "vue_storefront_catalog_ali"
+      },
+      "tax": {
+        "defaultCountry": "BG",
+        "defaultRegion": "",
+        "calculateServerSide": true,
+        "sourcePriceIncludesTax": false
+      },
+      "i18n": {
+        "fullCountryName": "Bulgaria",
+        "fullLanguageName": "Bulgarian",
+        "defaultCountry": "BG",
+        "defaultLanguage": "EN",
+        "defaultLocale": "en-US",
+        "currencyCode": "EUR",
+        "currencySign": "EUR",
+        "dateFormat": "HH:mm D-M-YYYY"
+      }
+    },
+    "judy": {
+      "store_brand_id": "5d90a9d22299492798f443ef",
+      "storeCode": "judy",
+      "storeName": "Test Judy Store",
+      "disabled": false,
+      "storeId": 73,
+      "name": "Test Judy Store",
+      "url": "/judy",
+      "elasticsearch": {
+        "host": "http://localhost:8080/api/catalog",
+        "index": "vue_storefront_catalog_judy"
+      },
+      "tax": {
+        "defaultCountry": "BG",
+        "defaultRegion": "",
+        "calculateServerSide": true,
+        "sourcePriceIncludesTax": false
+      },
+      "i18n": {
+        "fullCountryName": "Bulgaria",
+        "fullLanguageName": "Bulgarian",
+        "defaultCountry": "BG",
+        "defaultLanguage": "EN",
+        "defaultLocale": "en-US",
+        "currencyCode": "EUR",
+        "currencySign": "EUR",
+        "dateFormat": "HH:mm D-M-YYYY"
+      }
+    }
+  },
+  "authHashSecret": "__SECRET_CHANGE_ME__",
+  "objHashSecret": "__SECRET_CHANGE_ME__",
+  "cart": {
+    "setConfigurableProductOptions": false
+  },
+  "seo": {
+    "useUrlDispatcher": false,
+    "disableUrlRoutesPersistentCache": true,
+    "defaultTitle": "ProCC Store"
+  },
+  "tax": {
+    "defaultCountry": "PL",
+    "defaultRegion": "",
+    "calculateServerSide": true,
+    "alwaysSyncPlatformPricesOver": false,
+    "usePlatformTotals": true,
+    "setConfigurableProductOptions": true,
+    "sourcePriceIncludesTax": true,
+    "deprecatedPriceFieldsSupport": true,
+    "finalPriceIncludesTax": false,
+    "userGroupId": null,
+    "useOnlyDefaultUserGroupId": false
+  },
+  "review": {
+    "defaultReviewStatus": 2
+  },
+  "bodyLimit": "100kb",
+  "corsHeaders": [
+    "Link"
+  ],
+  "platform": "magento2",
+  "registeredExtensions": [
+    "procc",
+    "mailchimp-subscribe",
+    "example-magento-api",
+    "cms-data",
+    "mail-service",
+    "example-processor",
+    "elastic-stock"
+  ],
+  "extensions": {
+    "mailchimp": {
+      "listId": "e06875a7e1",
+      "apiKey": "a9a3318ea7d30f5c5596bd4a78ae0985-us3",
+      "apiUrl": "https://us3.api.mailchimp.com/3.0",
+      "userStatus": "subscribed"
+    },
+    "mailService": {
+      "transport": {
+        "host": "smtp.eu.mailgun.org",
+        "port": 465,
+        "secure": true,
+        "user": "support@procc.co",
+        "pass": "205e100888a8ec9c6afe589d51ad75a9-19f318b0-5acb6645"
+      },
+      "targetAddressWhitelist": [
+        "support@procc.co"
+      ],
+      "secretString": "customerEmailerSecretString4449547"
+    }
+  },
+  "magento2": {
+    "imgUrl": "https://storage.googleapis.com/procc/vendor/product/optimized",
+    "assetPath": "/../var/magento2-sample-data/pub/media",
+    "api": {
+      "url": "http://m2.procc.co/rest",
+      "consumerKey": "ihwmlsyi8bu6wlptwyr67s6bo6yi8cl4",
+      "consumerSecret": "8zom97k15z6nwkkflxyvhwrre407kwdw",
+      "accessToken": "4jooy23xlzfknrvgtpbletmdjq6gybo6",
+      "accessTokenSecret": "9tcgxt7ojxwuyvups5nf7lgyfdrlagkb"
+    }
+  },
+  "imageable": {
+    "maxListeners": 512,
+    "imageSizeLimit": 1024,
+    "whitelist": {
+      "allowedHosts": [
+        ".*divante.pl",
+        ".*vuestorefront.io",
+        ".*magento",
+        ".*googleapis.com"
+      ]
+    },
+    "cache": {
+      "memory": 50,
+      "files": 20,
+      "items": 100
+    },
+    "concurrency": 0,
+    "counters": {
+      "queue": 2,
+      "process": 4
+    },
+    "simd": true,
+    "caching": {
+      "active": false,
+      "type": "file",
+      "file": {
+        "path": "/tmp/vue-storefront-api"
+      },
+      "google-cloud-storage": {
+        "libraryOptions": {},
+        "bucket": "",
+        "prefix": "vue-storefront-api/image-cache"
+      }
+    },
+    "action": {
+      "type": "local"
+    }
+  },
+  "entities": {
+    "category": {
+      "includeFields": [
+        "children_data",
+        "id",
+        "children_count",
+        "sku",
+        "name",
+        "is_active",
+        "parent_id",
+        "level",
+        "url_key",
+        "brand_logo"
+      ]
+    },
+    "attribute": {
+      "includeFields": [
+        "attribute_code",
+        "id",
+        "entity_type_id",
+        "options",
+        "default_value",
+        "is_user_defined",
+        "frontend_label",
+        "attribute_id",
+        "default_frontend_label",
+        "is_visible_on_front",
+        "is_visible",
+        "is_comparable",
+        "brand_logo"
+      ]
+    },
+    "productList": {
+      "sort": "",
+      "includeFields": [
+        "type_id",
+        "sku",
+        "product_links",
+        "tax_class_id",
+        "special_price",
+        "special_to_date",
+        "special_from_date",
+        "name",
+        "price",
+        "priceInclTax",
+        "originalPriceInclTax",
+        "originalPrice",
+        "specialPriceInclTax",
+        "id",
+        "image",
+        "sale",
+        "new",
+        "url_key",
+        "brand_logo"
+      ],
+      "excludeFields": [
+        "configurable_children",
+        "description",
+        "configurable_options",
+        "sgn"
+      ]
+    },
+    "productListWithChildren": {
+      "includeFields": [
+        "type_id",
+        "sku",
+        "name",
+        "tax_class_id",
+        "special_price",
+        "special_to_date",
+        "special_from_date",
+        "price",
+        "priceInclTax",
+        "originalPriceInclTax",
+        "originalPrice",
+        "specialPriceInclTax",
+        "id",
+        "image",
+        "sale",
+        "new",
+        "configurable_children.image",
+        "configurable_children.sku",
+        "configurable_children.price",
+        "configurable_children.special_price",
+        "configurable_children.priceInclTax",
+        "configurable_children.specialPriceInclTax",
+        "configurable_children.originalPrice",
+        "configurable_children.originalPriceInclTax",
+        "configurable_children.color",
+        "configurable_children.size",
+        "product_links",
+        "url_key",
+        "brand_logo"
+      ],
+      "excludeFields": [
+        "description",
+        "sgn"
+      ]
+    },
+    "product": {
+      "excludeFields": [
+        "updated_at",
+        "created_at",
+        "attribute_set_id",
+        "status",
+        "visibility",
+        "tier_prices",
+        "options_container",
+        "msrp_display_actual_price_type",
+        "has_options",
+        "stock.manage_stock",
+        "stock.use_config_min_qty",
+        "stock.use_config_notify_stock_qty",
+        "stock.stock_id",
+        "stock.use_config_backorders",
+        "stock.use_config_enable_qty_inc",
+        "stock.enable_qty_increments",
+        "stock.use_config_manage_stock",
+        "stock.use_config_min_sale_qty",
+        "stock.notify_stock_qty",
+        "stock.use_config_max_sale_qty",
+        "stock.use_config_max_sale_qty",
+        "stock.qty_increments",
+        "small_image"
+      ],
+      "includeFields": null,
+      "filterFieldMapping": {
+        "category.name": "category.name.keyword"
+      }
+    }
+  },
+  "msi": {
+    "enabled": false,
+    "defaultStockId": 1
+  },
+  "usePriceTiers": false,
+  "boost": {
+    "name": 3,
+    "category.name": 1,
+    "short_description": 1,
+    "description": 1,
+    "sku": 1,
+    "configurable_children.sku": 1
+  }
+}

@@ -190,15 +190,15 @@ module.exports = ({ config, db }) => {
    * POST TEST api
    */
   mcApi.get('/test', async (req, res) => {
-    let storeCodeForElastic = 'dev';
+    let storeCode = 'dev';
     console.time(' setCategoryBanners');
     console.log(' setCategoryBanners');
-    await setCategoryBanners(config, storeCodeForElastic);
+    await setCategoryBanners(config, storeCode);
     console.timeEnd(' setCategoryBanners')
 
     // console.time('setProductBanners')
     // console.log('setProductBanners')
-    // await setProductBanners(config, storeCodeForElastic)
+    // await setProductBanners(config, storeCode)
     // console.timeEnd('setProductBanners')
     // return apiStatus(res, 200);
   });
@@ -241,7 +241,7 @@ module.exports = ({ config, db }) => {
       console.log('/populateM2StoreToES Starting');
       let storeCode = req.body.storeCode;
       let sync_options = req.body.sync_options;
-      let storeCodeForElastic = _.snakeCase(storeCode);
+
       let brand_id = req.body.brand_id;
       if (!storeCode || !brand_id) {
         return Promise.reject('Insufficient Parameters')
@@ -253,15 +253,15 @@ module.exports = ({ config, db }) => {
       if (!storeCode) return Promise.reject('Missing store code');
       console.time('storewiseImportStore');
       console.log('storewiseImportStore');
-      console.log('populateM2StoreToES sync_options', storeCodeForElastic, sync_options);
-      await storewiseImportStore(storeCodeForElastic, sync_options);
-      await storewiseRemoveProducts(config, storeCodeForElastic, sync_options);
-      await storewiseAddNewProducts(storeCodeForElastic, sync_options);
+      console.log('populateM2StoreToES sync_options', storeCode, sync_options);
+      await storewiseImportStore(storeCode, sync_options);
+      await storewiseRemoveProducts(config, storeCode, sync_options);
+      await storewiseAddNewProducts(storeCode, sync_options);
       console.timeEnd('storewiseImportStore');
 
       console.time('rebuildElasticSearchIndex');
       console.log('rebuildElasticSearchIndex');
-      await rebuildElasticSearchIndex(storeCodeForElastic);
+      await rebuildElasticSearchIndex(storeCode);
 
       let time_ms = 2234;
       console.log('Sleeping for ' + time_ms + ' ms to avoid sync bug');
@@ -292,7 +292,7 @@ module.exports = ({ config, db }) => {
       console.log('/syncProduct Starting');
       let storeCode = req.body.storeCode;
       let sync_options = req.body.sync_options;
-      let storeCodeForElastic = _.snakeCase(storeCode);
+
       let brand_id = req.body.brand_id;
 
       if (!storeCode) {
@@ -300,17 +300,21 @@ module.exports = ({ config, db }) => {
       } else if (!brand_id) {
         throw new Error('Insufficient Brand Parameters')
       } else if (config.elasticsearch.indices.indexOf(`vue_storefront_catalog_${storeCode}`) === -1) {
-        throw new Error('Store ' + storeCode + ' does not exist')
+        console.log('config.BEFORE ERROR', config)
+        console.log('Store ' + storeCode + ' does not exist ->> SKIPPING SYNC, apparently config for this store is missing at your server!')
+        res.status(200);
+        return res.end();
+        // throw new Error('Store ' + storeCode + ' does not exist')
       }
 
       console.log('sync_options', sync_options);
-      await storewiseRemoveProducts(config, storeCodeForElastic, sync_options); // Not Sure when is required to remove the product first, but keeping it for now
-      await storewiseAddNewProducts(storeCodeForElastic, sync_options);
+      await storewiseRemoveProducts(config, storeCode, sync_options); // Not Sure when is required to remove the product first, but keeping it for now
+      await storewiseAddNewProducts(storeCode, sync_options);
       console.timeEnd('storewiseImportStore');
 
       console.time('rebuildElasticSearchIndex');
       console.log('rebuildElasticSearchIndex');
-      await rebuildElasticSearchIndex(storeCodeForElastic); // Not sure when is needed, but keeping it for now
+      await rebuildElasticSearchIndex(storeCode); // Not sure when is needed, but keeping it for now
       console.timeEnd('rebuildElasticSearchIndex');
 
       console.log('store_wise_import_done - brand_id: ', brand_id);
@@ -338,7 +342,7 @@ module.exports = ({ config, db }) => {
       console.log('/setupVSFConfig Starting');
       // let storeData = req.body.storeData;
       let storeCode = req.body.storeCode;
-      let storeCodeForElastic = _.snakeCase(storeCode);
+
       let enableVSFRebuild = req.body.enableVSFRebuild;
       let brand_id = req.body.brand_id;
 
@@ -348,19 +352,19 @@ module.exports = ({ config, db }) => {
 
       console.time(' setCategoryBanners');
       console.log(' setCategoryBanners');
-      await setCategoryBanners(config, storeCodeForElastic, brand_id);
+      await setCategoryBanners(config, storeCode, brand_id);
       console.timeEnd(' setCategoryBanners');
 
       console.time('setProductBanners');
       console.log('setProductBanners');
-      await setProductBanners(config, storeCodeForElastic);
+      await setProductBanners(config, storeCode);
       console.timeEnd('setProductBanners');
 
       console.time('buildAndRestartVueStorefront');
       console.log('buildAndRestartVueStorefront');
       await buildAndRestartVueStorefront(req, res, brand_id, enableVSFRebuild, config);
       console.timeEnd('buildAndRestartVueStorefront');
-      console.log('buildAndRestartVueStorefront Done! Store is ready to function! StoreCode: ', storeCodeForElastic);
+      console.log('buildAndRestartVueStorefront Done! Store is ready to function! StoreCode: ', storeCode);
 
       // TODO: send info to ProCC about success and error as part of the queue procedures -> update the queue object status
       console.time('updateVsfSyncStatusToProCC');

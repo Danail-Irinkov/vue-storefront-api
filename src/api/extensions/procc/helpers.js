@@ -41,8 +41,7 @@ export function getESClient () { return esClient }
 
 export async function createStoreIndexInBothServers (storeCode) {
   try {
-    let storeCodeForElastic = _.snakeCase(storeCode);
-    let storeIndex = `vue_storefront_catalog_${storeCodeForElastic}`;
+    let storeIndex = `vue_storefront_catalog_${storeCode}`;
 
     console.log('storefrontApiConfig', storefrontApiConfig.clone());
     console.log('storeIndex', storeIndex);
@@ -55,7 +54,7 @@ export async function createStoreIndexInBothServers (storeCode) {
     }
 
     console.time('createNewElasticSearchIndex');
-    await createNewElasticSearchIndex(storeCodeForElastic);
+    await createNewElasticSearchIndex(storeCode);
     console.timeEnd('createNewElasticSearchIndex');
 
     // TODO: need to force the API to update the Configs, I cant find a way to trigger the function in index.ts updateConfig()
