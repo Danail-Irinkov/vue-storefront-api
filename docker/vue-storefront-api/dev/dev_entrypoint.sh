@@ -14,7 +14,7 @@ yarn install
 
 # Setting prevents server crash at "pm2 restart all"
 echo "call watch from VSF API in dev-ent"
-
+set
 sudo sysctl fs.inotify.max_user_watches=582222000 && sudo sysctl -p
 npm install
 pm2-runtime start 'ecosystem-dev.json'

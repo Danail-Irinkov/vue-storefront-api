@@ -310,13 +310,9 @@ export function restoreStoreIndex (storeCode) {
   ], { shell: true });
 }
 
-export function buildVueStorefrontDocker () {
-  console.log(' == Building Vuestorefront Docker Dev ==');
-  return exec('docker', [
-    'exec', 'storefront_api', 'pm2', 'restart', '0',
-    '&&',
-    'docker', 'exec', 'storefront', 'pm2', 'restart', '0'
-  ], { shell: true });
+export function restartVueStorefrontAPIDevDocker () {
+  console.log(' == RESTARTING Vuestorefront-API Docker Dev ==');
+  return exec('pm2', [ 'restart', '0' ], { shell: true });
 }
 export function buildVueStorefrontAPI () { // LEGACY
   console.log(' == Building Vuestorefront API ==');
@@ -426,7 +422,7 @@ export function deleteElasticSearchIndex (store_index, config) {
   ], { shell: true });
 }
 
-export async function buildAndRestartVueStorefront (req, res, brand_id, enableVSFRebuild = false, config) {
+export async function buildAndRestartVueStorefrontAPI (req, res, brand_id, enableVSFRebuild = false, config) {
   try {
     console.log('Starting with the Vue Build');
     let brand_data = {
@@ -440,7 +436,7 @@ export async function buildAndRestartVueStorefront (req, res, brand_id, enableVS
         console.time('buildVueStorefrontDev');
         // await updateConfig() // Updating config for entire API
 
-        await buildVueStorefrontDocker(); // Sync flow for the new Docker Dev Script get_procc.sh
+        await restartVueStorefrontAPIDevDocker(); // Sync flow for the new Docker Dev Script get_procc.sh
         // await buildVueStorefront(config) // LEGACY
         // await buildVueStorefrontAPI(config) // LEGACY
         console.timeEnd('buildVueStorefrontDev')
@@ -456,7 +452,7 @@ export async function buildAndRestartVueStorefront (req, res, brand_id, enableVS
 
     return brand_data
   } catch (err) {
-    console.info('buildAndRestartVueStorefront ERROR');
+    console.info('buildAndRestartVueStorefrontAPI ERROR');
     return Promise.reject(err)
   }
 }

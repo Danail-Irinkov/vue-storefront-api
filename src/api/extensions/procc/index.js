@@ -8,7 +8,7 @@ import path from 'path';
 // console.log('jwtPrivateKey jwtPrivateKey - ')
 
 import { storewiseImportStore, storewiseAddNewProducts, storewiseRemoveProducts,
-  deleteElasticSearchIndex, buildAndRestartVueStorefront,
+  deleteElasticSearchIndex, buildAndRestartVueStorefrontAPI,
   storewiseRemoveProductFromCategory, storewiseAddProductToCategory,
   deleteVueStorefrontStoreConfig, rebuildElasticSearchIndex } from './storeManagement';
 
@@ -360,18 +360,18 @@ module.exports = ({ config, db }) => {
       await setProductBanners(config, storeCode);
       console.timeEnd('setProductBanners');
 
-      console.time('buildAndRestartVueStorefront');
-      console.log('buildAndRestartVueStorefront');
-      await buildAndRestartVueStorefront(req, res, brand_id, enableVSFRebuild, config);
-      console.timeEnd('buildAndRestartVueStorefront');
-      console.log('buildAndRestartVueStorefront Done! Store is ready to function! StoreCode: ', storeCode);
+      console.time('buildAndRestartVueStorefrontAPI');
+      console.log('buildAndRestartVueStorefrontAPI');
+      await buildAndRestartVueStorefrontAPI(req, res, brand_id, enableVSFRebuild, config);
+      console.timeEnd('buildAndRestartVueStorefrontAPI');
+      console.log('buildAndRestartVueStorefrontAPI Done! Store is ready to function! StoreCode: ', storeCode);
 
       // TODO: send info to ProCC about success and error as part of the queue procedures -> update the queue object status
       console.time('updateVsfSyncStatusToProCC');
       console.log('updateVsfSyncStatusToProCC brand_id: ', brand_id);
-      // if (!enableVSFRebuild) {
-      ProCcAPI.storeSyncFinishedKubeRestart({success: true, brand_id}, brand_id)
-      // }
+      if (!enableVSFRebuild) {
+        ProCcAPI.storeSyncFinishedKubeRestart({success: true, brand_id}, brand_id)
+      }
       console.timeEnd('updateVsfSyncStatusToProCC');
 
       res.status(200);

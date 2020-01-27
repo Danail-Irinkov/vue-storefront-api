@@ -188,11 +188,16 @@ export default ({ config, db }) => {
     if (!req.body.addressInformation) {
       return apiStatus(res, 'No address element provided within the request body', 500)
     }
-    cartProxy.setShippingInformation(req.query.token, req.query.cartId ? req.query.cartId : null, req.body).then((result) => {
-      apiStatus(res, result, 200);
-    }).catch(err => {
-      apiError(res, err);
-    })
+    console.info('req.query', req.query)
+    console.info('req.body', req.body)
+    // SKIPPING QUERY TO M2 for shipping methods, because we are getting them directly from PROCC API
+    apiStatus(res, {}, 200);
+
+    // cartProxy.setShippingInformation(req.query.token, req.query.cartId ? req.query.cartId : null, req.body).then((result) => {
+    //   apiStatus(res, result, 200);
+    // }).catch(err => {
+    //   apiError(res, err);
+    // })
   })
 
   /**
