@@ -344,11 +344,10 @@ module.exports = ({ config, db }) => {
       let storeCode = req.body.storeCode;
 
       let enableVSFRebuild = req.body.enableVSFRebuild;
+      if (config.elasticsearch.indices.indexOf(`vue_storefront_catalog_${storeCode}`) === -1) {
+        enableVSFRebuild = true // Enabling Restart of the Servers if the store is not present in the config
+      }
       let brand_id = req.body.brand_id;
-
-      // TODO: ON FIRST STORE CREATE
-      // TODO:  setCategoryBanners is searching for a non-existent index in ES
-      // TODO: WE NEED TO MAKE SURE THE INDEX EXISTS AND IS ACCESSIBLE BEFORE THIS FUNC
 
       console.time(' setCategoryBanners');
       console.log(' setCategoryBanners');
