@@ -197,7 +197,7 @@
         "port": 465,
         "secure": true,
         "user": "support@procc.co",
-        "pass": "205e100888a8ec9c6afe589d51ad75a9-19f318b0-5acb6645"
+        "pass": "56b62dc02b8fc771f69fb3adeb8d5419-074fa10c-5f32b0d8"
       },
       "targetAddressWhitelist": [
         "support@procc.co"
