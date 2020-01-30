@@ -6,10 +6,18 @@ import initializeDb from './db';
 import middleware from './middleware';
 import { loadAdditionalCertificates } from './helpers/loadAdditionalCertificates'
 import api from './api';
-import node_config from 'config'; // Edited by Dan to allow config reload
 import img from './api/img';
 import invalidateCache from './api/invalidate'
 import * as path from 'path'
+
+// kube secrets injection into config from env variables
+import injectEnvToJson from './api/extensions/procc/injectEnvToJson.js'
+import config_data from '../config/default-kube'
+
+import node_config from 'config';
+if (process.env.NODE_APP_INSTANCE === 'kube') {
+  injectEnvToJson.inject('config/default-kube.json', config_data)
+} // Edited by Dan to allow config reload
 // Disabled by dan because yarn build crashing due to graphQL
 // import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 // import { makeExecutableSchema } from 'graphql-tools';

@@ -1,6 +1,6 @@
 import axios from 'axios'
 import jwt from 'jsonwebtoken'
-import { private_key } from '../../../../config/jwt.js'
+import jwt_token from '../../../../config/jwt.js'
 
 export default (config) => {
   let baseURL = config.PROCC.API + '/api/'
@@ -21,6 +21,15 @@ export default (config) => {
     // 10 second timeout...
     timeout: 150000
   })
+
+  // JWT TOKEN MANAGEMENT
+  let private_key = jwt_token.private_key
+  console.log('private_key', private_key)
+  if (process.env.NODE_APP_INSTANCE === 'kube') {
+    private_key = process.env.JWT_PRIVATE_KEY
+  }
+  console.log('private_key2', private_key)
+  if (!private_key || private_key === 'NO TOKEN') throw new Error('No JWT API TOKEN SUPPLIED')
 
   const createToken = (brandId) => jwt.sign({ brand_id: brandId },
     private_key, {
