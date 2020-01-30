@@ -9,6 +9,8 @@ api_start.sh
 api_test.sh
 package-lock.json
 src/config.json
+config/default-dev.json
+config/jwt.js
 config/local.json
 config/certs/*.pem
 var/magento2-sample-data/
