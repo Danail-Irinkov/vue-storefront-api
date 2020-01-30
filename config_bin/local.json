@@ -80,8 +80,6 @@
       }
     }
   },
-  "authHashSecret": "__SECRET_CHANGE_ME__",
-  "objHashSecret": "__SECRET_CHANGE_ME__",
   "cart": {
     "setConfigurableProductOptions": false
   },
@@ -120,38 +118,6 @@
     "example-processor",
     "elastic-stock"
   ],
-  "extensions": {
-    "mailchimp": {
-      "listId": "e06875a7e1",
-      "apiKey": "a9a3318ea7d30f5c5596bd4a78ae0985-us3",
-      "apiUrl": "https://us3.api.mailchimp.com/3.0",
-      "userStatus": "subscribed"
-    },
-    "mailService": {
-      "transport": {
-        "host": "smtp.eu.mailgun.org",
-        "port": 465,
-        "secure": true,
-        "user": "support@procc.co",
-        "pass": "56b62dc02b8fc341f69fb3deeb8d2119-074fa10c-5f32b0d8"
-      },
-      "targetAddressWhitelist": [
-        "support@procc.co"
-      ],
-      "secretString": "__SECRET_CHANGE_ME__"
-    }
-  },
-  "magento2": {
-    "imgUrl": "https://storage.googleapis.com/procc/vendor/product/optimized",
-    "assetPath": "/../var/magento2-sample-data/pub/media",
-    "api": {
-      "url": "http://m2.procc.co/rest",
-      "consumerKey": "ihwmlsyi8bu6wlptewr67s6bo6yi8cl4",
-      "consumerSecret": "8zom97k15z6nwertjxyvhwrre407kwdw",
-      "accessToken": "4jooy23xlzfknrvgtpbldrtwjq6gybo6",
-      "accessTokenSecret": "9tcgxt7ojxfgukups5nf7lgyfdrlagkb"
-    }
-  },
   "imageable": {
     "maxListeners": 512,
     "imageSizeLimit": 1024,
