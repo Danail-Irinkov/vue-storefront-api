@@ -39,10 +39,10 @@ export async function updateConfig (res = null, req = null, next = () => {}) {
 
 // Added by dan-03-12-2019 to allow dynamic reset of config after update
 let config = node_config
-// if (process.env.NODE_APP_INSTANCE === 'kube') {
-injectEnvToJson.buildKubeConfig('config/default-kube.json', config_data.kube_config)
-updateConfig().then(() => console.log('Config Updated'))
-// }
+if (process.env.NODE_APP_INSTANCE === 'kube') {
+  injectEnvToJson.buildKubeConfig('config/default-kube.json', config_data.kube_config)
+  updateConfig().then(() => console.log('Config Updated'))
+}
 
 // Added by dan-29-11-2019
 const timeout = require('connect-timeout');

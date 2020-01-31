@@ -20,7 +20,7 @@ function replace_data (data, hide_logs = false) {
           data[key] = process.env[value];
         }
 
-        if (process.env.hasOwnProperty(key) && key !== 'path') {
+        if (process.env.hasOwnProperty(key) && key !== 'path' && key !== 'name') {
           changed_fields.push(key)
           data[key] = process.env[key];
         }
