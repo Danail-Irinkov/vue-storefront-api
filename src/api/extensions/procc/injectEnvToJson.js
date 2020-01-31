@@ -38,19 +38,18 @@ function replace_data (data, hide_logs = false) {
 }
 
 export default {
-  inject (filename, config_data) {
-    //
-    // if ( !path.resolve(filename) ){
-    //   console.log('missing input file argument');
-    //   process.exit(1);
-    // }
-    // let data = fs.readFileSync(path.resolve(filename))
-    // let jsonContent = JSON.parse(data);
-    // console.log('Data "jsonContent:', jsonContent)
-    // if ( !jsonContent ){
-    //   console.log('missing input config file raw data');
-    //   process.exit(1);
-    // }
+  buildKubeConfig (filename, config_data) {
+    if (!path.resolve(filename)) {
+      console.log('missing input file argument');
+      process.exit(1);
+    }
+    let data = fs.readFileSync(path.resolve(filename))
+    let jsonContent = JSON.parse(data);
+    console.log('Data "jsonContent:', jsonContent)
+    if (!jsonContent) {
+      console.log('missing input config file raw data');
+      process.exit(1);
+    }
 
     // console.log('Data "jsonContent:', config_data)
     return fs.writeFileSync(path.resolve(filename), JSON.stringify(replace_data(config_data), {}, 4))

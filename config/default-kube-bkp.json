@@ -1,4 +1,4 @@
-export default {
+{
   "PROCC": {
     "API": "http://procc-dash-api:8081",
     "URL": "https://procc.co"
@@ -106,7 +106,7 @@ export default {
         "port": 465,
         "secure": true,
         "user": "support@procc.co",
-        "pass": "mailgun_pass_support"
+        "pass": "56b62dc02b8fc341f69fb3deeb8d2119-074fa10c-5f32b0d8"
       },
       "targetAddressWhitelist": [
         "support@procc.co"

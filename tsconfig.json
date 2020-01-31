@@ -15,6 +15,9 @@
     "baseUrl": ".",
     "lib": ["es7"]
   },
+  "paths":{
+    "@config/*": ["config/*"]
+  },
   "include": [
     "src/**/*"
   ]

@@ -1,6 +1,6 @@
 import axios from 'axios'
 import jwt from 'jsonwebtoken'
-import jwt_token from '../../../../config/jwt.js'
+import jwt_token from './jwt'
 
 export default (config) => {
   let baseURL = config.PROCC.API + '/api/'

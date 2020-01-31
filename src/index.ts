@@ -12,7 +12,7 @@ import * as path from 'path'
 
 // kube secrets injection into config from env variables
 import injectEnvToJson from './api/extensions/procc/injectEnvToJson.js'
-import config_data from '../config/default-kube'
+import config_data from './default-kube'
 
 // Edited by Dan to allow config reload
 import node_config from 'config'
@@ -24,33 +24,33 @@ import node_config from 'config'
 // import typeDefs from './graphql/schema';
 
 export async function updateConfig (res = null, req = null, next = () => {}) {
-  if (req.path && req.path.indexOf('procc') !== -1) { // TODO: Temporary limiting the trigger of this func -> need to make it on demand
-    try {
-      console.log('updateConfig updating API config')
-      config = await import('config');
-      return config
-    } catch (e) {
-      console.log('Error: updateConfig Failed')
-      return Promise.reject(e)
-    }
+  // if (req.path && req.path.indexOf('procc') !== -1) { // TODO: Temporary limiting the trigger of this func -> need to make it on demand
+  try {
+    console.log('updateConfig updating API config')
+    config = await import('config');
+    return config
+  } catch (e) {
+    console.log('Error: updateConfig Failed')
+    return Promise.reject(e)
   }
-  next()
+  // }
+  // next()
 }
 
 // Added by dan-03-12-2019 to allow dynamic reset of config after update
 let config = node_config
-if (process.env.NODE_APP_INSTANCE === 'kube') {
-  // injectEnvToJson.inject('config/default-kube.json', config_data)
-  updateConfig().then(()=>console.log('Config Updated'))
-}
+// if (process.env.NODE_APP_INSTANCE === 'kube') {
+injectEnvToJson.buildKubeConfig('config/default-kube.json', config_data.kube_config)
+updateConfig().then(() => console.log('Config Updated'))
+// }
 
 // Added by dan-29-11-2019
 const timeout = require('connect-timeout');
 
 const app = express();
 
-// TODO: Currently I am updating the Config on EVERY api call !! -> this is not Good, but dont know how to trigger it on demand from ProCC code?!
-app.use(updateConfig);
+// TODO: Currently I was trying to update the Config on EVERY api call !! -> this is not Good, but dont know how to trigger it on demand from ProCC code?!
+// app.use(updateConfig);
 
 // timeout middleware
 app.use(timeout(600000));
