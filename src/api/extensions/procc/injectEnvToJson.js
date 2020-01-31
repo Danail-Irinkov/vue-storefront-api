@@ -14,13 +14,15 @@ function replace_data (data, hide_logs = false) {
           console.log('process.env', process.env[key])
           console.log('process.env', process.env.hasOwnProperty(key))
         }
-        if (process.env.hasOwnProperty(key) && key !== 'path') {
-          changed_fields.push(key)
-          data[key] = process.env[key];
-        }
+
         if (value === 'mailgun_pass_support' && process.env.hasOwnProperty(value)) {
           changed_fields.push(value)
           data[key] = process.env[value];
+        }
+
+        if (process.env.hasOwnProperty(key) && key !== 'path') {
+          changed_fields.push(key)
+          data[key] = process.env[key];
         }
       }
     });

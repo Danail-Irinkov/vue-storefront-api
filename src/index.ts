@@ -1,12 +1,12 @@
-import express from 'express';
-import cors from 'cors';
-import morgan from 'morgan';
-import bodyParser from 'body-parser';
-import initializeDb from './db';
-import middleware from './middleware';
+import express from 'express'
+import cors from 'cors'
+import morgan from 'morgan'
+import bodyParser from 'body-parser'
+import initializeDb from './db'
+import middleware from './middleware'
 import { loadAdditionalCertificates } from './helpers/loadAdditionalCertificates'
-import api from './api';
-import img from './api/img';
+import api from './api'
+import img from './api/img'
 import invalidateCache from './api/invalidate'
 import * as path from 'path'
 
@@ -14,18 +14,14 @@ import * as path from 'path'
 import injectEnvToJson from './api/extensions/procc/injectEnvToJson.js'
 import config_data from '../config/default-kube'
 
-import node_config from 'config';
-if (process.env.NODE_APP_INSTANCE === 'kube') {
-  injectEnvToJson.inject('config/default-kube.json', config_data)
-} // Edited by Dan to allow config reload
+// Edited by Dan to allow config reload
+import node_config from 'config'
+
 // Disabled by dan because yarn build crashing due to graphQL
 // import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 // import { makeExecutableSchema } from 'graphql-tools';
 // import resolvers from './graphql/resolvers';
 // import typeDefs from './graphql/schema';
-
-// Added by dan-03-12-2019 to allow dynamic reset of config after update
-let config = node_config
 
 export async function updateConfig (res = null, req = null, next = () => {}) {
   if (req.path && req.path.indexOf('procc') !== -1) { // TODO: Temporary limiting the trigger of this func -> need to make it on demand
@@ -39,6 +35,13 @@ export async function updateConfig (res = null, req = null, next = () => {}) {
     }
   }
   next()
+}
+
+// Added by dan-03-12-2019 to allow dynamic reset of config after update
+let config = node_config
+if (process.env.NODE_APP_INSTANCE === 'kube') {
+  // injectEnvToJson.inject('config/default-kube.json', config_data)
+  updateConfig().then(()=>console.log('Config Updated'))
 }
 
 // Added by dan-29-11-2019
