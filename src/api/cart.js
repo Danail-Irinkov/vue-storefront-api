@@ -17,6 +17,7 @@ export default ({ config, db }) => {
    */
   cartApi.post('/create', (req, res) => {
     const cartProxy = _getProxy(req)
+    console.log('Cart Create req.query.token', req.query.token)
     cartProxy.create(req.query.token).then((result) => {
       apiStatus(res, result, 200);
     }).catch(err => {

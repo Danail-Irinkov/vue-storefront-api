@@ -141,7 +141,7 @@ module.exports = ({ config, db }) => {
       if (storefrontApiConfig.has(`storeViews.${store_data.storeCode}`)) {
         storefrontApiConfig.del(`storeViews.${store_data.storeCode}`);
       }
-      if ((!storefrontApiConfig.has(`storeViews.${store_data.storeCode}`))) {
+      if (!storefrontApiConfig.has(`storeViews.${store_data.storeCode}`)) {
         let mapStoreUrlsFor = storefrontApiConfig.get('storeViews.mapStoreUrlsFor');
 
         if (!_.includes(storefrontApiConfig.get('availableStores'), store_data.storeCode)) {
@@ -299,7 +299,7 @@ module.exports = ({ config, db }) => {
         throw new Error('Missing store code')
       } else if (!brand_id) {
         throw new Error('Insufficient Brand Parameters')
-      } else if (config.elasticsearch.indices.indexOf(`vue_storefront_catalog_${storeCode}`) === -1) {
+      } else if (config.elasticsearch.indices.indexOf(`vue_storefront_catalog_${storeCode}`) === -1 || !config.storeViews[storeCode]) {
         console.log('config.BEFORE ERROR', config)
         console.log('Store ' + storeCode + ' does not exist ->> SKIPPING SYNC, apparently config for this store is missing at your server!')
         res.status(200);
@@ -308,6 +308,7 @@ module.exports = ({ config, db }) => {
       }
 
       console.log('sync_options', sync_options);
+      console.log('storeCode', storeCode);
       await storewiseRemoveProducts(config, storeCode, sync_options); // Not Sure when is required to remove the product first, but keeping it for now
       await storewiseAddNewProducts(storeCode, sync_options);
       console.timeEnd('storewiseImportStore');
