@@ -303,7 +303,7 @@ export function healthCheckRedis (config) {
       resolve('redis is running')
     });
     redisClient.on('error', (e) => {
-      console.log('ERROR REDIS CONNECTION');
+      console.log('ERROR REDIS CONNECTION' + Math.random().toFixed(3));
       reject(e)
     });
   })
