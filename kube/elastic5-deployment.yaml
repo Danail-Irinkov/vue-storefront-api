@@ -29,7 +29,7 @@ spec:
             cpu: 50m
             memory: 900Mi
         volumeMounts:
-          - mountPath: /usr/share/elasticsearch/data2
+          - mountPath: /usr/share/elasticsearch/data3
             name: nfs-drive
             subPath: es5_data
           - mountPath: /usr/share/elasticsearch/config2

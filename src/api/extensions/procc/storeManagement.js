@@ -218,7 +218,7 @@ export function storewiseRemoveProducts (config, storeCode, sync_options) {
         }
       }, (e) => {
         if (e) {
-          console.log('ERROR ELASTICSEARCH CONNECTION');
+          console.log('ERROR ELASTICSEARCH storewiseRemoveProducts', e);
           reject(e)
         } else {
           // console.log('elasticsearch is running');

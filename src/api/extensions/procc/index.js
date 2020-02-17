@@ -339,12 +339,11 @@ module.exports = ({ config, db }) => {
 
   mcApi.post('/setupVSFConfig', async (req, res) => {
     try {
-      console.log('/setupVSFConfig Starting');
-      console.log('/setupVSFConfig Starting');
+      console.log('/setupVSFConfig Starting')
       // let storeData = req.body.storeData;
       let storeCode = req.body.storeCode;
 
-      let enableVSFRebuild = req.body.enableVSFRebuild;
+      let enableVSFRebuild = req.body.enableVSFRebuild
       if (config.elasticsearch.indices.indexOf(`vue_storefront_catalog_${storeCode}`) === -1) {
         enableVSFRebuild = true // Enabling Restart of the Servers if the store is not present in the config
       }
@@ -366,16 +365,16 @@ module.exports = ({ config, db }) => {
       console.timeEnd('buildAndRestartVueStorefrontAPI');
       console.log('buildAndRestartVueStorefrontAPI Done! Store is ready to function! StoreCode: ', storeCode);
 
+      res.status(200);
+      res.end();
       // TODO: send info to ProCC about success and error as part of the queue procedures -> update the queue object status
       console.time('updateVsfSyncStatusToProCC');
       console.log('updateVsfSyncStatusToProCC brand_id: ', brand_id);
-      if (!enableVSFRebuild) {
-        ProCcAPI.storeSyncFinishedKubeRestart({success: true, brand_id}, brand_id)
+      if (!enableVSFRebuild || process.env.NODE_ENV === 'development') {
+        // await sleep(13333)
+        await ProCcAPI.storeSyncFinishedKubeRestart({success: true, brand_id}, brand_id)
       }
       console.timeEnd('updateVsfSyncStatusToProCC');
-
-      res.status(200);
-      res.end();
     } catch (e) {
       console.log('----------------------------');
       console.log('----------------------------');
