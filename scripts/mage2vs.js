@@ -2,7 +2,6 @@ const _ = require('lodash');
 const program = require('commander');
 const config = require('config');
 const spawn = require('child_process').spawn;
-console.log('mage2vs config', config.magento2)
 
 function multiStoreConfig (apiConfig, storeCode) {
   let confCopy = Object.assign({}, apiConfig);
@@ -137,6 +136,7 @@ program
   .action((cmd) => {
     let magentoConfig = getMagentoDefaultConfig(cmd.storeCode);
 
+    console.log('mage2vs config', config.magento2)
     if (cmd.storeCode) {
       const storeView = config.storeViews[cmd.storeCode];
       if (!storeView) {
