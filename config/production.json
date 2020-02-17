@@ -3,8 +3,6 @@
     "host": "elastic5",
     "port": 9200,
     "protocol": "http",
-    "user": "elastic",
-    "password": "myElasticPass11",
     "min_score": 0.01,
     "indices": [
       "vue_storefront_catalog"

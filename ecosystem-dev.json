@@ -4,6 +4,7 @@
       "name": "api",
       "script": "npm",
       "args": "run dev",
+      "instance_var": "INSTANCE_ID",
       "env": {
         "NODE_ENV": "development",
         "NODE_APP_INSTANCE": "dev",
