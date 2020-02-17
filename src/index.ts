@@ -14,14 +14,17 @@ import * as path from 'path'
 import injectEnvToJson from './api/extensions/procc/injectEnvToJson.js'
 import config_data from './default-kube'
 
-
+/* eslint-disable */
 if (process.env.NODE_APP_INSTANCE === 'kube') {
   injectEnvToJson.buildKubeConfig('config/default-kube.json', config_data.kube_config)
   console.log('Config Updated')
-  updateConfig().then(() => console.log('Config Updated22'))
+  // updateConfig().then(() => console.log('Config Updated22'))
 }
 // Edited by Dan to allow config reload
-import node_config from 'config'
+
+import node_config from 'config' // ESLINT is DISABLED for import/first
+/* eslint-enable */
+
 // Disabled by dan because yarn build crashing due to graphQL
 // import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 // import { makeExecutableSchema } from 'graphql-tools';

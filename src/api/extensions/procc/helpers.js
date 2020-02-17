@@ -144,7 +144,7 @@ export async function installMainStore (config) {
 export async function installDevStore (config) {
   console.log('installDevStore START')
   let checkIfStoreExists = false
-  if (config.storeViews.indexOf('dev') !== -1) {
+  if (config.storeViews && config.storeViews.indexOf('dev') !== -1) {
     checkIfStoreExists = await getTotalHits(config, 'dev', 'product')
   }
   console.log('checkIfStoreExists', checkIfStoreExists)
