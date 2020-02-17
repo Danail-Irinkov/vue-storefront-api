@@ -25,7 +25,8 @@ export default (config) => {
   // JWT TOKEN MANAGEMENT
   let private_key = jwt_token.private_key
   if (process.env.NODE_APP_INSTANCE === 'kube') {
-    private_key = process.env.JWT_PRIVATE_KEY
+    // private_key = process.env.JWT_PRIVATE_KEY // with '\n' line breaks
+    private_key = process.env.JWT_PRIVATE_KEY_1
   }
   console.log('private_key after KUBE: ', private_key)
   if (!private_key || private_key === 'NO TOKEN') throw new Error('No JWT API TOKEN SUPPLIED')

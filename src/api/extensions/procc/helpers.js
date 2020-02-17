@@ -145,8 +145,8 @@ export async function installDevStore (config) {
   let checkIfStoreExists = await getTotalHits(config, 'dev', 'product')
   console.log('checkIfStoreExists', checkIfStoreExists)
   if (!(checkIfStoreExists && checkIfStoreExists.total && checkIfStoreExists.total > 0)) {
-    storewiseImportStore('dev')
-    storewiseAddNewProducts('dev', {products_to_add: 'DA001,DA002,DA003,DA004,DA005,DA006,DA007,DA008,DA009'})
+    await storewiseImportStore('dev')
+    await storewiseAddNewProducts('dev', {products_to_add: 'DA001,DA002,DA003,DA004,DA005,DA006,DA007,DA008,DA009'})
   }
   return true
 }

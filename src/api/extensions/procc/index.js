@@ -53,9 +53,9 @@ module.exports = ({ config, db }) => {
   let mcApi = Router();
 
   installMainStore(config).catch((e) => { console.log('installMainStore Error', e) })
-  if (process.env.NODE_ENV === 'development') {
-    installDevStore(config).catch((e) => { console.log('installDevStore Error', e) })
-  }
+  // if (process.env.NODE_ENV === 'development') {
+  installDevStore(config).catch((e) => { console.log('installDevStore Error', e) })
+  // }
   ProCcAPI = ProCcApiRaw(config);
 
   mcApi.get('/health', async (req, res) => {

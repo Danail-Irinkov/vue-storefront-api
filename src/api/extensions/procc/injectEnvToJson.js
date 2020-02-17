@@ -18,12 +18,12 @@ function replace_data (data, hide_logs = false) {
         if (value === 'mailgun_pass_support' && process.env.hasOwnProperty(value)) {
           changed_fields.push(value)
           data[key] = process.env[value];
-          console.log('changed config value:', key, data[key])
         }
 
         if (process.env.hasOwnProperty(key) && key !== 'path' && key !== 'name') {
           changed_fields.push(key)
           data[key] = process.env[key];
+          console.log('changed config value:', key, data[key])
         }
       }
     });
