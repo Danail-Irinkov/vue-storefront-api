@@ -313,7 +313,7 @@ export function healthCheckES (config) {
     esClient.ping({
     }, (e) => {
       if (e) {
-        console.log('ERROR ELASTICSEARCH CONNECTION');
+        console.log('ERROR ELASTICSEARCH CONNECTION', esConfig);
         reject(e)
       } else {
         // console.log('elasticsearch is running');

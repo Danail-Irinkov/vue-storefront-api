@@ -14,14 +14,21 @@ import * as path from 'path'
 import injectEnvToJson from './api/extensions/procc/injectEnvToJson.js'
 import config_data from './default-kube'
 
+if (process.env.NODE_APP_INSTANCE === 'kube') {
+  injectEnvToJson.buildKubeConfig('config/default-kube.json', config_data.kube_config)
+  console.log('Config Updated')
+}
+
 // Edited by Dan to allow config reload
 import node_config from 'config'
-
 // Disabled by dan because yarn build crashing due to graphQL
 // import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 // import { makeExecutableSchema } from 'graphql-tools';
 // import resolvers from './graphql/resolvers';
 // import typeDefs from './graphql/schema';
+
+// Added by dan-03-12-2019 to allow dynamic reset of config after update
+let config = node_config
 
 export async function updateConfig (res = null, req = null, next = () => {}) {
   // if (req.path && req.path.indexOf('procc') !== -1) { // TODO: Temporary limiting the trigger of this func -> need to make it on demand
@@ -35,13 +42,6 @@ export async function updateConfig (res = null, req = null, next = () => {}) {
   }
   // }
   // next()
-}
-
-// Added by dan-03-12-2019 to allow dynamic reset of config after update
-let config = node_config
-if (process.env.NODE_APP_INSTANCE === 'kube') {
-  injectEnvToJson.buildKubeConfig('config/default-kube.json', config_data.kube_config)
-  updateConfig().then(() => console.log('Config Updated'))
 }
 
 // Added by dan-29-11-2019
