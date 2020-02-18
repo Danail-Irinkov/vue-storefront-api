@@ -10,29 +10,31 @@ import img from './api/img'
 import invalidateCache from './api/invalidate'
 import * as path from 'path'
 
-// kube secrets injection into config from env variables
-import injectEnvToJson from './api/extensions/procc/injectEnvToJson.js'
-import config_data from './default-kube'
-
-/* eslint-disable */
-if (process.env.NODE_APP_INSTANCE === 'kube') {
-  injectEnvToJson.buildKubeConfig('config/default-kube.json', config_data.kube_config)
-  console.log('Config Updated')
-  // updateConfig().then(() => console.log('Config Updated22'))
-}
-// Edited by Dan to allow config reload
-
-import node_config from 'config' // ESLINT is DISABLED for import/first
-/* eslint-enable */
-
 // Disabled by dan because yarn build crashing due to graphQL
 // import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 // import { makeExecutableSchema } from 'graphql-tools';
 // import resolvers from './graphql/resolvers';
 // import typeDefs from './graphql/schema';
 
+// kube secrets injection into config from env variables
+import injectEnvToJson from './api/extensions/procc/injectEnvToJson.js'
+import config_data from './default-kube'
+
+/* eslint-disable */
+if (process.env.NODE_APP_INSTANCE === 'kube') {
+  let edited_config = injectEnvToJson.buildKubeConfig('config/default-kube.json', config_data.kube_config)
+  console.log(edited_config, 'Config Updated')
+  // updateConfig().then(() => console.log('Config Updated22'))
+}
+// Edited by Dan to allow config reload
+console.log('Config Loading')
+import node_config from 'config' // ESLINT is DISABLED for import/first
+/* eslint-enable */
+
 // Added by dan-03-12-2019 to allow dynamic reset of config after update
 let config = node_config
+// @ts-ignore
+console.log(config.magento2.api, 'Config Loaded')
 
 export async function updateConfig (res = null, req = null, next = () => {}) {
   // if (req.path && req.path.indexOf('procc') !== -1) { // TODO: Temporary limiting the trigger of this func -> need to make it on demand

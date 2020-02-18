@@ -1,7 +1,7 @@
 import axios from 'axios'
-import SBuffer from 'safer-buffer'
 import jwt from 'jsonwebtoken'
 import jwt_token from './jwt'
+import SBuffer from 'safer-buffer'
 const Buffer = SBuffer.Buffer
 
 export default (config) => {
@@ -27,7 +27,6 @@ export default (config) => {
   // JWT TOKEN MANAGEMENT
   let private_key = jwt_token.private_key
   if (process.env.NODE_APP_INSTANCE === 'kube') {
-    // private_key = process.env.JWT_PRIVATE_KEY // with '\n' line breaks
     /* eslint-disable */
     let Buff = new Buffer.from(process.env.JWT_PRIVATE_KEY_1, 'base64')
     private_key = Buff.toString('ascii')

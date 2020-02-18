@@ -370,6 +370,8 @@ module.exports = ({ config, db }) => {
 
       res.status(200);
       res.end();
+      // TODO: storeSyncFinishedKubeRestart emits an event which says -> 'servers are ready' to ProCC
+      // TODO: what if the servers dont restart properly? how do we track that?
       // TODO: send info to ProCC about success and error as part of the queue procedures -> update the queue object status
       console.time('updateVsfSyncStatusToProCC');
       console.log('updateVsfSyncStatusToProCC brand_id: ', brand_id);
@@ -454,7 +456,7 @@ module.exports = ({ config, db }) => {
 
     apiStatus(res, 200);
   });
-  healthCheck(config);
+  healthCheck(config).catch((e) => { console.log('healthCheck Error last', e) });
 
   return mcApi;
 };

@@ -4,7 +4,7 @@
       "name": "api",
       "script": "./dist/index.js",
       "instance_var": "INSTANCE_ID",
-      "args": [ "--color" ],
+      "args": [ "--no-color" ],
       "env": {
         "NODE_ENV": "production",
         "NODE_APP_INSTANCE": "kube",

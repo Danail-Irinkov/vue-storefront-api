@@ -53,6 +53,7 @@ export default {
     }
 
     // console.log('Data "jsonContent:', config_data)
-    return fs.writeFileSync(path.resolve(filename), JSON.stringify(replace_data(config_data), {}, 4))
+    fs.writeFileSync(path.resolve(filename), JSON.stringify(replace_data(config_data), {}, 4))
+    return fs.readFileSync(path.resolve(filename))
   }
 }

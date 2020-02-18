@@ -422,6 +422,7 @@ export function deleteElasticSearchIndex (store_index, config) {
   ], { shell: true });
 }
 
+// TODO: Move This step to ProCC function syncVueStorefront()
 export async function buildAndRestartVueStorefrontAPI (req, res, brand_id, enableVSFRebuild = false, config) {
   try {
     console.log('Starting with the Vue Build');
