@@ -13,7 +13,9 @@ import { storewiseImportStore, storewiseAddNewProducts, storewiseRemoveProducts,
   deleteVueStorefrontStoreConfig, rebuildElasticSearchIndex } from './storeManagement';
 
 import { createStoreIndexInBothServers,
-  setProductBanners, setCategoryBanners, installDevStore, installMainStore,
+  setProductBanners, setCategoryBanners,
+  installDevStore, configureDevStore,
+  installMainStore,
   healthCheck, healthCheckCore } from './helpers';
 
 import request from 'request';
@@ -40,20 +42,21 @@ let appDir = path.dirname(require.main.filename);
 appDir = path.dirname(appDir);
 console.log('appDir appDirappDir - ', appDir);
 
-let storefrontApiConfig;
+let VSFApiConfigEditor;
 if (process.env.NODE_ENV === 'development') {
-  storefrontApiConfig = new Store({path: path.resolve('./config/local.json')});
-} else { storefrontApiConfig = new Store({path: path.resolve('./config/production.json')}); }
+  VSFApiConfigEditor = new Store({path: path.resolve('./config/local.json')});
+} else { VSFApiConfigEditor = new Store({path: path.resolve('./config/production.json')}); }
 console.log('START process.env.NODE_ENV: ', process.env.NODE_ENV);
-// console.log('START storefrontApiConfig: ', storefrontApiConfig.clone())
-// console.log('START storefrontApiConfig: ', path.resolve('./config/production.json'))
-console.log('END storefrontApiConfig! ', storefrontApiConfig.get('elasticsearch') ? 'Config LOADED' : 'ERROR!! CONFIG NOT FOUND -> config/local.json');
+// console.log('START VSFApiConfigEditor: ', VSFApiConfigEditor.clone())
+// console.log('START VSFApiConfigEditor: ', path.resolve('./config/production.json'))
+console.log('END VSFApiConfigEditor! ', VSFApiConfigEditor.get('elasticsearch') ? 'Config LOADED' : 'ERROR!! CONFIG NOT FOUND -> config/local.json');
 
 module.exports = ({ config, db }) => {
   let mcApi = Router();
 
   installMainStore(config).catch((e) => { console.log('installMainStore Error', e) })
   // if (process.env.NODE_ENV === 'development') {
+  configureDevStore(config, VSFApiConfigEditor).catch((e) => { console.log('configureDevStore Error', e) })
   installDevStore(config).catch((e) => { console.log('installDevStore Error', e) })
   // }
   ProCcAPI = ProCcApiRaw(config);
@@ -136,46 +139,46 @@ module.exports = ({ config, db }) => {
           dateFormat: 'HH:mm D-M-YYYY'
         }
       };
-      // console.log('storefrontApiConfig: ', storefrontApiConfig.clone())
+      // console.log('VSFApiConfigEditor: ', VSFApiConfigEditor.clone())
 
-      if (storefrontApiConfig.has(`storeViews.${store_data.storeCode}`)) {
-        storefrontApiConfig.del(`storeViews.${store_data.storeCode}`);
+      if (VSFApiConfigEditor.has(`storeViews.${store_data.storeCode}`)) {
+        VSFApiConfigEditor.del(`storeViews.${store_data.storeCode}`);
       }
-      if (!storefrontApiConfig.has(`storeViews.${store_data.storeCode}`)) {
-        let mapStoreUrlsFor = storefrontApiConfig.get('storeViews.mapStoreUrlsFor');
+      if (!VSFApiConfigEditor.has(`storeViews.${store_data.storeCode}`)) {
+        let mapStoreUrlsFor = VSFApiConfigEditor.get('storeViews.mapStoreUrlsFor');
 
-        if (!_.includes(storefrontApiConfig.get('availableStores'), store_data.storeCode)) {
+        if (!_.includes(VSFApiConfigEditor.get('availableStores'), store_data.storeCode)) {
         // set available stores
-          storefrontApiConfig.set('availableStores', (_.concat(storefrontApiConfig.get('availableStores'), store_data.storeCode)));
+          VSFApiConfigEditor.set('availableStores', (_.concat(VSFApiConfigEditor.get('availableStores'), store_data.storeCode)));
         }
 
-        console.log('storefrontApiConfig.get("elasticsearch.indices")0', storefrontApiConfig.get('elasticsearch.indices'));
-        if (!_.includes(storefrontApiConfig.get('elasticsearch.indices'), store_data.elasticsearch.index)) {
+        console.log('VSFApiConfigEditor.get("elasticsearch.indices")0', VSFApiConfigEditor.get('elasticsearch.indices'));
+        if (!_.includes(VSFApiConfigEditor.get('elasticsearch.indices'), store_data.elasticsearch.index)) {
         // set indices of the store
-          storefrontApiConfig.set('elasticsearch.indices', _.concat(storefrontApiConfig.get('elasticsearch.indices'), store_data.elasticsearch.index));
-          console.log('storefrontApiConfig.get("elasticsearch.indices")1', storefrontApiConfig.get('elasticsearch.indices'))
+          VSFApiConfigEditor.set('elasticsearch.indices', _.concat(VSFApiConfigEditor.get('elasticsearch.indices'), store_data.elasticsearch.index));
+          console.log('VSFApiConfigEditor.get("elasticsearch.indices")1', VSFApiConfigEditor.get('elasticsearch.indices'))
         }
 
-        if ((!_.includes(mapStoreUrlsFor, store_data.storeCode)) || (!_.includes(storefrontApiConfig.get('storeViews.mapStoreUrlsFor'), store_data.storeCode))) {
+        if ((!_.includes(mapStoreUrlsFor, store_data.storeCode)) || (!_.includes(VSFApiConfigEditor.get('storeViews.mapStoreUrlsFor'), store_data.storeCode))) {
         // set value in mapStoreUrlsFor
-          storefrontApiConfig.set('storeViews.mapStoreUrlsFor', _.concat(storefrontApiConfig.get('storeViews.mapStoreUrlsFor'), store_data.storeCode));
+          VSFApiConfigEditor.set('storeViews.mapStoreUrlsFor', _.concat(VSFApiConfigEditor.get('storeViews.mapStoreUrlsFor'), store_data.storeCode));
         }
 
-        if (!(storefrontApiConfig.get(`storeViews.${store_data.storeCode}`))) {
+        if (!(VSFApiConfigEditor.get(`storeViews.${store_data.storeCode}`))) {
         // set obj of store
-          storefrontApiConfig.set(`storeViews.${store_data.storeCode}`, store_data);
+          VSFApiConfigEditor.set(`storeViews.${store_data.storeCode}`, store_data);
         // storefront.set(`storeViews.${store_data.storeCode}`, store_data);
         }
       }
       // await updateConfig() // Updating config for entire API
 
-      console.log('updateStorefrontSettings req.body', req.body);
+      console.log('updateStorefrontSettings req.body', storeData);
       console.log('updateStorefrontSettings req.body  END');
       return request({
       // create store in vs
         uri: config.vsf.host + ':' + config.vsf.port + '/updateStorefrontSettings',
         method: 'POST',
-        body: req.body,
+        body: storeData,
         json: true
       },
       (_err, _res, _resBody) => {
@@ -400,14 +403,14 @@ module.exports = ({ config, db }) => {
     console.log('Config path.resolve', path.resolve(`var/catalog_${store_code}.json`));
     console.log('Config path.resolve', path.resolve(`./var/catalog_${store_code}.json`));
 
-    if (storefrontApiConfig.has(`storeViews.${store_code}`)) {
+    if (VSFApiConfigEditor.has(`storeViews.${store_code}`)) {
       // remove storeview data from the storefront-api
-      storefrontApiConfig.set('elasticsearch.indices', _.pull(storefrontApiConfig.get('elasticsearch.indices'), store_index));
-      console.log('storefrontApiConfig.get("elasticsearch.indices")2', storefrontApiConfig.get('elasticsearch.indices'));
+      VSFApiConfigEditor.set('elasticsearch.indices', _.pull(VSFApiConfigEditor.get('elasticsearch.indices'), store_index));
+      console.log('VSFApiConfigEditor.get("elasticsearch.indices")2', VSFApiConfigEditor.get('elasticsearch.indices'));
 
-      storefrontApiConfig.set('availableStores', _.pull(storefrontApiConfig.get('availableStores'), store_code));
-      storefrontApiConfig.set('storeViews.mapStoreUrlsFor', _.pull(storefrontApiConfig.get('storeViews.mapStoreUrlsFor'), store_code));
-      storefrontApiConfig.del(`storeViews.${store_code}`);
+      VSFApiConfigEditor.set('availableStores', _.pull(VSFApiConfigEditor.get('availableStores'), store_code));
+      VSFApiConfigEditor.set('storeViews.mapStoreUrlsFor', _.pull(VSFApiConfigEditor.get('storeViews.mapStoreUrlsFor'), store_code));
+      VSFApiConfigEditor.del(`storeViews.${store_code}`);
 
       console.log('BEFORE ERROR 1');
       // remove the banners, policies, main image and catalog files in Vue-storefront configs
@@ -433,9 +436,9 @@ module.exports = ({ config, db }) => {
     let storeData = req.body.storeData;
     let status = !storeData.status; // current store status
 
-    if (storefrontApiConfig.has(`storeViews.${storeData.store_code}.disabled`)) {
+    if (VSFApiConfigEditor.has(`storeViews.${storeData.store_code}.disabled`)) {
       // storefront.set(`storeViews.${storeData.store_code}.disabled`,status)
-      storefrontApiConfig.set(`storeViews.${storeData.store_code}.disabled`, status)
+      VSFApiConfigEditor.set(`storeViews.${storeData.store_code}.disabled`, status)
     }
     // TODO: NEED TO REFRESH THE CONFIG HERE!!
     request({

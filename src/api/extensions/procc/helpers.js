@@ -9,17 +9,18 @@ import path from 'path';
 
 // ELASTICSEARCH CLIENT
 import elasticsearch from 'elasticsearch'
+import {apiStatus} from '../../../lib/util';
 
-let storefrontApiConfig;
+let VSFApiConfigEditor;
 if (process.env.NODE_ENV === 'development') {
-  storefrontApiConfig = new Store({path: path.resolve('./config/local.json')});
-} else { storefrontApiConfig = new Store({path: path.resolve('./config/production.json')}); }
+  VSFApiConfigEditor = new Store({path: path.resolve('./config/local.json')});
+} else { VSFApiConfigEditor = new Store({path: path.resolve('./config/production.json')}); }
 console.log('START process.env.NODE_ENV: ', process.env.NODE_ENV);
-// console.log('START storefrontApiConfig: ', storefrontApiConfig.clone())
-// console.log('START storefrontApiConfig: ', path.resolve('./config/production.json'))
-console.log('END storefrontApiConfig! ');
+// console.log('START VSFApiConfigEditor: ', VSFApiConfigEditor.clone())
+// console.log('START VSFApiConfigEditor: ', path.resolve('./config/production.json'))
+console.log('END VSFApiConfigEditor! ');
 
-let esCfg = storefrontApiConfig.get('elasticsearch')
+let esCfg = VSFApiConfigEditor.get('elasticsearch')
 const esConfig = {
   host: {
     host: esCfg.host,
@@ -43,13 +44,13 @@ export async function createStoreIndexInBothServers (storeCode) {
   try {
     let storeIndex = `vue_storefront_catalog_${storeCode}`;
 
-    console.log('storefrontApiConfig', storefrontApiConfig.clone());
+    console.log('VSFApiConfigEditor', VSFApiConfigEditor.clone());
     console.log('storeIndex', storeIndex);
     console.log('createStoreIndexInBothServers');
 
-    if (!_.includes(storefrontApiConfig.get('elasticsearch.indices'), storeIndex)) {
-      storefrontApiConfig.set('elasticsearch.indices', _.concat(storefrontApiConfig.get('elasticsearch.indices'), storeIndex));
-      console.log('storefrontApiConfig.get("elasticsearch.indices")3', storefrontApiConfig.get('elasticsearch.indices'))
+    if (!_.includes(VSFApiConfigEditor.get('elasticsearch.indices'), storeIndex)) {
+      VSFApiConfigEditor.set('elasticsearch.indices', _.concat(VSFApiConfigEditor.get('elasticsearch.indices'), storeIndex));
+      console.log('VSFApiConfigEditor.get("elasticsearch.indices")3', VSFApiConfigEditor.get('elasticsearch.indices'))
       // await updateConfig() // Updating config for entire API
     }
 
@@ -141,6 +142,121 @@ export async function installMainStore (config) {
   return true
 }
 
+export async function configureDevStore (config, VSFApiConfigEditor) {
+  try {
+    let storeData = {
+      brand: {_id: '5dfd22ae43f1670037a23fac'},
+      storefront_url: 'dev',
+      magento_store_name: 'Dev Acc Store',
+      magento_store_id: '72',
+      storefront_setting: {
+        '_id': '5dfd5fc5bbcbcf09e481447d',
+        'shipping_methods': ['5d7673fe2dd1ea2dd4ae9330', '5e0213ed266ec463cc243178', '5e1b7a39aacb351d3cd92117', '5d7676b42dd1ea2dd4ae9333'],
+        'allow_read_users': ['5dfd226443f1670037a23f94'],
+        'contact_information': 'Dan, varna 27, m +92823',
+        'about_text': 'Working from home, to build a family:)',
+        'working_hours': '12-12',
+        'store_logo': '5dfd5fb5bbcbcf09e481447b',
+        'banner': {
+          'title': 'Welcome Dev:)',
+          'title_color': '#ffffff',
+          'subtitle': 'Good Job so far!:)',
+          'subtitle_color': '#ffffff',
+          'banner_photo': '5dfd5fb8bbcbcf09e481447c',
+          'link': 'www.procc.co/'
+        },
+        'partial_refund': 20,
+        'shipping_policy': '5dfd5fd6bbcbcf09e481447e',
+        'warranty_policy': '5dfd5fd9bbcbcf09e481447f',
+        'privacy_policy': '5dfd5fddbbcbcf09e4814480',
+        'user': '5dfd226443f1670037a23f94',
+        'brand': '5dfd22ae43f1670037a23fac',
+        'updatedAt': '2020-02-11T06:05:38.458Z',
+        'createdAt': '2019-12-20T23:56:53.772Z',
+        '__v': 0,
+        'enable_partial_refund': true,
+        'default_shipping_method': '5e0213ed266ec463cc243178'
+      }
+    };
+    let store_data = {
+      store_brand_id: storeData.brand._id,
+      storeCode: storeData.storefront_url,
+      storeName: _.startCase(storeData.magento_store_name),
+      disabled: false,
+      storeId: parseInt(storeData.magento_store_id),
+      name: _.startCase(storeData.magento_store_name),
+      url: `/${storeData.storefront_url}`,
+      elasticsearch: {
+        host: config.server.url + '/api/catalog', // NEED to be with domain, it is sent to the frontend
+        index: `vue_storefront_catalog_${_.snakeCase(storeData.storefront_url)}`
+      },
+      tax: {
+        defaultCountry: 'BG',
+        defaultRegion: '',
+        calculateServerSide: true,
+        sourcePriceIncludesTax: false
+      },
+      i18n: {
+        fullCountryName: 'Bulgaria',
+        fullLanguageName: 'Bulgarian',
+        defaultCountry: 'BG',
+        defaultLanguage: 'EN',
+        defaultLocale: 'en-US',
+        currencyCode: 'EUR',
+        currencySign: 'EUR',
+        dateFormat: 'HH:mm D-M-YYYY'
+      }
+    };
+    // console.log('VSFApiConfigEditor: ', VSFApiConfigEditor.clone())
+
+    if (VSFApiConfigEditor.has(`storeViews.${store_data.storeCode}`)) {
+      VSFApiConfigEditor.del(`storeViews.${store_data.storeCode}`);
+    }
+    if (!VSFApiConfigEditor.has(`storeViews.${store_data.storeCode}`)) {
+      let mapStoreUrlsFor = VSFApiConfigEditor.get('storeViews.mapStoreUrlsFor');
+
+      if (!_.includes(VSFApiConfigEditor.get('availableStores'), store_data.storeCode)) {
+        // set available stores
+        VSFApiConfigEditor.set('availableStores', (_.concat(VSFApiConfigEditor.get('availableStores'), store_data.storeCode)));
+      }
+
+      console.log('VSFApiConfigEditor.get("elasticsearch.indices")0', VSFApiConfigEditor.get('elasticsearch.indices'));
+      if (!_.includes(VSFApiConfigEditor.get('elasticsearch.indices'), store_data.elasticsearch.index)) {
+        // set indices of the store
+        VSFApiConfigEditor.set('elasticsearch.indices', _.concat(VSFApiConfigEditor.get('elasticsearch.indices'), store_data.elasticsearch.index));
+        console.log('VSFApiConfigEditor.get("elasticsearch.indices")1', VSFApiConfigEditor.get('elasticsearch.indices'))
+      }
+
+      if ((!_.includes(mapStoreUrlsFor, store_data.storeCode)) || (!_.includes(VSFApiConfigEditor.get('storeViews.mapStoreUrlsFor'), store_data.storeCode))) {
+        // set value in mapStoreUrlsFor
+        VSFApiConfigEditor.set('storeViews.mapStoreUrlsFor', _.concat(VSFApiConfigEditor.get('storeViews.mapStoreUrlsFor'), store_data.storeCode));
+      }
+
+      if (!(VSFApiConfigEditor.get(`storeViews.${store_data.storeCode}`))) {
+        // set obj of store
+        VSFApiConfigEditor.set(`storeViews.${store_data.storeCode}`, store_data);
+        // storefront.set(`storeViews.${store_data.storeCode}`, store_data);
+      }
+    }
+    // await updateConfig() // Updating config for entire API
+
+    console.log('configureDevStore storeData', storeData);
+    console.log('configureDevStore storeData sending to VSF', '' + config.vsf.host + ':' + config.vsf.port + '/updateStorefrontSettings');
+    return request({
+      // create store in vs
+      uri: config.vsf.host + ':' + config.vsf.port + '/updateStorefrontSettings',
+      method: 'POST',
+      body: storeData,
+      json: true
+    },
+    (_err, _res, _resBody) => {
+      console.log('/configureDevStore updateStorefrontSettings Response', _resBody);
+      return Promise.reject(_err)
+    })
+  } catch (e) {
+    return Promise.reject(e)
+  }
+}
 export async function installDevStore (config) {
   console.log('installDevStore START')
   let checkIfStoreExists = false

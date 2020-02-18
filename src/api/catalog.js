@@ -48,15 +48,15 @@ export default ({config, db}) => function (req, res, body) {
 
     if (config.elasticsearch.indices.indexOf(indexName) < 0) {
       // Added by Dan to avoid issue with the APi not being restarted and config reloaded
-      let storefrontApiConfig;
+      let VSFApiConfigEditor;
       if (process.env.NODE_ENV === 'development') {
-        storefrontApiConfig = new Store({path: path.resolve('./config/local.json')})
+        VSFApiConfigEditor = new Store({path: path.resolve('./config/local.json')})
       } else {
-        storefrontApiConfig = new Store({path: path.resolve('./config/production.json')})
+        VSFApiConfigEditor = new Store({path: path.resolve('./config/production.json')})
       }
-      console.log('storefrontApiConfig.get(\'elasticsearch.indices\')', storefrontApiConfig.get('elasticsearch.indices'))
-      console.log('storefrontApiConfig index exists? ', storefrontApiConfig.get('elasticsearch.indices').indexOf(indexName))
-      if (storefrontApiConfig.get('elasticsearch.indices').indexOf(indexName) < 0) {
+      console.log('VSFApiConfigEditor.get(\'elasticsearch.indices\')', VSFApiConfigEditor.get('elasticsearch.indices'))
+      console.log('VSFApiConfigEditor index exists? ', VSFApiConfigEditor.get('elasticsearch.indices').indexOf(indexName))
+      if (VSFApiConfigEditor.get('elasticsearch.indices').indexOf(indexName) < 0) {
         throw new Error('Invalid / inaccessible index "' + indexName + '" given in the URL. Please do use following URL format: /api/catalog/<index_name>/_search')
       }
       // Added By Dan FIx - END
