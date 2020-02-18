@@ -1,4 +1,5 @@
 import axios from 'axios'
+import Buffer from 'safer-buffer'
 import jwt from 'jsonwebtoken'
 import jwt_token from './jwt'
 

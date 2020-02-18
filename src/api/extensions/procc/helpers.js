@@ -144,11 +144,11 @@ export async function installMainStore (config) {
 export async function installDevStore (config) {
   console.log('installDevStore START')
   let checkIfStoreExists = false
-  if (config.storeViews && config.storeViews.indexOf('dev') !== -1) {
+  if (config.storeViews && 'dev' in config.storeViews) {
     checkIfStoreExists = await getTotalHits(config, 'dev', 'product')
   }
   console.log('checkIfStoreExists', checkIfStoreExists)
-  if (config.storeViews.indexOf('dev') === -1 || !(checkIfStoreExists && checkIfStoreExists.total && checkIfStoreExists.total > 0)) {
+  if (!(checkIfStoreExists && checkIfStoreExists.total && checkIfStoreExists.total > 0)) {
     await storewiseImportStore('dev')
     await storewiseAddNewProducts('dev', {products_to_add: 'DA001,DA002,DA003,DA004,DA005,DA006,DA007,DA008,DA009'})
   }
