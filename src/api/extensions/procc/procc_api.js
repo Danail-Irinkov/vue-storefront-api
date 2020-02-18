@@ -1,7 +1,8 @@
 import axios from 'axios'
-import Buffer from 'safer-buffer'
+import SBuffer from 'safer-buffer'
 import jwt from 'jsonwebtoken'
 import jwt_token from './jwt'
+const Buffer = SBuffer.Buffer
 
 export default (config) => {
   let baseURL = config.PROCC.API + '/api/'
