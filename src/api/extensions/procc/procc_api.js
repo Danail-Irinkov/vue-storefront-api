@@ -26,7 +26,13 @@ export default (config) => {
   let private_key = jwt_token.private_key
   if (process.env.NODE_APP_INSTANCE === 'kube') {
     // private_key = process.env.JWT_PRIVATE_KEY // with '\n' line breaks
-    private_key = process.env.JWT_PRIVATE_KEY_1
+    /* eslint-disable */
+    let Buffer = new Buffer.from(process.env.JWT_PRIVATE_KEY, 'base64')
+    private_key = Buffer.toString('ascii')
+    let Buffer2 = new Buffer.from(process.env.JWT_PRIVATE_KEY_1, 'base64')
+    let private_key2 = Buffer2.toString('ascii')
+    console.log('private_key2 decoded: ', private_key2)
+    /* eslint-disable */
   }
   console.log('private_key after KUBE: ', private_key)
   if (!private_key || private_key === 'NO TOKEN') throw new Error('No JWT API TOKEN SUPPLIED')
