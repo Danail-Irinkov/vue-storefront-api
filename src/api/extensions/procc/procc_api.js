@@ -29,11 +29,8 @@ export default (config) => {
   if (process.env.NODE_APP_INSTANCE === 'kube') {
     // private_key = process.env.JWT_PRIVATE_KEY // with '\n' line breaks
     /* eslint-disable */
-    let Buff = new Buffer.from(process.env.JWT_PRIVATE_KEY, 'base64')
+    let Buff = new Buffer.from(process.env.JWT_PRIVATE_KEY_1, 'base64')
     private_key = Buff.toString('ascii')
-    let Buff2 = new Buffer.from(process.env.JWT_PRIVATE_KEY_1, 'base64')
-    let private_key2 = Buff2.toString('ascii')
-    console.log('private_key2 decoded: ', private_key2)
     /* eslint-disable */
   }
   console.log('private_key after KUBE: ', private_key)
