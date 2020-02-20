@@ -164,15 +164,16 @@ module.exports = ({ config, db }) => {
           VSFApiConfigEditor.set('storeViews.mapStoreUrlsFor', _.concat(VSFApiConfigEditor.get('storeViews.mapStoreUrlsFor'), store_data.storeCode));
         }
 
+        console.log('set obj of store in storeViews1 ', VSFApiConfigEditor.get(`storeViews.${store_data.storeCode}`))
         if (!(VSFApiConfigEditor.get(`storeViews.${store_data.storeCode}`))) {
-        // set obj of store
+          console.log('set obj of store in storeViews2 ')
           VSFApiConfigEditor.set(`storeViews.${store_data.storeCode}`, store_data);
         // storefront.set(`storeViews.${store_data.storeCode}`, store_data);
         }
       }
       // await updateConfig() // Updating config for entire API
 
-      console.log('updateStorefrontSettings req.body', storeData);
+      // console.log('updateStorefrontSettings req.body', storeData);
       console.log('updateStorefrontSettings req.body  END');
       return request({
       // create store in vs
