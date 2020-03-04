@@ -25,9 +25,15 @@
     "min_score": 0.01,
     "indices": [
       "vue_storefront_catalog",
+      "vue_storefront_catalog_ali",
       "vue_storefront_catalog_dev",
       "vue_storefront_catalog_judy",
-      "vue_storefront_catalog_aa"
+      "vue_storefront_catalog_vent",
+      "vue_storefront_catalog_volkky",
+      "vue_storefront_catalog_judysstore",
+      "vue_storefront_catalog_alina",
+      "vue_storefront_catalog_yolo_2",
+      "vue_storefront_catalog_svet"
     ],
     "indexTypes": [
       "product",
@@ -47,47 +53,30 @@
   "kue": {},
   "availableStores": [
     "dev",
+    "ali",
     "judy",
-    "aa"
+    "vent",
+    "volkky",
+    "judysstore",
+    "alina",
+    "yolo_2",
+    "svet"
   ],
   "storeViews": {
     "multistore": true,
     "mapStoreUrlsFor": [
-      "de",
-      "it",
       "dev",
+      "ali",
       "judy",
-      "aa"
+      "vent",
+      "volkky",
+      "judysstore",
+      "alina",
+      "yolo_2",
+      "svet"
     ],
-    "dev": {
-      "storeCode": "dev",
-      "storeName": "Dev Acc Store",
-      "disabled": false,
-      "storeId": 72,
-      "name": "Dev Acc Store",
-      "url": "/dev",
-      "elasticsearch": {
-        "host": "http://localhost:8080/api/catalog",
-        "index": "vue_storefront_catalog_dev"
-      },
-      "tax": {
-        "defaultCountry": "BG",
-        "defaultRegion": "",
-        "calculateServerSide": true,
-        "sourcePriceIncludesTax": false
-      },
-      "i18n": {
-        "fullCountryName": "Bulgaria",
-        "fullLanguageName": "Bulgarian",
-        "defaultCountry": "BG",
-        "defaultLanguage": "EN",
-        "defaultLocale": "en-US",
-        "currencyCode": "EUR",
-        "currencySign": "EUR",
-        "dateFormat": "HH:mm D-M-YYYY"
-      }
-    },
     "judy": {
+      "store_brand_id": "5d90a9d22299492798f443ef",
       "storeCode": "judy",
       "storeName": "Test Judy Store",
       "disabled": false,
@@ -115,16 +104,220 @@
         "dateFormat": "HH:mm D-M-YYYY"
       }
     },
-    "aa": {
-      "storeCode": "aa",
-      "storeName": "Mashup Store",
+    "volkky": {
+      "store_brand_id": "5d750b32f9761526e6a642a4",
+      "storeCode": "volkky",
+      "storeName": "Volkyyz Store",
       "disabled": false,
-      "storeId": 68,
-      "name": "Mashup Store",
-      "url": "/aa",
+      "storeId": 71,
+      "name": "Volkyyz Store",
+      "url": "/volkky",
       "elasticsearch": {
         "host": "http://localhost:8080/api/catalog",
-        "index": "vue_storefront_catalog_aa"
+        "index": "vue_storefront_catalog_volkky"
+      },
+      "tax": {
+        "defaultCountry": "BG",
+        "defaultRegion": "",
+        "calculateServerSide": true,
+        "sourcePriceIncludesTax": false
+      },
+      "i18n": {
+        "fullCountryName": "Bulgaria",
+        "fullLanguageName": "Bulgarian",
+        "defaultCountry": "BG",
+        "defaultLanguage": "EN",
+        "defaultLocale": "en-US",
+        "currencyCode": "EUR",
+        "currencySign": "EUR",
+        "dateFormat": "HH:mm D-M-YYYY"
+      }
+    },
+    "ali": {
+      "store_brand_id": "5e207aec4af97200369e834c",
+      "storeCode": "ali",
+      "storeName": "Alina Volkanova Store",
+      "disabled": false,
+      "storeId": 86,
+      "name": "Alina Volkanova Store",
+      "url": "/ali",
+      "elasticsearch": {
+        "host": "http://localhost:8080/api/catalog",
+        "index": "vue_storefront_catalog_ali"
+      },
+      "tax": {
+        "defaultCountry": "BG",
+        "defaultRegion": "",
+        "calculateServerSide": true,
+        "sourcePriceIncludesTax": false
+      },
+      "i18n": {
+        "fullCountryName": "Bulgaria",
+        "fullLanguageName": "Bulgarian",
+        "defaultCountry": "BG",
+        "defaultLanguage": "EN",
+        "defaultLocale": "en-US",
+        "currencyCode": "EUR",
+        "currencySign": "EUR",
+        "dateFormat": "HH:mm D-M-YYYY"
+      }
+    },
+    "judysstore": {
+      "store_brand_id": "5d90a9d22299492798f443ef",
+      "storeCode": "judysstore",
+      "storeName": "Test Judy Store",
+      "disabled": false,
+      "storeId": 87,
+      "name": "Test Judy Store",
+      "url": "/judysstore",
+      "elasticsearch": {
+        "host": "http://localhost:8080/api/catalog",
+        "index": "vue_storefront_catalog_judysstore"
+      },
+      "tax": {
+        "defaultCountry": "BG",
+        "defaultRegion": "",
+        "calculateServerSide": true,
+        "sourcePriceIncludesTax": false
+      },
+      "i18n": {
+        "fullCountryName": "Bulgaria",
+        "fullLanguageName": "Bulgarian",
+        "defaultCountry": "BG",
+        "defaultLanguage": "EN",
+        "defaultLocale": "en-US",
+        "currencyCode": "EUR",
+        "currencySign": "EUR",
+        "dateFormat": "HH:mm D-M-YYYY"
+      }
+    },
+    "yolo_2": {
+      "store_brand_id": "5e1b25c746e32d003778f0ff",
+      "storeCode": "yolo_2",
+      "storeName": "Yolo Store",
+      "disabled": false,
+      "storeId": 82,
+      "name": "Yolo Store",
+      "url": "/yolo_2",
+      "elasticsearch": {
+        "host": "http://localhost:8080/api/catalog",
+        "index": "vue_storefront_catalog_yolo_2"
+      },
+      "tax": {
+        "defaultCountry": "BG",
+        "defaultRegion": "",
+        "calculateServerSide": true,
+        "sourcePriceIncludesTax": false
+      },
+      "i18n": {
+        "fullCountryName": "Bulgaria",
+        "fullLanguageName": "Bulgarian",
+        "defaultCountry": "BG",
+        "defaultLanguage": "EN",
+        "defaultLocale": "en-US",
+        "currencyCode": "EUR",
+        "currencySign": "EUR",
+        "dateFormat": "HH:mm D-M-YYYY"
+      }
+    },
+    "vent": {
+      "store_brand_id": "5e17d096328f5f4168a7096a",
+      "storeCode": "vent",
+      "storeName": "Ven T Store",
+      "disabled": false,
+      "storeId": 75,
+      "name": "Ven T Store",
+      "url": "/vent",
+      "elasticsearch": {
+        "host": "http://localhost:8080/api/catalog",
+        "index": "vue_storefront_catalog_vent"
+      },
+      "tax": {
+        "defaultCountry": "BG",
+        "defaultRegion": "",
+        "calculateServerSide": true,
+        "sourcePriceIncludesTax": false
+      },
+      "i18n": {
+        "fullCountryName": "Bulgaria",
+        "fullLanguageName": "Bulgarian",
+        "defaultCountry": "BG",
+        "defaultLanguage": "EN",
+        "defaultLocale": "en-US",
+        "currencyCode": "EUR",
+        "currencySign": "EUR",
+        "dateFormat": "HH:mm D-M-YYYY"
+      }
+    },
+    "alina": {
+      "store_brand_id": "5e207aec4af97200369e834c",
+      "storeCode": "alina",
+      "storeName": "Alina Volkanova Store",
+      "disabled": false,
+      "storeId": 88,
+      "name": "Alina Volkanova Store",
+      "url": "/alina",
+      "elasticsearch": {
+        "host": "http://localhost:8080/api/catalog",
+        "index": "vue_storefront_catalog_alina"
+      },
+      "tax": {
+        "defaultCountry": "BG",
+        "defaultRegion": "",
+        "calculateServerSide": true,
+        "sourcePriceIncludesTax": false
+      },
+      "i18n": {
+        "fullCountryName": "Bulgaria",
+        "fullLanguageName": "Bulgarian",
+        "defaultCountry": "BG",
+        "defaultLanguage": "EN",
+        "defaultLocale": "en-US",
+        "currencyCode": "EUR",
+        "currencySign": "EUR",
+        "dateFormat": "HH:mm D-M-YYYY"
+      }
+    },
+    "svet": {
+      "store_brand_id": "5e58282695fb9b405cf0879b",
+      "storeCode": "svet",
+      "storeName": "Svet Store",
+      "disabled": false,
+      "storeId": 89,
+      "name": "Svet Store",
+      "url": "/svet",
+      "elasticsearch": {
+        "host": "http://localhost:8080/api/catalog",
+        "index": "vue_storefront_catalog_svet"
+      },
+      "tax": {
+        "defaultCountry": "BG",
+        "defaultRegion": "",
+        "calculateServerSide": true,
+        "sourcePriceIncludesTax": false
+      },
+      "i18n": {
+        "fullCountryName": "Bulgaria",
+        "fullLanguageName": "Bulgarian",
+        "defaultCountry": "BG",
+        "defaultLanguage": "EN",
+        "defaultLocale": "en-US",
+        "currencyCode": "EUR",
+        "currencySign": "EUR",
+        "dateFormat": "HH:mm D-M-YYYY"
+      }
+    },
+    "dev": {
+      "store_brand_id": "5dfd22ae43f1670037a23fac",
+      "storeCode": "dev",
+      "storeName": "Dev Acc Store",
+      "disabled": false,
+      "storeId": 72,
+      "name": "Dev Acc Store",
+      "url": "/dev",
+      "elasticsearch": {
+        "host": "http://localhost:8080/api/catalog",
+        "index": "vue_storefront_catalog_dev"
       },
       "tax": {
         "defaultCountry": "BG",
@@ -144,6 +337,8 @@
       }
     }
   },
+  "authHashSecret": "autHashMEgaSecret34234ForConfMap",
+  "objHashSecret": "objHashMegaSecret54123123ForEnvVars",
   "cart": {
     "setConfigurableProductOptions": false
   },
@@ -172,7 +367,7 @@
   "corsHeaders": [
     "Link"
   ],
-  "platform": "m2-procc",
+  "platform": "magento2",
   "registeredExtensions": [
     "procc",
     "mailchimp-subscribe",
@@ -182,6 +377,38 @@
     "example-processor",
     "elastic-stock"
   ],
+  "extensions": {
+    "mailchimp": {
+      "listId": "e06875a7e1",
+      "apiKey": "a9a3318ea7d30f5c5596bd4a78ae0985-us3",
+      "apiUrl": "https://us3.api.mailchimp.com/3.0",
+      "userStatus": "subscribed"
+    },
+    "mailService": {
+      "transport": {
+        "host": "smtp.eu.mailgun.org",
+        "port": 465,
+        "secure": true,
+        "user": "support@procc.co",
+        "pass": "9ef7ffef1d6448235cce4940e3a1b55d-074fa10c-656b2a71"
+      },
+      "targetAddressWhitelist": [
+        "support@procc.co"
+      ],
+      "secretString": "customerEmailerSecretString4449547"
+    }
+  },
+  "magento2": {
+    "imgUrl": "https://storage.googleapis.com/procc/vendor/product/optimized",
+    "assetPath": "/../var/magento2-sample-data/pub/media",
+    "api": {
+      "url": "http://m2.procc.co/rest",
+      "consumerKey": "ihwmlsyi8bu6wlptwyr67s6bo6yi8cl4",
+      "consumerSecret": "8zom97k15z6nwkkflxyvhwrre407kwdw",
+      "accessToken": "ni7b8vz0ozdso8tl3nyv3u36jokja2ul",
+      "accessTokenSecret": "6o31x0kf7nscmd0mgu6aw10labpvl0tu"
+    }
+  },
   "imageable": {
     "maxListeners": 512,
     "imageSizeLimit": 1024,
