@@ -69,7 +69,7 @@ export function stringifySKUs (skus_array) {
 }
 
 export function storewiseImportStore (storeCode, sync_options) {
-  console.log(' == Running import command with specific store storeCode==', storeCode);
+  console.log(' == Running storewiseImportStore storeCode==', storeCode);
   let args = [
     'mage2vs',
     'import',
@@ -201,6 +201,7 @@ export async function storewiseAddProductToCategory (config, storeCode, sku, cat
 export function storewiseRemoveProducts (config, storeCode, sync_options) {
   return new Promise((resolve, reject) => {
     let skus = sync_options.products_to_remove;
+    console.log(' == Running storewiseRemoveProducts storeCode==', storeCode, skus);
     console.log('storewiseRemoveProducts -> skus to REMOVE', skus);
     if (skus && !!config.storeViews[storeCode] && !!config.storeViews[storeCode].elasticsearch.index) {
       esClient.deleteByQuery({ // requires ES 5.5
@@ -233,7 +234,7 @@ export function storewiseRemoveProducts (config, storeCode, sync_options) {
 
 export function storewiseAddNewProducts (storeCode, sync_options = null) {
   let skus = sync_options.products_to_add ? stringifySKUs(sync_options.products_to_add) : null;
-  console.log(' == Running storewiseAddNewProducts storeCode==', storeCode);
+  console.log(' == Running storewiseAddNewProducts storeCode==', storeCode, skus);
   let args = [
     'mage2vs',
     'productsdelta',
