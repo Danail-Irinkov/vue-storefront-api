@@ -106,14 +106,16 @@ module.exports = ({ config, db }) => {
       return apiStatus(res, e, 502)
     }
   });
-
   mcApi.post('/updateStorefrontSettings', async (req, res) => {
     try {
       let storeData = req.body;
       let store_data = {
         store_brand_id: storeData.brand._id,
+        store_brand_name: storeData.brand.name,
+        store_brand_tags: stringifyTags(storeData.brand.tags),
         storeCode: storeData.storefront_url,
-        storeName: _.startCase(storeData.magento_store_name),
+        // storeName: _.startCase(storeData.magento_store_name),
+        storeName: storeData.brand.name,
         disabled: false,
         storeId: parseInt(storeData.magento_store_id),
         name: _.startCase(storeData.magento_store_name),
@@ -461,3 +463,17 @@ module.exports = ({ config, db }) => {
 
   return mcApi;
 };
+
+function stringifyTags (tags_obj) {
+  if (!_.isObject(tags_obj)) return tags_obj;
+
+  let tags_string = ''
+  for (let key in tags_obj) {
+    const tcat = tags_obj[key]
+    for (let tag of tcat) {
+      if (tags_string) tags_string += ' '
+      tags_string += tag
+    }
+  }
+  return tags_string
+}
