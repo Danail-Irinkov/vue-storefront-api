@@ -111,29 +111,56 @@ export async function storewiseRemoveProductFromCategory (config, storeCode, sku
       })
       console.log('storeCode: ', storeCode, 'sku to REMOVE ', sku, 'from category Id: ', category_id);
 
-      if (result2.hits.hits[0] && result2.hits.hits[0]._source && result2.hits.hits[0]._source.category_ids && result2.hits.hits[0]._source.category_ids.indexOf(category_id) !== -1) {
-        console.log('esClient.search result2', result2.hits.hits[0]._source.category_ids)
-        await esClient.updateByQuery({ // requires ES 5.5
-          index: config.storeViews[storeCode].elasticsearch.index,
-          conflicts: 'proceed',
-          type: 'product',
-          body: {
-            script: {
-              source: 'ctx._source.category_ids.remove(ctx._source.category_ids.indexOf(' + category_id + '))',
-              lang: 'painless'
-            },
-            query: {
-              bool: {
-                must: {
-                  term: { sku: sku }
+      console.log('storewiseRemoveProductFromCategory result2: ', result2.hits.hits[0]._source.category_ids);
+      if (result2.hits.hits[0] && result2.hits.hits[0]._source && result2.hits.hits[0]._source.category_ids) {
+        if (result2.hits.hits[0]._source.category_ids.indexOf(category_id) !== -1) {
+          console.log('storewiseRemoveProductFromCategory Start updateByQuery', sku, category_id)
+          console.log('storewiseRemoveProductFromCategory NUMBER category id: ', result2.hits.hits[0]._source.category_ids);
+          await esClient.updateByQuery({ // requires ES 5.5
+            index: config.storeViews[storeCode].elasticsearch.index,
+            conflicts: 'proceed',
+            type: 'product',
+            body: {
+              script: {
+                source: 'ctx._source.category_ids.remove(ctx._source.category_ids.indexOf(' + category_id + '))',
+                lang: 'painless'
+              },
+              query: {
+                bool: {
+                  must: {
+                    term: {sku: sku}
+                  }
                 }
               }
             }
-          }
-        })
+          })
+        }
 
+        // CHECK FOR STRING VERSION OF THE CATEGORY ID ALSO (MAGE2VS script is adding it as a String...)
+        if (result2.hits.hits[0]._source.category_ids.indexOf(String(category_id)) !== -1) {
+          console.log('storewiseRemoveProductFromCategory Start STRING VERSION', sku, category_id)
+          console.log('storewiseRemoveProductFromCategory STRING VERSION: ', result2.hits.hits[0]._source.category_ids);
+          await esClient.updateByQuery({ // requires ES 5.5
+            index: config.storeViews[storeCode].elasticsearch.index,
+            conflicts: 'proceed',
+            type: 'product',
+            body: {
+              script: {
+                source: 'ctx._source.category_ids.remove(ctx._source.category_ids.indexOf("' + category_id + '"))',
+                lang: 'painless'
+              },
+              query: {
+                bool: {
+                  must: {
+                    term: {sku: sku}
+                  }
+                }
+              }
+            }
+          })
+        }
         console.log('Removed product from category: ', sku);
-        await sleep(2000)
+        await sleep(1500)
       } else {
         return Promise.resolve('Product was not in category')
       }
@@ -164,32 +191,38 @@ export async function storewiseAddProductToCategory (config, storeCode, sku, cat
         maxRetries: 3
       })
       console.log('storeCode: ', storeCode, 'sku to ADD ', sku, 'to category Id: ', category_id);
+      console.log('esClient.search result.hits', result.hits)
+      console.log('storewiseAddProductToCategory result2: ', result.hits.hits[0]._source.category_ids);
 
-      if (result.hits.hits[0] && result.hits.hits[0]._source && result.hits.hits[0]._source.category_ids && result.hits.hits[0]._source.category_ids.indexOf(category_id) === -1) {
-        console.log('esClient.search result', result.hits.hits[0]._source.category_ids)
-        console.log('esClient.search result indexOf', result.hits.hits[0]._source.category_ids.indexOf(category_id))
-        await esClient.updateByQuery({ // requires ES 5.5
-          index: config.storeViews[storeCode].elasticsearch.index,
-          conflicts: 'proceed',
-          type: 'product',
-          body: {
-            script: {
-              source: 'ctx._source.category_ids.add(' + category_id + ')',
-              lang: 'painless'
-            },
-            query: {
-              bool: {
-                must: {
-                  term: { sku: sku }
+      if (result.hits && result.hits.hits && result.hits.hits[0]) {
+        if (result.hits.hits[0]._source && result.hits.hits[0]._source.category_ids &&
+          result.hits.hits[0]._source.category_ids.indexOf(category_id) === -1 && result.hits.hits[0]._source.category_ids.indexOf(String(category_id)) === -1) {
+          console.log('Adding Product to Category updateByQuery: ', sku, category_id)
+          await esClient.updateByQuery({ // requires ES 5.5
+            index: config.storeViews[storeCode].elasticsearch.index,
+            conflicts: 'proceed',
+            type: 'product',
+            body: {
+              script: {
+                source: 'ctx._source.category_ids.add(' + category_id + ')',
+                lang: 'painless'
+              },
+              query: {
+                bool: {
+                  must: {
+                    term: { sku: sku }
+                  }
                 }
               }
             }
-          }
-        })
+          })
 
-        await sleep(2000)
+          await sleep(1500)
+        } else {
+          return Promise.resolve('Product was already in category')
+        }
       } else {
-        return Promise.resolve('Product was already in category')
+        return Promise.resolve('Product not added to store')
       }
     }
   } catch (e) {
