@@ -76,6 +76,7 @@ module.exports = ({ config, db }) => {
     let health;
     try {
       health = await healthCheckCore(config);
+      console.log('healthCheckCore ', health)
       return apiStatus(res, 'ProCC VSF-API Online', 200);
     } catch (e) {
       return apiStatus(res, {error: e, health: health}, 502);
