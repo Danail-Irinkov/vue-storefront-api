@@ -109,7 +109,7 @@
   "corsHeaders": [
     "Link"
   ],
-  "platform": "m2-procc",
+  "platform": "magento2",
   "registeredExtensions": [
     "procc",
     "mailchimp-subscribe",

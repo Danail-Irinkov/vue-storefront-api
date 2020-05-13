@@ -197,11 +197,11 @@ module.exports = ({ config, db }) => {
    * POST TEST api
    */
   mcApi.get('/test', async (req, res) => {
-    let storeCode = 'dev';
-    console.time(' setCategoryBanners');
-    console.log(' setCategoryBanners');
-    await setCategoryBanners(config, storeCode);
-    console.timeEnd(' setCategoryBanners')
+    // let storeCode = 'dev';
+    // console.time(' setCategoryBanners');
+    // console.log(' setCategoryBanners');
+    // await setCategoryBanners(config, storeCode);
+    // console.timeEnd(' setCategoryBanners')
 
     // console.time('setProductBanners')
     // console.log('setProductBanners')
