@@ -7,7 +7,7 @@ class OrderProxy extends AbstractOrderProxy {
     const Magento2Client = require('magento2-rest-client').Magento2Client;
     super(config, req)
     this.config = config
-    this.api = Magento2Client(multiStoreConfig(config.magento2.api, req));
+    this.api = Magento2Client(multiStoreConfig(config.magento2procc.api, req));
   }
 
   create (orderData) {

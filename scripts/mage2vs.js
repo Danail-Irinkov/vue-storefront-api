@@ -22,7 +22,7 @@ function multiStoreConfig (apiConfig, storeCode) {
 }
 
 function getMagentoDefaultConfig (storeCode) {
-  const apiConfig = multiStoreConfig(config.magento2.api, storeCode);
+  const apiConfig = multiStoreConfig(config.magento2procc.api, storeCode);
   return {
     TIME_TO_EXIT: 2000,
     PRODUCTS_SPECIAL_PRICES: true,

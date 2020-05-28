@@ -12,7 +12,7 @@ module.exports = ({ config, db }) => {
    * NOTICE: vue-storefront-api should be platform agnostic. This is just for the customization example
    */
   mcApi.get('/cmsBlock', (req, res) => {
-    const client = Magento2Client(config.magento2.api);
+    const client = Magento2Client(config.magento2procc.api);
     client.addMethods('cmsBlock', (restClient) => {
       var module = {};
 

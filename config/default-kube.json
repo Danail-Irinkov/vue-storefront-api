@@ -90,7 +90,7 @@
     "corsHeaders": [
         "Link"
     ],
-    "platform": "m2-procc",
+    "platform": "magento2procc",
     "registeredExtensions": [
         "procc",
         "mailchimp-subscribe",
@@ -121,7 +121,7 @@
             "secretString": "__SECRET_CHANGE_ME__"
         }
     },
-    "m2-procc": {
+    "magento2procc": {
         "imgUrl": "https://storage.googleapis.com/procc/vendor/product/optimized",
         "assetPath": "/../var/magento2-sample-data/pub/media",
         "api": {

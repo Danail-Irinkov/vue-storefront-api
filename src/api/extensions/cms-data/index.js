@@ -6,7 +6,7 @@ module.exports = ({ config, db }) => {
   let cmsApi = Router();
 
   cmsApi.get('/cmsPage/:id', (req, res) => {
-    const client = Magento2Client(config.magento2.api);
+    const client = Magento2Client(config.magento2procc.api);
     client.addMethods('cmsPage', (restClient) => {
       let module = {};
       module.getPage = function () {
@@ -22,7 +22,7 @@ module.exports = ({ config, db }) => {
   })
 
   cmsApi.get('/cmsBlock/:id', (req, res) => {
-    const client = Magento2Client(config.magento2.api);
+    const client = Magento2Client(config.magento2procc.api);
     client.addMethods('cmsBlock', (restClient) => {
       let module = {};
       module.getBlock = function () {
@@ -38,7 +38,7 @@ module.exports = ({ config, db }) => {
   })
 
   cmsApi.get('/cmsPageIdentifier/:identifier/storeId/:storeId', (req, res) => {
-    const client = Magento2Client(config.magento2.api);
+    const client = Magento2Client(config.magento2procc.api);
     client.addMethods('cmsPageIdentifier', (restClient) => {
       let module = {};
       module.getPageIdentifier = function () {
@@ -54,7 +54,7 @@ module.exports = ({ config, db }) => {
   })
 
   cmsApi.get('/cmsBlockIdentifier/:identifier/storeId/:storeId', (req, res) => {
-    const client = Magento2Client(config.magento2.api);
+    const client = Magento2Client(config.magento2procc.api);
     client.addMethods('cmsBlockIdentifier', (restClient) => {
       let module = {};
       module.getBlockIdentifier = function () {

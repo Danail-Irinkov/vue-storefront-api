@@ -5,7 +5,7 @@ class CartProxy extends AbstractCartProxy {
   constructor (config, req) {
     const Magento2Client = require('magento2-rest-client').Magento2Client;
     super(config, req)
-    this.api = Magento2Client(multiStoreConfig(config.magento2.api, req));
+    this.api = Magento2Client(multiStoreConfig(config.magento2procc.api, req));
   }
 
   create (customerToken) {

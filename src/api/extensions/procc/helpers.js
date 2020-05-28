@@ -311,7 +311,7 @@ export function setProductBanners (config, storeCode) {
           request({
             uri: config.vsf.host + ':' + config.vsf.port + '/product-link',
             method: 'POST',
-            body: { 'products': products, 'storeCode': storeCode, 'imagesRootURL': config.magento2.imgUrl },
+            body: { 'products': products, 'storeCode': storeCode, 'imagesRootURL': config.magento2procc.imgUrl },
             json: true
           }, (_err, _res, _resBody) => {
             resolve();
@@ -397,7 +397,7 @@ export function healthCheckVSF (config) {
 export function healthCheckMagento2 (config) {
   return new Promise((resolve, reject) => {
     const Magento2Client = require('magento2-rest-client').Magento2Client;
-    const client = Magento2Client(config.magento2.api);
+    const client = Magento2Client(config.magento2procc.api);
 
     client.categories.list()
       .then((categories) => {
@@ -405,7 +405,7 @@ export function healthCheckMagento2 (config) {
         resolve('M2 is running')
       })
       .catch((e) => {
-        console.log('ERROR MAGENTO2 CONNECTION config.magento2: ', config.magento2 && config.magento2.api ? config.magento2.api : config.magento2);
+        console.log('ERROR MAGENTO2 CONNECTION config.magento2: ', config.magento2 && config.magento2procc.api ? config.magento2procc.api : config.magento2);
         reject({message: 'ERROR MAGENTO2 CONNECTION', error: e})
       })
   })

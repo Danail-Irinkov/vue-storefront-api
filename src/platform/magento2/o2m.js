@@ -44,7 +44,7 @@ function processSingleOrder (orderData, config, job, done, logger = console) {
   let isThisAuthOrder = parseInt(orderData.user_id) > 0
   const userId = orderData.user_id
 
-  let apiConfig = config.magento2.api
+  let apiConfig = config.magento2procc.api
   if (orderData.store_code) {
     if (config.availableStores.indexOf(orderData.store_code) >= 0) {
       apiConfig = Object.assign({}, apiConfig, { url: apiConfig.url + '/' + orderData.store_code })

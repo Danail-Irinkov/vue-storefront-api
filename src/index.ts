@@ -34,7 +34,7 @@ import node_config from 'config' // ESLINT is DISABLED for import/first
 // Added by dan-03-12-2019 to allow dynamic reset of config after update
 let config = node_config
 // @ts-ignore
-console.log(config.magento2.api, 'Config Loaded')
+console.log(config.magento2procc.api, 'Config Loaded')
 
 export async function updateConfig (res = null, req = null, next = () => {}) {
   // if (req.path && req.path.indexOf('procc') !== -1) { // TODO: Temporary limiting the trigger of this func -> need to make it on demand
