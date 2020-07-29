@@ -111,8 +111,8 @@ export async function storewiseRemoveProductFromCategory (config, storeCode, sku
       })
       console.log('storeCode: ', storeCode, 'sku to REMOVE ', sku, 'from category Id: ', category_id);
 
-      console.log('storewiseRemoveProductFromCategory result2: ', result2.hits.hits[0]._source.category_ids);
       if (result2.hits.hits[0] && result2.hits.hits[0]._source && result2.hits.hits[0]._source.category_ids) {
+        console.log('storewiseRemoveProductFromCategory result2: ', result2.hits.hits[0]._source.category_ids);
         if (result2.hits.hits[0]._source.category_ids.indexOf(category_id) !== -1) {
           console.log('storewiseRemoveProductFromCategory Start updateByQuery', sku, category_id)
           console.log('storewiseRemoveProductFromCategory NUMBER category id: ', result2.hits.hits[0]._source.category_ids);
