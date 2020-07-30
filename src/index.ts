@@ -24,6 +24,7 @@ import config_data from './default-kube'
 /* eslint-disable */
 // process.env.accessToken = 'psdfgdsgfdsfgdsgfdgsf4bwj9333'
 // process.env.accessTokenSecret = 'wga82e6smysvsdasdasdsxxtx333'
+// if (true) {
 if (process.env.NODE_APP_INSTANCE === 'kube') {
   let config_string = injectEnvToJson.buildKubeConfig('config/default-kube.json', config_data.kube_config)
   console.log('Config Updated')
@@ -31,14 +32,7 @@ if (process.env.NODE_APP_INSTANCE === 'kube') {
   // updateConfig().then(() => console.log('Config Updated22'))
 }
 // Edited by Dan to allow config reload
-// console.time('Lodash Delay Script')
-// import _ from 'lodash' // USED TO SLOW DOWN THE SCRIPT TO MAKE SURE CONFIG GETS WRITTEN TO DISK
-// let fake_loops = 10000
-// let array = []
-// for (let i = 0; i >= fake_loops; i++) {
-//   _.concat(array, [i])
-// }
-// console.timeEnd('Lodash Delay Script')
+
 
 console.log('Config Loading')
 import node_config from 'config' // ESLINT is DISABLED for import/first
@@ -65,6 +59,20 @@ export async function updateConfig (res = null, req = null, next = () => {}) {
   // }
   // next()
 }
+updateConfig().then((cfg)=>{
+// @ts-ignore
+  console.log(cfg.magento2procc.api, 'updateConfig Loaded res')
+// @ts-ignore
+  console.log(config.magento2procc.api, 'updateConfig Loaded actual')
+})
+console.time('Lodash Delay Script')
+import _ from 'lodash' // USED TO SLOW DOWN THE SCRIPT TO MAKE SURE CONFIG GETS WRITTEN TO DISK
+let fake_loops = 10000
+let array = []
+for (let i = 0; i >= fake_loops; i++) {
+  _.concat(array, [i])
+}
+console.timeEnd('Lodash Delay Script')
 
 // Added by dan-29-11-2019
 const timeout = require('connect-timeout');

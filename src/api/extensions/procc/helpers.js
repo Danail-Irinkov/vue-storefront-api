@@ -405,7 +405,7 @@ export function healthCheckMagento2 (config) {
         resolve('M2 is running')
       })
       .catch((e) => {
-        console.log('ERROR MAGENTO2 CONNECTION config.magento2: ', config.magento2 && config.magento2procc.api ? config.magento2procc.api : config.magento2);
+        console.log('ERROR MAGENTO2 CONNECTION config.magento2: ', config.magento2procc && config.magento2procc.api ? config.magento2procc.api : config.magento2);
         reject({message: 'ERROR MAGENTO2 CONNECTION', error: e})
       })
   })
