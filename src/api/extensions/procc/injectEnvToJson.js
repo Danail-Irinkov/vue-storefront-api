@@ -53,7 +53,8 @@ export default {
     }
 
     // console.log('Data "jsonContent:', config_data)
+    console.log('buildKubeConfig path.resolve(filename)', path.resolve(filename))
     fs.writeFileSync(path.resolve(filename), JSON.stringify(replace_data(config_data), {}, 4))
-    return fs.readFileSync(path.resolve(filename))
+    return fs.readFileSync(path.resolve(filename), 'utf8')
   }
 }

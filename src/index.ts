@@ -24,7 +24,7 @@ import config_data from './default-kube'
 if (process.env.NODE_APP_INSTANCE === 'kube') {
   let binary_config = injectEnvToJson.buildKubeConfig('config/default-kube.json', config_data.kube_config)
   console.log('Config Updated')
-  // console.log(binary_config, 'Config Updated')
+  console.log(JSON.parse(binary_config), 'Config Updated')
   // updateConfig().then(() => console.log('Config Updated22'))
 }
 // Edited by Dan to allow config reload
