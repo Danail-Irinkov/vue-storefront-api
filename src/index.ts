@@ -39,11 +39,12 @@ for (let i = 0; i >= fake_loops; i++) {
 console.timeEnd('Lodash Delay Script')
 
 console.log('Config Loading')
-import node_config from 'config' // ESLINT is DISABLED for import/first
+// import node_config from 'config' // ESLINT is DISABLED for import/first
+import * as cfg from "config";
 /* eslint-enable */
 
 // Added by dan-03-12-2019 to allow dynamic reset of config after update
-let config = node_config
+let config = {...cfg}
 // @ts-ignore
 console.log(config.magento2procc.api, 'Config Loaded')
 let config_string = fs.readFileSync(path.resolve('config/default-kube.json'), 'utf8')
