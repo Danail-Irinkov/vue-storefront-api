@@ -84,7 +84,7 @@ export default {
     'corsHeaders': [
       'Link'
     ],
-    'platform': 'magento2',
+    'platform': 'magento2procc',
     'registeredExtensions': [
       'procc',
       'mailchimp-subscribe',
