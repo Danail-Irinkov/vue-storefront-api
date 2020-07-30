@@ -115,6 +115,17 @@ export default {
         'secretString': '__SECRET_CHANGE_ME__'
       }
     },
+    'magento2': {
+      'imgUrl': 'https://storage.googleapis.com/procc/vendor/product/optimized',
+      'assetPath': '/../var/magento2-sample-data/pub/media',
+      'api': {
+        'url': 'https://m2.procc.co/rest',
+        'consumerKey': 'ihwmlsyi8bu6wlptewr67s6bo6yi8cl4',
+        'consumerSecret': '8zom97k15z6nwertjxyvhwrre407kwdw',
+        'accessToken': '4jooy23xlzfknrvgtpbldrtwjq6gybo6',
+        'accessTokenSecret': '9tcgxt7ojxfgukups5nf7lgyfdrlagkb5'
+      }
+    },
     'magento2procc': {
       'imgUrl': 'https://storage.googleapis.com/procc/vendor/product/optimized',
       'assetPath': '/../var/magento2-sample-data/pub/media',
