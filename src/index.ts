@@ -35,6 +35,7 @@ if (process.env.NODE_APP_INSTANCE === 'kube') {
 
 
 console.log('Config Loading')
+delete require.cache['config'];
 import node_config from 'config' // ESLINT is DISABLED for import/first
 // import * as node_config from "config";
 /* eslint-enable */
