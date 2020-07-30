@@ -35,7 +35,6 @@ if (process.env.NODE_APP_INSTANCE === 'kube') {
 
 
 console.log('Config Loading')
-delete require.cache['config'];
 import node_config from 'config' // ESLINT is DISABLED for import/first
 // import * as node_config from "config";
 /* eslint-enable */
@@ -60,20 +59,20 @@ export async function updateConfig (res = null, req = null, next = () => {}) {
   // }
   // next()
 }
-updateConfig().then((cfg)=>{
-// @ts-ignore
-  console.log(cfg.magento2procc.api, 'updateConfig Loaded res')
-// @ts-ignore
-  console.log(config.magento2procc.api, 'updateConfig Loaded actual')
-})
-console.time('Lodash Delay Script')
-import _ from 'lodash' // USED TO SLOW DOWN THE SCRIPT TO MAKE SURE CONFIG GETS WRITTEN TO DISK
-let fake_loops = 10000
-let array = []
-for (let i = 0; i >= fake_loops; i++) {
-  _.concat(array, [i])
-}
-console.timeEnd('Lodash Delay Script')
+// updateConfig().then((cfg)=>{
+// // @ts-ignore
+//   console.log(cfg.magento2procc.api, 'updateConfig Loaded res')
+// // @ts-ignore
+//   console.log(config.magento2procc.api, 'updateConfig Loaded actual')
+// })
+// console.time('Lodash Delay Script')
+// import _ from 'lodash' // USED TO SLOW DOWN THE SCRIPT TO MAKE SURE CONFIG GETS WRITTEN TO DISK
+// let fake_loops = 10000
+// let array = []
+// for (let i = 0; i >= fake_loops; i++) {
+//   _.concat(array, [i])
+// }
+// console.timeEnd('Lodash Delay Script')
 
 // Added by dan-29-11-2019
 const timeout = require('connect-timeout');
