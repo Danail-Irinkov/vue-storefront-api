@@ -46,7 +46,7 @@ export default {
     }
     let data = fs.readFileSync(path.resolve(filename))
     let jsonContent = JSON.parse(data);
-    console.log('Data "jsonContent:', jsonContent)
+    // console.log('Data "jsonContent:', jsonContent)
     if (!jsonContent) {
       console.log('missing input config file raw data');
       process.exit(1);

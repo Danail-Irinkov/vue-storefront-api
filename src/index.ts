@@ -9,6 +9,7 @@ import api from './api'
 import img from './api/img'
 import invalidateCache from './api/invalidate'
 import * as path from 'path'
+const fs = require('fs');
 
 // Disabled by dan because yarn build crashing due to graphQL
 // import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
@@ -28,14 +29,14 @@ if (process.env.NODE_APP_INSTANCE === 'kube') {
   // updateConfig().then(() => console.log('Config Updated22'))
 }
 // Edited by Dan to allow config reload
-// console.time('Lodash Delay Script')
-// import _ from 'lodash' // USED TO SLOW DOWN THE SCRIPT TO MAKE SURE CONFIG GETS WRITTEN TO DISK
-// let fake_loops = 10000
-// let array = []
-// for (let i = 0; i >= fake_loops; i++) {
-//   _.concat(array, [i])
-// }
-// console.timeEnd('Lodash Delay Script')
+console.time('Lodash Delay Script')
+import _ from 'lodash' // USED TO SLOW DOWN THE SCRIPT TO MAKE SURE CONFIG GETS WRITTEN TO DISK
+let fake_loops = 10000
+let array = []
+for (let i = 0; i >= fake_loops; i++) {
+  _.concat(array, [i])
+}
+console.timeEnd('Lodash Delay Script')
 
 console.log('Config Loading')
 import node_config from 'config' // ESLINT is DISABLED for import/first
@@ -45,6 +46,8 @@ import node_config from 'config' // ESLINT is DISABLED for import/first
 let config = node_config
 // @ts-ignore
 console.log(config.magento2procc.api, 'Config Loaded')
+let config_string = fs.readFileSync(path.resolve('config/default-kube.json'), 'utf8')
+console.log(JSON.parse(config_string).magento2procc.api, 'Config Updated After Load')
 
 export async function updateConfig (res = null, req = null, next = () => {}) {
   // if (req.path && req.path.indexOf('procc') !== -1) { // TODO: Temporary limiting the trigger of this func -> need to make it on demand
