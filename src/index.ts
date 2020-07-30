@@ -44,7 +44,7 @@ import * as cfg from "config";
 /* eslint-enable */
 
 // Added by dan-03-12-2019 to allow dynamic reset of config after update
-let config = {...cfg}
+let config = cfg
 // @ts-ignore
 console.log(config.magento2procc.api, 'Config Loaded')
 let config_string = fs.readFileSync(path.resolve('config/default-kube.json'), 'utf8')
