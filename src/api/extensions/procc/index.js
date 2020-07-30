@@ -155,7 +155,7 @@ module.exports = ({ config, db }) => {
           VSFApiConfigEditor.set('availableStores', (_.concat(VSFApiConfigEditor.get('availableStores'), store_data.storeCode)));
         }
 
-        console.log('VSFApiConfigEditor.get("elasticsearch.indices")0', VSFApiConfigEditor.get('elasticsearch.indices'));
+        // console.log('VSFApiConfigEditor.get("elasticsearch.indices")0', VSFApiConfigEditor.get('elasticsearch.indices'));
         if (!_.includes(VSFApiConfigEditor.get('elasticsearch.indices'), store_data.elasticsearch.index)) {
         // set indices of the store
           VSFApiConfigEditor.set('elasticsearch.indices', _.concat(VSFApiConfigEditor.get('elasticsearch.indices'), store_data.elasticsearch.index));

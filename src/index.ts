@@ -22,9 +22,9 @@ import injectEnvToJson from './api/extensions/procc/injectEnvToJson.js'
 import config_data from './default-kube'
 
 /* eslint-disable */
-process.env.accessToken = 'p6dr84ndd3u5r1d4fd1vissmbt4bwj93'
-process.env.accessTokenSecret = 'wga82e6smysv9vxn9olxm1dn406gxxtx'
-if (process.env.NODE_APP_INSTANCE === 'kube' || true) {
+// process.env.accessToken = 'psdfgdsgfdsfgdsgfdgsf4bwj9333'
+// process.env.accessTokenSecret = 'wga82e6smysvsdasdasdsxxtx333'
+if (process.env.NODE_APP_INSTANCE === 'kube') {
   let config_string = injectEnvToJson.buildKubeConfig('config/default-kube.json', config_data.kube_config)
   console.log('Config Updated')
   console.log(JSON.parse(config_string).magento2procc.api, 'Config Updated')
