@@ -24,18 +24,18 @@ import config_data from './default-kube'
 if (process.env.NODE_APP_INSTANCE === 'kube') {
   let binary_config = injectEnvToJson.buildKubeConfig('config/default-kube.json', config_data.kube_config)
   console.log('Config Updated')
-  console.log(JSON.parse(binary_config), 'Config Updated')
+  console.log(JSON.parse(binary_config).magento2procc.api, 'Config Updated')
   // updateConfig().then(() => console.log('Config Updated22'))
 }
 // Edited by Dan to allow config reload
-console.time('Lodash Delay Script')
-import _ from 'lodash' // USED TO SLOW DOWN THE SCRIPT TO MAKE SURE CONFIG GETS WRITTEN TO DISK
-let fake_loops = 10000
-let array = []
-for (let i = 0; i >= fake_loops; i++) {
-  _.concat(array, [i])
-}
-console.timeEnd('Lodash Delay Script')
+// console.time('Lodash Delay Script')
+// import _ from 'lodash' // USED TO SLOW DOWN THE SCRIPT TO MAKE SURE CONFIG GETS WRITTEN TO DISK
+// let fake_loops = 10000
+// let array = []
+// for (let i = 0; i >= fake_loops; i++) {
+//   _.concat(array, [i])
+// }
+// console.timeEnd('Lodash Delay Script')
 
 console.log('Config Loading')
 import node_config from 'config' // ESLINT is DISABLED for import/first

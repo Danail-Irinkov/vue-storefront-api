@@ -115,7 +115,7 @@ export default {
         'secretString': '__SECRET_CHANGE_ME__'
       }
     },
-    'magento2': {
+    'magento2procc': {
       'imgUrl': 'https://storage.googleapis.com/procc/vendor/product/optimized',
       'assetPath': '/../var/magento2-sample-data/pub/media',
       'api': {
