@@ -32,7 +32,7 @@ export default (config) => {
     private_key = Buff.toString('ascii')
     /* eslint-disable */
   }
-  console.log('private_key after KUBE: ', private_key)
+  // console.log('private_key after KUBE: ', private_key)
   if (!private_key || private_key === 'NO TOKEN') throw new Error('No JWT API TOKEN SUPPLIED')
 
   const createToken = (brandId) => jwt.sign({ brand_id: brandId },

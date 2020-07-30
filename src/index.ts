@@ -9,7 +9,7 @@ import api from './api'
 import img from './api/img'
 import invalidateCache from './api/invalidate'
 import * as path from 'path'
-const fs = require('fs');
+// const fs = require('fs');
 
 // Disabled by dan because yarn build crashing due to graphQL
 // import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
@@ -22,33 +22,35 @@ import injectEnvToJson from './api/extensions/procc/injectEnvToJson.js'
 import config_data from './default-kube'
 
 /* eslint-disable */
-if (process.env.NODE_APP_INSTANCE === 'kube') {
+process.env.accessToken = 'p6dr84ndd3u5r1d4fd1vissmbt4bwj93'
+process.env.accessTokenSecret = 'wga82e6smysv9vxn9olxm1dn406gxxtx'
+if (process.env.NODE_APP_INSTANCE === 'kube' || true) {
   let config_string = injectEnvToJson.buildKubeConfig('config/default-kube.json', config_data.kube_config)
   console.log('Config Updated')
   console.log(JSON.parse(config_string).magento2procc.api, 'Config Updated')
   // updateConfig().then(() => console.log('Config Updated22'))
 }
 // Edited by Dan to allow config reload
-console.time('Lodash Delay Script')
-import _ from 'lodash' // USED TO SLOW DOWN THE SCRIPT TO MAKE SURE CONFIG GETS WRITTEN TO DISK
-let fake_loops = 10000
-let array = []
-for (let i = 0; i >= fake_loops; i++) {
-  _.concat(array, [i])
-}
-console.timeEnd('Lodash Delay Script')
+// console.time('Lodash Delay Script')
+// import _ from 'lodash' // USED TO SLOW DOWN THE SCRIPT TO MAKE SURE CONFIG GETS WRITTEN TO DISK
+// let fake_loops = 10000
+// let array = []
+// for (let i = 0; i >= fake_loops; i++) {
+//   _.concat(array, [i])
+// }
+// console.timeEnd('Lodash Delay Script')
 
 console.log('Config Loading')
-// import node_config from 'config' // ESLINT is DISABLED for import/first
-import * as cfg from "config";
+import node_config from 'config' // ESLINT is DISABLED for import/first
+// import * as node_config from "config";
 /* eslint-enable */
 
 // Added by dan-03-12-2019 to allow dynamic reset of config after update
-let config = cfg
+let config = node_config
 // @ts-ignore
 console.log(config.magento2procc.api, 'Config Loaded')
-let config_string = fs.readFileSync(path.resolve('config/default-kube.json'), 'utf8')
-console.log(JSON.parse(config_string).magento2procc.api, 'Config Updated After Load')
+// let config_string = fs.readFileSync(path.resolve('config/default-kube.json'), 'utf8')
+// console.log(JSON.parse(config_string).magento2procc.api, 'Config Updated After Load')
 
 export async function updateConfig (res = null, req = null, next = () => {}) {
   // if (req.path && req.path.indexOf('procc') !== -1) { // TODO: Temporary limiting the trigger of this func -> need to make it on demand

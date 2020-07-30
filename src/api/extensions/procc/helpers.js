@@ -240,7 +240,7 @@ export async function configureDevStore (config, VSFApiConfigEditor) {
     }
     // await updateConfig() // Updating config for entire API
 
-    console.log('configureDevStore storeData', storeData);
+    // console.log('configureDevStore storeData', storeData);
     console.log('configureDevStore storeData sending to VSF', '' + config.vsf.host + ':' + config.vsf.port + '/updateStorefrontSettings');
     return request({
       // create store in vs
