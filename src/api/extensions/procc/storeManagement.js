@@ -91,7 +91,7 @@ export function storewiseImportStore (storeCode, sync_options) {
 
 export async function storewiseRemoveProductFromCategory (config, storeCode, sku, category_id) {
   try {
-    if (sku && category_id && !!config.storeViews[storeCode].elasticsearch.index) {
+    if (sku && category_id && config.storeViews[storeCode] && config.storeViews[storeCode].elasticsearch && !!config.storeViews[storeCode].elasticsearch.index) {
       console.log('Added product to category: ', sku);
       const result2 = await esClient.search({
         index: config.storeViews[storeCode].elasticsearch.index,
@@ -173,7 +173,7 @@ export async function storewiseRemoveProductFromCategory (config, storeCode, sku
 
 export async function storewiseAddProductToCategory (config, storeCode, sku, category_id) {
   try {
-    if (sku && category_id && !!config.storeViews[storeCode].elasticsearch.index) {
+    if (sku && category_id && config.storeViews[storeCode] && config.storeViews[storeCode].elasticsearch && !!config.storeViews[storeCode].elasticsearch.index) {
       const result = await esClient.search({
         index: config.storeViews[storeCode].elasticsearch.index,
         size: 10,
@@ -192,11 +192,11 @@ export async function storewiseAddProductToCategory (config, storeCode, sku, cat
       })
       console.log('storeCode: ', storeCode, 'sku to ADD ', sku, 'to category Id: ', category_id);
       console.log('esClient.search result.hits', result.hits)
-      console.log('storewiseAddProductToCategory result2: ', result.hits.hits[0]._source.category_ids);
 
       if (result.hits && result.hits.hits && result.hits.hits[0]) {
         if (result.hits.hits[0]._source && result.hits.hits[0]._source.category_ids &&
           result.hits.hits[0]._source.category_ids.indexOf(category_id) === -1 && result.hits.hits[0]._source.category_ids.indexOf(String(category_id)) === -1) {
+          console.log('storewiseAddProductToCategory result2: ', result.hits.hits[0]._source.category_ids);
           console.log('Adding Product to Category updateByQuery: ', sku, category_id)
           await esClient.updateByQuery({ // requires ES 5.5
             index: config.storeViews[storeCode].elasticsearch.index,

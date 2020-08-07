@@ -9,8 +9,8 @@ function multiStoreConfig (apiConfig, storeCode) {
   console.log('multiStoreConfig config');
 
   if (storeCode && config.availableStores.indexOf(storeCode) >= 0) {
-    if (config.magento2['api_' + storeCode]) {
-      confCopy = Object.assign({}, config.magento2['api_' + storeCode]) // we're to use the specific api configuration - maybe even separate magento instance
+    if (config[config.platform]['api_' + storeCode]) {
+      confCopy = Object.assign({}, config[config.platform]['api_' + storeCode]) // we're to use the specific api configuration - maybe even separate magento instance
     }
     confCopy.url = confCopy.url + '/' + storeCode
   } else {
@@ -22,7 +22,7 @@ function multiStoreConfig (apiConfig, storeCode) {
 }
 
 function getMagentoDefaultConfig (storeCode) {
-  const apiConfig = multiStoreConfig(config.magento2procc.api, storeCode);
+  const apiConfig = multiStoreConfig(config[config.platform].api, storeCode);
   return {
     TIME_TO_EXIT: 2000,
     PRODUCTS_SPECIAL_PRICES: true,
@@ -136,7 +136,7 @@ program
   .action((cmd) => {
     let magentoConfig = getMagentoDefaultConfig(cmd.storeCode);
 
-    console.log('mage2vs config', config.magento2)
+    console.log('mage2vs config', config[config.platform])
     if (cmd.storeCode) {
       const storeView = config.storeViews[cmd.storeCode];
       if (!storeView) {
