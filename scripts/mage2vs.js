@@ -251,7 +251,7 @@ program
           '--harmony',
           'node_modules/mage2vuestorefront/src/cli.js',
           'attributes',
-          '--removeNonExistent=true'
+          '--removeNonExistent=false'
         ], { env: env, shell: true })
       }
     };
@@ -344,6 +344,8 @@ program
         importCategoriesPromise().then(() => {
           importProductcategoriesPromise().then(() => {
             importAttributesPromise().then(() => {
+              console.log('ATTRIBUTES FINISHED!!')
+              console.log('ATTRIBUTES FINISHED!!!')
               importTaxrulePromise().then(() => {
                 importProductsPromise().then(() => {
                   reindexPromise().then(() => {
