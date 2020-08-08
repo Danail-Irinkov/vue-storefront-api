@@ -20,9 +20,16 @@ class ProductProcessor {
     const taxProcessor = factory.getAdapter(platform, 'tax', this._indexName, taxCountry)
     const configExtensions = 'extensions' in this._config // check 'extensions' defined in config
 
+    // console.log('after ProcessorFactory31221 platform', platform);
+    // console.log('after ProcessorFactory31221 this._indexName', this._indexName);
+    // console.log('after ProcessorFactory31221 taxCountry', taxCountry);
+    console.log('after ProcessorFactory31221 items', items);
+    // console.log('after ProcessorFactory31221 groupId', groupId);
     processorChain.push(taxProcessor.process(items, groupId))
+    // console.log('after ProcessorFactory31220', processorChain);
 
     for (const ext of this._config.registeredExtensions) {
+      // console.log('after ProcessorFactory31221 ext', ext);
       // in each registered extension, check 'resultProcessor' is defined
       if (configExtensions && (ext in this._config.extensions) && ('resultProcessors' in this._config.extensions[ext]) && ('product' in this._config.extensions[ext].resultProcessors)) {
         const extProcessorPath = '../api/extensions/' + ext + '/processors'
@@ -38,19 +45,24 @@ class ProductProcessor {
       }
     }
 
+    // console.log('after ProcessorFactory31221', processorChain);
     return Promise.all(processorChain).then((resultSet) => {
+      console.log('after ProcessorFactory31221110', resultSet);
       if (!resultSet || resultSet.length === 0) {
         throw Error('error with resultset for processor chaining')
       }
 
       if (this._req.query._source_exclude && this._req.query._source_exclude.indexOf('sgn') < 0) {
         const rs = resultSet[0].map((item) => {
+          // console.log('after ProcessorFactory31221111');
           if (!item._source) { return item }
+          // console.log('after ProcessorFactory31221112');
 
           const config = this._config
           let sgnObj = (config.tax.calculateServerSide === true) ? { priceInclTax: item._source.priceInclTax } : { price: item._source.price }
           item._source.sgn = hmac.sign(sgnSrc(sgnObj, item), config.objHashSecret); // for products we sign off only price and id becase only such data is getting back with orders
 
+          // console.log('after ProcessorFactory31222');
           if (item._source.configurable_children) {
             item._source.configurable_children = item._source.configurable_children.map((subItem) => {
               if (subItem) {
@@ -62,12 +74,14 @@ class ProductProcessor {
             })
           }
 
+          // console.log('after ProcessorFactory31223');
           return item
         })
 
         // return first resultSet
         return rs
       } else {
+        // console.log('after ProcessorFactory31224');
         return resultSet[0]
       }
     })

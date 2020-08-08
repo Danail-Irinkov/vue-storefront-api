@@ -98,8 +98,10 @@ export default ({config, db}) => function (req, res, body) {
   // console.log('ES requestBody', req.method+' - '+url+'\n'+require('util').inspect(requestBody, false, null, true /* enable colors */))
 
   const dynamicRequestHandler = () => {
-    console.info('requestURL:', require('util').inspect(elasticBackendUrl, false, null, true /* enable colors */), 'requestURL')
-    console.info('requestBody:', require('util').inspect(requestBody, false, null, true /* enable colors */), 'requestBody')
+    if (elasticBackendUrl.indexOf('/attribute') === -1) { // Added By Dan
+      console.info('requestURL:', require('util').inspect(elasticBackendUrl, false, null, true /* enable colors */), 'requestURL')
+      console.info('requestBody:', require('util').inspect(requestBody, false, null, true /* enable colors */), 'requestBody')
+    }
     request({ // do the elasticsearch request
       uri: elasticBackendUrl,
       method: req.method,
@@ -108,12 +110,12 @@ export default ({config, db}) => function (req, res, body) {
       auth: auth
     }, (_err, _res, _resBody) => { // TODO: add caching layer to speed up SSR? How to invalidate products (checksum on the response BEFORE processing it)
       if (_resBody && _resBody.hits && _resBody.hits.hits) { // we're signing up all objects returned to the client to be able to validate them when (for example order)
-        if (elasticBackendUrl.indexOf('attribute') === -1) { // Added By Dan
+        if (elasticBackendUrl.indexOf('/attribute') === -1) { // Added By Dan
           console.log('_resBody.hits', _resBody.hits.hits, '_resBody.hits');
         }
 
         const factory = new ProcessorFactory(config);
-        console.log('after ProcessorFactory1');
+        // console.log('after ProcessorFactory1');
         const tagsArray = [];
         if (config.server.useOutputCache && cache) {
           const tagPrefix = entityType[0].toUpperCase(); // first letter of entity name: P, T, A ...
@@ -126,46 +128,46 @@ export default ({config, db}) => function (req, res, body) {
         }
 
         let resultProcessor = factory.getAdapter(entityType, indexName, req, res);
-        console.log('after ProcessorFactory2');
+        // console.log('after ProcessorFactory2');
 
         if (!resultProcessor) { resultProcessor = factory.getAdapter('default', indexName, req, res) } // get the default processor
 
-        console.log('after ProcessorFactory3');
+        // console.log('after ProcessorFactory3');
         if (entityType === 'product') {
-          console.log('after ProcessorFactory30');
+          // console.log('after ProcessorFactory30');
           resultProcessor.process(_resBody.hits.hits, groupId).then((result) => {
             _resBody.hits.hits = result;
-            console.log('after ProcessorFactory31');
+            // console.log('after ProcessorFactory31');
 
             _cacheStorageHandler(config, _resBody, reqHash, tagsArray);
             res.json(_resBody);
-            console.log('after ProcessorFactory32');
+            // console.log('after ProcessorFactory32');
           }).catch((err) => {
             console.error('sss' + err)
           })
         } else {
           resultProcessor.process(_resBody.hits.hits).then((result) => {
-            console.log('after ProcessorFactory34');
+            // console.log('after ProcessorFactory34');
             _resBody.hits.hits = result;
             _cacheStorageHandler(config, _resBody, reqHash, tagsArray);
-            console.log('after ProcessorFactory35');
+            // console.log('after ProcessorFactory35');
             res.json(_resBody);
-            console.log('after ProcessorFactory36');
+            // console.log('after ProcessorFactory36');
           }).catch((err) => {
             console.error('ddd' + err)
           })
         }
 
-        console.log('after ProcessorFactory4');
+        // console.log('after ProcessorFactory4');
       } else { // no cache storage if no results from Elastic
-        console.log('after ProcessorFactory4.1');
+        // console.log('after ProcessorFactory4.1');
         res.json(_resBody);
-        console.log('after ProcessorFactory4.2');
+        // console.log('after ProcessorFactory4.2');
       }
     });
   };
 
-  console.log('after ProcessorFactory4.5');
+  // console.log('after ProcessorFactory4.5');
   if (config.server.useOutputCache && cache) {
     cache.get(
       'api:' + reqHash
@@ -184,6 +186,6 @@ export default ({config, db}) => function (req, res, body) {
   } else {
     console.log('after ProcessorFactory6');
     dynamicRequestHandler()
-    console.log('after ProcessorFactory7');
+    // console.log('after ProcessorFactory7');
   }
 }

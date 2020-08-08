@@ -6,6 +6,7 @@ import bodybuilder from 'bodybuilder'
 
 class TaxProxy extends AbstractTaxProxy {
   constructor (config, entityType, indexName, taxCountry, taxRegion = '', sourcePriceInclTax = null, finalPriceInclTax = null) {
+    console.log('after TaxCconstructor1');
     super(config)
     this._entityType = entityType
     this._indexName = indexName
@@ -14,6 +15,7 @@ class TaxProxy extends AbstractTaxProxy {
     this._userGroupId = this._config.tax.userGroupId
     this._storeConfigTax = this._config.tax
 
+    // console.log('after TaxCconstructor2');
     if (this._config.storeViews && this._config.storeViews.multistore) {
       for (let storeCode in this._config.storeViews) {
         const store = this._config.storeViews[storeCode]
@@ -44,12 +46,15 @@ class TaxProxy extends AbstractTaxProxy {
     if (finalPriceInclTax === null) {
       finalPriceInclTax = this._config.tax.finalPriceIncludesTax
     }
+    // console.log('after TaxCconstructor3', finalPriceInclTax);
     this._deprecatedPriceFieldsSupport = this._config.tax.deprecatedPriceFieldsSupport
     this._taxCountry = taxCountry
     this._taxRegion = taxRegion
     this._sourcePriceInclTax = sourcePriceInclTax
     this._finalPriceInclTax = finalPriceInclTax
+    // console.log('after TaxCconstructor4');
     this.taxFor = this.taxFor.bind(this)
+    // console.log('after TaxCconstructor5');
   }
 
   taxFor (product, groupId) {
@@ -75,9 +80,11 @@ class TaxProxy extends AbstractTaxProxy {
   }
 
   process (productList, groupId = null) {
+    console.log('after TaxProcess1');
     const inst = this
     return new Promise((resolve, reject) => {
       inst.applyTierPrices(productList, groupId)
+      // console.log('after TaxProcess2');
 
       if (this._config.tax.calculateServerSide) {
         const client = es.getClient(this._config)
@@ -85,24 +92,33 @@ class TaxProxy extends AbstractTaxProxy {
           index: this._indexName,
           body: bodybuilder()
         }, 'taxrule', this._config)
+        // console.log('after TaxProcess3');
         client.search(esQuery).then((body) => { // we're always trying to populate cache - when online
+          // console.log('after TaxProcess4');
           inst._taxClasses = es.getHits(body).map(el => { return el._source })
+          // console.log('after TaxProcess5');
           for (let item of productList) {
             const isActive = checkIfTaxWithUserGroupIsActive(inst._storeConfigTax)
+            // console.log('after TaxProcess6');
             if (isActive) {
               groupId = getUserGroupIdToUse(inst._userGroupId, inst._storeConfigTax)
+              // console.log('after TaxProcess7');
             } else {
               groupId = null
             }
 
+            console.log('after TaxProcess8');
             inst.taxFor(item._source, groupId)
+            // console.log('after TaxProcess9');
           }
 
           resolve(productList)
         }).catch(err => {
+          console.log('after TaxProcess10');
           reject(err)
         })
       } else {
+        console.log('after TaxProcess11');
         resolve(productList)
       }
     })

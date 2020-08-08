@@ -194,7 +194,7 @@ export async function configureDevStore (config, VSFApiConfigEditor) {
         defaultCountry: 'BG',
         defaultRegion: '',
         calculateServerSide: true,
-        sourcePriceIncludesTax: false
+        sourcePriceIncludesTax: true
       },
       i18n: {
         fullCountryName: 'Bulgaria',

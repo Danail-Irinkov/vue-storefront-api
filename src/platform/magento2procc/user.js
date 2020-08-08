@@ -17,7 +17,7 @@ class UserProxy extends AbstractUserProxy {
   }
 
   me (requestToken) {
-    console.log(this.api.customers.me(requestToken));
+    console.log('me (requestToken)', this.api.customers.me(requestToken));
 
     return this.api.customers.me(requestToken)
   }

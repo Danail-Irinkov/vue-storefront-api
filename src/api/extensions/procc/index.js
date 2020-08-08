@@ -129,7 +129,7 @@ module.exports = ({ config, db }) => {
           defaultCountry: 'BG',
           defaultRegion: '',
           calculateServerSide: true,
-          sourcePriceIncludesTax: false
+          sourcePriceIncludesTax: true
         },
         i18n: {
           fullCountryName: 'Bulgaria',

@@ -272,7 +272,7 @@ function processSingleOrder (orderData, config, job, done, logger = console) {
   }
 
   cartIdPrepare.then(processCart).catch((error) => { // cannot create a quote for specific user, so bypass by placing anonymous order
-    logger.error(THREAD_ID, error)
+    logger.error('cartIdPrepare error:', THREAD_ID, error)
     logger.info('< Bypassing to anonymous order')
     isThisAuthOrder = false
 
@@ -287,11 +287,11 @@ function processSingleOrder (orderData, config, job, done, logger = console) {
         //        logger.error(err)
         //      })
       }).catch(error => {
-        logger.info(error)
+        logger.info('processCart error:', error)
         return done(new Error('Error while adding products', error));
       }) // TODO: assign the guest cart with user at last?
     } else {
-      logger.info(THREAD_ID + '< Using cartId provided with the order', cartId)
+      logger.info('processCart info:', THREAD_ID + '< Using cartId provided with the order', cartId)
       processCart(cartId)
     }
   })
