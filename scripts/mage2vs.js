@@ -251,7 +251,7 @@ program
           '--harmony',
           'node_modules/mage2vuestorefront/src/cli.js',
           'attributes',
-          '--removeNonExistent=false'
+          '--removeNonExistent=true'
         ], { env: env, shell: true })
       }
     };

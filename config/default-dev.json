@@ -44,7 +44,7 @@
     "useServerQueue": false
   },
   "catalog": {
-    "excludeDisabledProducts": true
+    "excludeDisabledProducts": false
   },
   "kue": {},
   "availableStores": [

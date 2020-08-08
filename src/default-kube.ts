@@ -49,7 +49,7 @@ export default {
       'useServerQueue': false
     },
     'catalog': {
-      'excludeDisabledProducts': true
+      'excludeDisabledProducts': false
     },
     'kue': {},
     'availableStores': [
