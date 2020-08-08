@@ -42,7 +42,13 @@ import node_config from 'config' // ESLINT is DISABLED for import/first
 // Added by dan-03-12-2019 to allow dynamic reset of config after update
 let config = node_config
 // @ts-ignore
-console.log(config.magento2procc.api, 'Config Loaded')
+console.log('Config Loaded')
+console.log(config, 'Config Loaded')
+// @ts-ignore
+if(config && config.magento2procc) {
+  // @ts-ignore
+  console.log(config.magento2procc.api, 'Config Loaded')
+}
 // let config_string = fs.readFileSync(path.resolve('config/default-kube.json'), 'utf8')
 // console.log(JSON.parse(config_string).magento2procc.api, 'Config Updated After Load')
 
