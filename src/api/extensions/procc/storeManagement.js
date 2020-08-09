@@ -1,7 +1,8 @@
 import request from 'request';
 // import { updateConfig, config } from '../../../index'
 
-import { getESClient } from './helpers';
+import { getESClient } from './elasticsearch';
+console.log('getESClient', getESClient)
 const esClient = getESClient();
 
 const sleep = (ms) => {

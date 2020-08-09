@@ -1,6 +1,7 @@
 import { apiStatus, apiError } from '../lib/util';
 import { Router } from 'express';
 import PlatformFactory from '../platform/factory';
+import {setProductBanners} from './extensions/procc/helpers';
 
 export default ({ config, db }) => {
   let cartApi = Router();
@@ -38,13 +39,14 @@ export default ({ config, db }) => {
     if (!req.body.cartItem) {
       return apiStatus(res, 'No cartItem element provided within the request body', 500)
     }
-    console.log('req.body.cartItem: ', req.body.cartItem)
-    cartProxy.update(req.query.token, req.query.cartId ? req.query.cartId : null, req.body.cartItem).then((result) => {
-      apiStatus(res, result, 200);
-    }).catch(err => {
-      console.log('cartProxy.update err: ', err)
-      apiError(res, err);
-    })
+    console.log('req.body.cartItem: ', req.body)
+    cartProxy.update(req.query.token, req.query.cartId ? req.query.cartId : null, req.body.cartItem)
+      .then(async (result) => {
+        apiStatus(res, result, 200);
+      }).catch(err => {
+        console.log('cartProxy.update err: ', err)
+        apiError(res, err);
+      })
   })
 
   /**

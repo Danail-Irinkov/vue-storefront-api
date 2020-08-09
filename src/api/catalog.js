@@ -6,6 +6,7 @@ import cache from '../lib/cache-instance'
 import { sha3_224 } from 'js-sha3'
 import Store from 'data-store';
 import path from 'path';
+import {setProductBanners} from './extensions/procc/helpers';
 
 function _cacheStorageHandler (config, result, hash, tags) {
   if (config.server.useOutputCache && cache) {
@@ -110,8 +111,19 @@ export default ({config, db}) => function (req, res, body) {
       auth: auth
     }, (_err, _res, _resBody) => { // TODO: add caching layer to speed up SSR? How to invalidate products (checksum on the response BEFORE processing it)
       if (_resBody && _resBody.hits && _resBody.hits.hits) { // we're signing up all objects returned to the client to be able to validate them when (for example order)
+        if (elasticBackendUrl.indexOf('/attribute') !== -1) { // Added By Dan
+          // // Added By Dan to regularly update the Product banners
+          // Running at initial store loaded by client (maybe its too often)
+          // console.time('setProductBanners');
+          // console.log('setProductBanners cartApi.post(\'/update\'');
+          // let storeCode = indexName.replace('vue_storefront_catalog_', '')
+          // console.log('setProductBanners config.vsf', config.vsf);
+          // console.log('setProductBanners storeCode', storeCode);
+          // setProductBanners(config, storeCode);
+          // console.timeEnd('setProductBanners');
+        }
         if (elasticBackendUrl.indexOf('/attribute') === -1) { // Added By Dan
-          console.log('_resBody.hits', _resBody.hits.hits, '_resBody.hits');
+          console.log('_resBody.hits', _resBody.hits.hits.length, '_resBody.hits');
         }
 
         const factory = new ProcessorFactory(config);

@@ -66,7 +66,7 @@ function assignPrice ({ product, target, price = 0, tax = 0, deprecatedPriceFiel
 }
 
 export function updateProductPrices ({ product, rate, sourcePriceInclTax = false, deprecatedPriceFieldsSupport = false, finalPriceInclTax = true }) {
-  console.log('finalPriceInclTax', finalPriceInclTax)
+  // console.log('finalPriceInclTax', finalPriceInclTax)
   const rate_factor = parseFloat(rate.rate) / 100
   const hasOriginalPrices = (
     product.hasOwnProperty('original_price') &&
@@ -168,7 +168,7 @@ export function calculateProductTax ({ product, taxClasses, taxCountry = 'PL', t
     } else {
       taxClass = taxClasses.find((el) => el.product_tax_class_ids.indexOf(parseInt(product.tax_class_id) >= 0))
     }
-    console.log('after calculateProductTax2');
+    // console.log('after calculateProductTax2');
 
     if (taxClass) {
       for (let rate of taxClass.rates) { // TODO: add check for zip code ranges (!)
@@ -180,10 +180,10 @@ export function calculateProductTax ({ product, taxClasses, taxCountry = 'PL', t
       }
     }
   }
-  console.log('after calculateProductTax3');
+  // console.log('after calculateProductTax3');
   if (!rateFound) {
     updateProductPrices({ product, rate: {rate: 0}, sourcePriceInclTax, deprecatedPriceFieldsSupport, finalPriceInclTax })
-    console.log('after calculateProductTax4');
+    // console.log('after calculateProductTax4');
 
     product.price_incl_tax = product.price
     product.price_tax = 0
@@ -199,7 +199,7 @@ export function calculateProductTax ({ product, taxClasses, taxCountry = 'PL', t
       /** END */
     }
 
-    console.log('after calculateProductTax5');
+    // console.log('after calculateProductTax5');
     if (product.configurable_children) {
       for (let configurableChildren of product.configurable_children) {
         configurableChildren.price_incl_tax = configurableChildren.price
@@ -223,11 +223,11 @@ export function calculateProductTax ({ product, taxClasses, taxCountry = 'PL', t
 export function checkIfTaxWithUserGroupIsActive (configTax) {
   console.log('after checkIfTaxWithUserGroupIsActive1');
   if (typeof configTax.userGroupId === 'number') {
-    console.log('after checkIfTaxWithUserGroupIsActive2');
+    // console.log('after checkIfTaxWithUserGroupIsActive2');
     return true
   }
 
-  console.log('after checkIfTaxWithUserGroupIsActive3');
+  // console.log('after checkIfTaxWithUserGroupIsActive3');
   return false
 }
 

@@ -23,7 +23,7 @@ class ProductProcessor {
     // console.log('after ProcessorFactory31221 platform', platform);
     // console.log('after ProcessorFactory31221 this._indexName', this._indexName);
     // console.log('after ProcessorFactory31221 taxCountry', taxCountry);
-    console.log('after ProcessorFactory31221 items', items);
+    // console.log('after ProcessorFactory31221 items', items);
     // console.log('after ProcessorFactory31221 groupId', groupId);
     processorChain.push(taxProcessor.process(items, groupId))
     // console.log('after ProcessorFactory31220', processorChain);
@@ -47,7 +47,7 @@ class ProductProcessor {
 
     // console.log('after ProcessorFactory31221', processorChain);
     return Promise.all(processorChain).then((resultSet) => {
-      console.log('after ProcessorFactory31221110', resultSet);
+      // console.log('after ProcessorFactory31221110', resultSet);
       if (!resultSet || resultSet.length === 0) {
         throw Error('error with resultset for processor chaining')
       }

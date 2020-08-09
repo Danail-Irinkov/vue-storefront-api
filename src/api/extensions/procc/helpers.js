@@ -3,13 +3,14 @@ import {createNewElasticSearchIndex, startVueStorefrontAPI,
   storewiseImportStore, storewiseAddNewProducts, dumpStoreIndex, restoreStoreIndex,
   createMainStoreElasticSearchIndex} from './storeManagement';
 // import { updateConfig, config } from '../../../index'
+
 import request from 'request';
 import Store from 'data-store';
 import path from 'path';
 
-// ELASTICSEARCH CLIENT
-import elasticsearch from 'elasticsearch'
-import {apiStatus} from '../../../lib/util';
+import { getESClient } from './elasticsearch';
+console.log('getESClient', getESClient)
+const esClient = getESClient();
 
 let VSFApiConfigEditor;
 if (process.env.NODE_ENV === 'development') {
@@ -19,26 +20,6 @@ console.log('START process.env.NODE_ENV: ', process.env.NODE_ENV);
 // console.log('START VSFApiConfigEditor: ', VSFApiConfigEditor.clone())
 // console.log('START VSFApiConfigEditor: ', path.resolve('./config/production.json'))
 console.log('END VSFApiConfigEditor! ');
-
-let esCfg = VSFApiConfigEditor.get('elasticsearch')
-const esConfig = {
-  host: {
-    host: esCfg.host,
-    port: esCfg.port
-  },
-  // log: 'debug',
-  apiVersion: esCfg.apiVersion,
-  requestTimeout: 1000 * 60 * 60,
-  keepAlive: false
-};
-if (esCfg.user) {
-  esConfig.httpAuth = esCfg.user + ':' + esCfg.password
-}
-
-const esClient = new elasticsearch.Client(esConfig);
-export function getESClient () { return esClient }
-
-// ELASTICSEARCH CLIENT - END
 
 export async function createStoreIndexInBothServers (storeCode) {
   try {
@@ -305,11 +286,8 @@ export function setProductBanners (config, storeCode) {
           products = _.take(_.filter(catalogProducts, ['_source.type_id', 'configurable']), 6);
           // console.log('setProductBanners products - ', products)
           console.log('setProductBanners products.length - ', products.length);
-          console.log('setProductBanners products.length - ', products.length);
-          console.log('setProductBanners products.length - ', products.length);
-          console.log('setProductBanners products.length - ', products.length);
           request({
-            uri: config.vsf.host + ':' + config.vsf.port + '/product-link',
+            uri: config.vsf.host + ':' + config.vsf.port + '/setProductBanners',
             method: 'POST',
             body: { 'products': products, 'storeCode': storeCode, 'imagesRootURL': config.magento2procc.imgUrl },
             json: true
@@ -433,7 +411,7 @@ export function healthCheckES (config) {
     esClient.ping({
     }, (e) => {
       if (e) {
-        console.log('ERROR ELASTICSEARCH CONNECTION', esConfig);
+        console.log('ERROR ELASTICSEARCH CONNECTION', e);
         reject(e)
       } else {
         // console.log('elasticsearch is running');
