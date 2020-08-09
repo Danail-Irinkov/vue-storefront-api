@@ -251,7 +251,7 @@ program
           '--harmony',
           'node_modules/mage2vuestorefront/src/cli.js',
           'attributes',
-          '--removeNonExistent=true'
+          '--removeNonExistent=false'
         ], { env: env, shell: true })
       }
     };
@@ -265,7 +265,7 @@ program
           '--harmony',
           'node_modules/mage2vuestorefront/src/cli.js',
           'taxrule',
-          '--removeNonExistent=true'
+          '--removeNonExistent=false'
         ], { env: env, shell: true })
       }
     };
