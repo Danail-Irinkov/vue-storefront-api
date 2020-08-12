@@ -45,7 +45,7 @@ let config = node_config
 console.log('Config Loaded')
 console.log(config, 'Config Loaded')
 // @ts-ignore
-if(config && config.magento2procc) {
+if (config && config.magento2procc) {
   // @ts-ignore
   console.log(config.magento2procc.api, 'Config Loaded')
 }

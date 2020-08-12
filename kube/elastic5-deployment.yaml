@@ -47,9 +47,9 @@ spec:
             - mountPath: /usr/share/elasticsearch/data
               name: nfs-drive
               subPath: es5_data
-            - mountPath: /usr/share/elasticsearch/config
-              name: nfs-drive
-              subPath: es5_config
+#            - mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+#              name: nfs-drive
+#              subPath: es5_config/elasticsearch.yml
       volumes:
         - name: nfs-drive
           persistentVolumeClaim:
