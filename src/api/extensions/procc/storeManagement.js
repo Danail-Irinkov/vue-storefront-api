@@ -288,7 +288,7 @@ export function storewiseAddNewProducts (storeCode, sync_options = null) {
   if (sync_options && sync_options.force_all_products === true) {
     args.push('--removeNonExistent=1') // Cleanup of all store products before syncing
   }
-
+  console.log(' STARTING PRODUCTS DELTA IN OUR SCRIPT')
   return exec('yarn', args, { shell: true }, true);
 }
 

@@ -418,13 +418,13 @@ module.exports = ({ config, db }) => {
       VSFApiConfigEditor.set('storeViews.mapStoreUrlsFor', _.pull(VSFApiConfigEditor.get('storeViews.mapStoreUrlsFor'), store_code));
       VSFApiConfigEditor.del(`storeViews.${store_code}`);
 
-      console.log('BEFORE ERROR 1');
+      console.log('BEFORE deleteVueStorefrontStoreConfig 1');
       // remove the banners, policies, main image and catalog files in Vue-storefront configs
       await deleteVueStorefrontStoreConfig({storeCode: store_code, index: store_index}, config);
 
-      console.log('BEFORE ERROR 2');
+      console.log('AFTER deleteVueStorefrontStoreConfig 2');
       catalogFile.unlink();
-      console.log('BEFORE ERROR 3');
+      console.log('BEFORE deleteElasticSearchIndex 3');
       await deleteElasticSearchIndex(store_index, config);
       console.log('Store view data deleted');
       apiStatus(res, 200);
