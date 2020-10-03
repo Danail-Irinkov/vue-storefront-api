@@ -401,7 +401,7 @@ export function healthCheckRedis (config) {
       resolve('redis is running')
     });
     redisClient.on('error', (e) => {
-      if (Math.random() > 0.9) { console.log('ERROR REDIS CONNECTION1 ', e); }
+      if (Math.random() > 0.9) { console.log('ERROR REDIS CONNECTION1 ', e.code); }
       reject(e)
     });
   })

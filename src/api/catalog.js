@@ -32,9 +32,11 @@ export default ({config, db}) => function (req, res, body) {
   let requestBody = {};
   if (req.method === 'GET') {
     if (req.query.request) { // this is in fact optional
+      // console.info('catalog req.query.request:', require('util').inspect(req.query.request, false, null, true /* enable colors */), 'req.query.request:')
       requestBody = JSON.parse(decodeURIComponent(req.query.request))
     }
   } else {
+    // console.info('catalog req.query.body:', require('util').inspect(req.query.body, false, null, true /* enable colors */), 'catalog req.query.body:')
     requestBody = req.body
   }
 
@@ -100,7 +102,7 @@ export default ({config, db}) => function (req, res, body) {
 
   const dynamicRequestHandler = () => {
     if (elasticBackendUrl.indexOf('/attribute') === -1) { // Added By Dan
-      console.info('requestURL:', require('util').inspect(elasticBackendUrl, false, null, true /* enable colors */), 'requestURL')
+      // console.info('requestURL:', require('util').inspect(elasticBackendUrl, false, null, true /* enable colors */), 'requestURL')
       console.info('requestBody:', require('util').inspect(requestBody, false, null, true /* enable colors */), 'requestBody')
     }
     request({ // do the elasticsearch request
