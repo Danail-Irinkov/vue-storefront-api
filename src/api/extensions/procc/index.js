@@ -263,7 +263,7 @@ module.exports = ({ config, db }) => {
       console.log('populateM2StoreToES sync_options', storeCode, sync_options);
       await storewiseImportStore(storeCode, sync_options);
       await storewiseRemoveProducts(config, storeCode, sync_options);
-      await storewiseAddNewProducts(storeCode, sync_options);
+      await storewiseAddNewProducts(config, storeCode, sync_options);
       console.timeEnd('storewiseImportStore');
 
       console.time('rebuildElasticSearchIndex');
@@ -317,7 +317,7 @@ module.exports = ({ config, db }) => {
       console.log('sync_options', sync_options);
       console.log('storeCode', storeCode);
       await storewiseRemoveProducts(config, storeCode, sync_options); // Not Sure when is required to remove the product first, but keeping it for now
-      await storewiseAddNewProducts(storeCode, sync_options);
+      await storewiseAddNewProducts(config, storeCode, sync_options);
       console.timeEnd('storewiseImportStore');
 
       console.time('rebuildElasticSearchIndex');

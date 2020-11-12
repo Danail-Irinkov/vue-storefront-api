@@ -266,7 +266,7 @@ export function storewiseRemoveProducts (config, storeCode, sync_options) {
   });
 }
 
-export function storewiseAddNewProducts (storeCode, sync_options = null) {
+export function storewiseAddNewProducts (config, storeCode, sync_options = null) {
   let skus = sync_options.products_to_add ? stringifySKUs(sync_options.products_to_add) : null;
   console.log(' == Running storewiseAddNewProducts storeCode==', storeCode, skus);
   let args = [
@@ -274,6 +274,7 @@ export function storewiseAddNewProducts (storeCode, sync_options = null) {
     'productsdelta',
     // '--removeNonExistent=0', // False by default
     '--partitions=1',
+    // '--adapter='+config.platform,
     '--partitionSize=20',
     '--store-code=' + storeCode
   ];
