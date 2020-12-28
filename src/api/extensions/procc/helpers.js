@@ -394,16 +394,20 @@ export function healthCheckRedis (config, db) {
     const redisClient = db.getRedisClient(config)
     console.log('AFTER redisClient')
 
-    if (config.redis.auth) {
-      redisClient.auth(config.redis.auth);
-    }
-    redisClient.on('ready', () => {
-      // console.log('redis is running');
-      resolve('redis is running')
-    });
-    redisClient.on('error', (e) => {
-      if (Math.random() > 0.99) { console.log('ERROR REDIS CONNECTION1 ', e, config.redis); }
-      reject(e)
+    let randomNumber = Math.round(Math.random() * 1000)
+
+    redisClient.set('healthCheck', randomNumber, (err, reply) => {
+      if (err) {
+        reject('Redis Error Write Check')
+      } else {
+        redisClient.get('healthCheck', (err, reply) => {
+          if (Number(reply) === Number(randomNumber)) {
+            resolve('Redis is Healthy')
+          } else {
+            reject('Redis Error Check')
+          }
+        });
+      }
     });
   })
 }
@@ -447,6 +451,7 @@ export async function healthCheckCore (config, db) {
       healthCheckRedis(config, db),
       healthCheckES(config)
     ];
+    console.log('VSF-API CORE BEFORE IS HEALTHY');
     let result = await Promise.all(asyncFunctions);
     console.log('VSF-API CORE IS HEALTHY');
     return result;

@@ -15,6 +15,15 @@ export function getClient (config) {
     if (config.redis.auth) {
       redisClient.auth(config.redis.auth);
     }
+
+    redisClient.on('ready', () => {
+      console.log('redis is running1');
+      return ('redis is running2')
+    });
+    redisClient.on('error', (e) => {
+      if (Math.random() > 0.99) { console.log('ERROR REDIS CONNECTION1 ', e, config.redis); }
+      return (e)
+    });
   }
   return redisClient
 }
