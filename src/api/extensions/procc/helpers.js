@@ -388,10 +388,11 @@ export function healthCheckMagento2 (config) {
       })
   })
 }
+
+const redis = require('../../../lib/redis');
 export function healthCheckRedis (config) {
   return new Promise((resolve, reject) => {
-    const Redis = require('redis');
-    let redisClient = Redis.createClient(config.redis); // redis client
+    let redisClient = redis.getClient(config); // redis client
 
     if (config.redis.auth) {
       redisClient.auth(config.redis.auth);

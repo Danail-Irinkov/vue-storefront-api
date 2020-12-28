@@ -116,7 +116,7 @@ program
       '--removeNonExistent=' + cmd.removeNonExistent
     ], { env: env, shell: true }).then((res) => {
       console.log('Delta indexer is Done!');
-    }).catch((e)=>{
+    }).catch((e) => {
       console.log('Delta indexer Err:!', e);
       process.exit(1)
     })
