@@ -390,7 +390,9 @@ export function healthCheckMagento2 (config) {
 
 export function healthCheckRedis (config, db) {
   return new Promise((resolve, reject) => {
+    console.log('BEFORE redisClient')
     const redisClient = db.getRedisClient(config)
+    console.log('AFTER redisClient')
 
     if (config.redis.auth) {
       redisClient.auth(config.redis.auth);
@@ -423,10 +425,10 @@ export function healthCheckES (config) {
 export async function healthCheck (config, db) {
   try {
     const asyncFunctions = [
-      healthCheckVSF(config, db),
-      healthCheckMagento2(config, db),
+      healthCheckVSF(config),
+      healthCheckMagento2(config),
       healthCheckRedis(config, db),
-      healthCheckES(config, db)
+      healthCheckES(config)
     ];
     let result = await Promise.all(asyncFunctions);
     console.log('VSF-API IS HEALTHY');
@@ -441,9 +443,9 @@ export async function healthCheckCore (config, db) {
   console.log('VSF-API healthCheck CORE START');
   try {
     const asyncFunctions = [
-      healthCheckVSF(config, db),
+      healthCheckVSF(config),
       healthCheckRedis(config, db),
-      healthCheckES(config, db)
+      healthCheckES(config)
     ];
     let result = await Promise.all(asyncFunctions);
     console.log('VSF-API CORE IS HEALTHY');
