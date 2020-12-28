@@ -9,7 +9,6 @@ import Store from 'data-store';
 import path from 'path';
 
 import { getESClient } from './elasticsearch';
-console.log('getESClient', getESClient)
 const esClient = getESClient();
 
 let VSFApiConfigEditor;
@@ -247,7 +246,7 @@ export async function installDevStore (config) {
   console.log('checkIfStoreExists', checkIfStoreExists)
   if (!(checkIfStoreExists && checkIfStoreExists.total && checkIfStoreExists.total > 0)) {
     await storewiseImportStore('dev')
-    await storewiseAddNewProducts('dev', {products_to_add: 'DA001,DA002,DA003,DA004,DA005,DA006,DA007,DA008,DA009'})
+    await storewiseAddNewProducts(config, 'dev', {products_to_add: 'DA001,DA002,DA003,DA004,DA005,DA006,DA007,DA008,DA009'})
   }
   return true
 }
@@ -389,10 +388,9 @@ export function healthCheckMagento2 (config) {
   })
 }
 
-const redis = require('../../../lib/redis');
-export function healthCheckRedis (config) {
+export function healthCheckRedis (config, db) {
   return new Promise((resolve, reject) => {
-    let redisClient = redis.getClient(config); // redis client
+    const redisClient = db.getRedisClient(config)
 
     if (config.redis.auth) {
       redisClient.auth(config.redis.auth);
@@ -422,13 +420,14 @@ export function healthCheckES (config) {
   })
 }
 
-export async function healthCheck (config) {
+export async function healthCheck (config, db) {
+  console.log('VSF-API healthCheck START');
   try {
     const asyncFunctions = [
-      healthCheckVSF(config),
-      healthCheckMagento2(config),
-      healthCheckRedis(config),
-      healthCheckES(config)
+      healthCheckVSF(config, db),
+      healthCheckMagento2(config, db),
+      healthCheckRedis(config, db),
+      healthCheckES(config, db)
     ];
     let result = await Promise.all(asyncFunctions);
     console.log('VSF-API IS HEALTHY');
@@ -439,18 +438,19 @@ export async function healthCheck (config) {
   }
 }
 
-export async function healthCheckCore (config) {
+export async function healthCheckCore (config, db) {
+  console.log('VSF-API healthCheck CORE START');
   try {
     const asyncFunctions = [
-      healthCheckVSF(config),
-      healthCheckRedis(config),
-      healthCheckES(config)
+      healthCheckVSF(config, db),
+      healthCheckRedis(config, db),
+      healthCheckES(config, db)
     ];
     let result = await Promise.all(asyncFunctions);
-    console.log('VSF-API IS HEALTHY');
+    console.log('VSF-API CORE IS HEALTHY');
     return result;
   } catch (e) {
-    console.log('VSF-API IS DOWN', e.message);
+    console.log('VSF-API CORE IS DOWN', e.message);
     return Promise.reject(e)
   }
 }

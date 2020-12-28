@@ -2,7 +2,6 @@ import request from 'request';
 // import { updateConfig, config } from '../../../index'
 
 import { getESClient } from './elasticsearch';
-console.log('getESClient', getESClient)
 const esClient = getESClient();
 
 const sleep = (ms) => {
@@ -267,8 +266,8 @@ export function storewiseRemoveProducts (config, storeCode, sync_options) {
 }
 
 export function storewiseAddNewProducts (config, storeCode, sync_options = null) {
-  let skus = sync_options.products_to_add ? stringifySKUs(sync_options.products_to_add) : null;
-  console.log(' == Running storewiseAddNewProducts storeCode==', storeCode, skus);
+  let skus = sync_options && sync_options.products_to_add ? stringifySKUs(sync_options.products_to_add) : null;
+  console.log(' == Running storewiseAddNewProducts storeCode==', storeCode);
   let args = [
     'mage2vs',
     'productsdelta',
@@ -281,6 +280,7 @@ export function storewiseAddNewProducts (config, storeCode, sync_options = null)
 
   if (skus) {
     args.push('--skus=' + skus)
+    console.log(' == Running storewiseAddNewProducts skus==', skus);
   } else {
     // It is not recomended to run product sync without skus, because it takes too much time and server resource
     return Promise.resolve()

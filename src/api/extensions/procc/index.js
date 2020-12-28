@@ -64,7 +64,7 @@ module.exports = ({ config, db }) => {
   mcApi.get('/health', async (req, res) => {
     let health;
     try {
-      health = await healthCheck(config);
+      health = await healthCheck(config, db);
       return apiStatus(res, 'ProCC VSF-API Online', 200);
     } catch (e) {
       return apiStatus(res, {error: e, health: health}, 502);
@@ -75,7 +75,7 @@ module.exports = ({ config, db }) => {
   mcApi.get('/health-core', async (req, res) => {
     let health;
     try {
-      health = await healthCheckCore(config);
+      health = await healthCheckCore(config, db);
       console.log('healthCheckCore ', health)
       return apiStatus(res, 'ProCC VSF-API Online', 200);
     } catch (e) {
@@ -460,7 +460,7 @@ module.exports = ({ config, db }) => {
 
     apiStatus(res, 200);
   });
-  healthCheck(config).catch((e) => { console.log('healthCheck Error last', e) });
+  healthCheck(config, db).catch((e) => { console.log('healthCheck Error last', e) });
 
   return mcApi;
 };
