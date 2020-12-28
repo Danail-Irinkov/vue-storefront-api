@@ -421,7 +421,6 @@ export function healthCheckES (config) {
 }
 
 export async function healthCheck (config, db) {
-  console.log('VSF-API healthCheck START');
   try {
     const asyncFunctions = [
       healthCheckVSF(config, db),
