@@ -9,6 +9,7 @@
   },
   "scripts": {
     "dev": "nodemon",
+    "dev1": "docker-compose up -d && nodemon",
     "dev:inspect": "nodemon --exec \"node --inspect -r ts-node/register src\"",
     "build": "npm run build:code && npm run build:copy:graphql && npm run build:copy:schema",
     "build:code": "tsc --build",
