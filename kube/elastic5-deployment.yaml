@@ -56,4 +56,4 @@ spec:
       volumes:
         - name: nfs-drive
           persistentVolumeClaim:
-            claimName: nfs-drive-pvc
+            claimName: nfs-drive-pvc2

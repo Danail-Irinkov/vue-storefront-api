@@ -68,4 +68,4 @@ spec:
             medium: Memory
         - name: nfs-drive
           persistentVolumeClaim:
-            claimName: nfs-drive-pvc
+            claimName: nfs-drive-pvc2
