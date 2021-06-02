@@ -386,27 +386,6 @@ export function buildVueStorefront (config) { // LEGACY
   })
 }
 
-export function kubeRestartVSFDeployment (config, brand_id) {
-  return new Promise((resolve, reject) => {
-    console.log(' == Triggering kubernetes rolling restart ==');
-    // Execute kubectl rollout restart deploy/vue-storefront-api
-    request({
-      // create store in vs
-      uri: 'http://procc-kube-control:3000/rollout-vsf?brand_id=' + brand_id,
-      method: 'POST',
-      body: {filler: 'object mock'},
-      json: true
-    },
-    (_err, _res, _resBody) => {
-      // console.log('buildVueStorefront Body', _resBody)
-      if (_err) {
-        console.log('buildVueStorefront Error', _err);
-        reject(_err)
-      } else resolve(_resBody)
-    })
-  })
-}
-
 export function deleteVueStorefrontStoreConfig (storeData, config) {
   return new Promise((resolve, reject) => {
     console.log(' == Delete VueStorefront Store Config==');
@@ -458,41 +437,6 @@ export function deleteElasticSearchIndex (store_index, config) {
   ], { shell: true });
 }
 
-// TODO: Move This step to ProCC function syncVueStorefront()
-export async function buildAndRestartVueStorefrontAPI (req, res, brand_id, enableVSFRebuild = false, config) {
-  try {
-    console.log('Starting with the Vue Build');
-    let brand_data = {
-      brand_id: brand_id,
-      status: false
-    };
-    // TODO: Need to restart kubernetes deployment in Production
-
-    if (enableVSFRebuild) {
-      if (process.env.NODE_ENV === 'development') {
-        console.time('buildVueStorefrontDev');
-        // await updateConfig() // Updating config for entire API
-
-        await restartVueStorefrontAPIDevDocker(); // Sync flow for the new Docker Dev Script get_procc.sh
-        // await buildVueStorefront(config) // LEGACY
-        // await buildVueStorefrontAPI(config) // LEGACY
-        console.timeEnd('buildVueStorefrontDev')
-      } else if (process.env.NODE_ENV === 'production') {
-        console.time('kubeRestartVSFDeployment');
-        await kubeRestartVSFDeployment(config, brand_id);
-        console.timeEnd('kubeRestartVSFDeployment')
-      }
-    }
-    // console.time('restartPM2Server')
-    // await restartPM2Server()
-    // console.timeEnd('restartPM2Server')
-
-    return brand_data
-  } catch (err) {
-    console.info('buildAndRestartVueStorefrontAPI ERROR');
-    return Promise.reject(err)
-  }
-}
 process.on('unhandledRejection', (reason, p) => {
   console.log('Unhandled Rejection at: Promise ', p, ' reason: ', reason);
 });

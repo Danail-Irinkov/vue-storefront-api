@@ -8,7 +8,7 @@ import path from 'path';
 // console.log('jwtPrivateKey jwtPrivateKey - ')
 
 import { storewiseImportStore, storewiseAddNewProducts, storewiseRemoveProducts,
-  deleteElasticSearchIndex, buildAndRestartVueStorefrontAPI,
+  deleteElasticSearchIndex,
   storewiseRemoveProductFromCategory, storewiseAddProductToCategory,
   deleteVueStorefrontStoreConfig, rebuildElasticSearchIndex } from './storeManagement';
 
@@ -365,12 +365,6 @@ module.exports = ({ config, db }) => {
       console.log('setProductBanners');
       await setProductBanners(config, storeCode);
       console.timeEnd('setProductBanners');
-
-      console.time('buildAndRestartVueStorefrontAPI');
-      console.log('buildAndRestartVueStorefrontAPI');
-      await buildAndRestartVueStorefrontAPI(req, res, brand_id, enableVSFRebuild, config);
-      console.timeEnd('buildAndRestartVueStorefrontAPI');
-      console.log('buildAndRestartVueStorefrontAPI Done! Store is ready to function! StoreCode: ', storeCode);
 
       res.status(200);
       res.end();
