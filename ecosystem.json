@@ -8,9 +8,9 @@
       "env": {
         "NODE_ENV": "production",
         "NODE_APP_INSTANCE": "kube",
-        "NODE_CONFIG_STRICT_MODE": true,
-        "DEBUG_COLORS": true,
-        "SEO_USE_URL_DISPATCHER": false
+        "NODE_CONFIG_STRICT_MODE": "true",
+        "DEBUG_COLORS": "true",
+        "SEO_USE_URL_DISPATCHER": "false"
       },
       "log_date_format": "YYYY-MM-DD HH:mm:ss",
       "ignore_watch": ["node_modules"]

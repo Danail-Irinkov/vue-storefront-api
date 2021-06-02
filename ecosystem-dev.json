@@ -8,8 +8,7 @@
       "env": {
         "NODE_ENV": "development",
         "NODE_APP_INSTANCE": "dev",
-        "SEO_USE_URL_DISPATCHER":
-         "false"
+        "SEO_USE_URL_DISPATCHER": "false"
       },
       "log_date_format": "YYYY-MM-DD HH:mm:ss",
       "ignore_watch": ["node_modules"]
