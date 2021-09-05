@@ -1,4 +1,4 @@
-FROM keymetrics/pm2:10-alpine
+FROM keymetrics/pm2:14-alpine
 
 ENV VS_ENV prod
 
