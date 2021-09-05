@@ -42,8 +42,8 @@ import node_config from 'config' // ESLINT is DISABLED for import/first
 // Added by dan-03-12-2019 to allow dynamic reset of config after update
 let config = node_config
 // @ts-ignore
-console.log('Config Loaded')
-console.log(config, 'Config Loaded')
+console.log('Config Loaded');
+// console.log(config, 'Config Loaded')
 // @ts-ignore
 if (config && config.magento2procc) {
   // @ts-ignore
