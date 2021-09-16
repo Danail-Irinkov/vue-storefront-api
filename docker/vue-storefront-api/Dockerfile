@@ -9,11 +9,10 @@ RUN apk add --no-cache curl git
 COPY package.json ./
 #COPY yarn.lock ./
 
-RUN apk add --no-cache python2
-RUN apk add --no-cache --virtual .build-deps make g++ ca-certificates wget && \
+RUN apk add --no-cache --virtual .build-deps python2 make g++ ca-certificates wget && \
 		npm config set python python2 \
     yarn install --no-cache && \
-    apk del .build-deps
+#    apk del .build-deps
 
 RUN npm install -g typescript@3.3.3
 
