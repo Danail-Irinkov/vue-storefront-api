@@ -9,7 +9,7 @@ RUN apk add --no-cache curl git
 COPY package.json ./
 #COPY yarn.lock ./
 
-RUN apk add --no-cache python2 
+RUN apk add --no-cache python2
 RUN apk add --no-cache --virtual .build-deps make g++ ca-certificates wget && \
 		npm config set python python2 \
     yarn install --no-cache && \
