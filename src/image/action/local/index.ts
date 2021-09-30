@@ -25,10 +25,10 @@ export default class LocalImageAction extends ImageAction {
     let height: number
     let action: string
     if (this.req.query.url) { // url provided as the query param
-      imgUrl = decodeURIComponent(this.req.query.url)
-      width = parseInt(this.req.query.width)
-      height = parseInt(this.req.query.height)
-      action = this.req.query.action
+      imgUrl = decodeURIComponent(String(this.req.query.url))
+      width = parseInt(String(this.req.query.width))
+      height = parseInt(String(this.req.query.height))
+      action = String(this.req.query.action)
     } else {
       let urlParts = this.req.url.split('/')
       width = parseInt(urlParts[1])
