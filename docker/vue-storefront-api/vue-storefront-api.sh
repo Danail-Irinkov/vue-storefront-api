@@ -7,7 +7,7 @@ cp -a -r -f config_repo/. config
 
 yarn -ver
 yarn install || exit $?
-
+echo "Installetion finished"
 #if [ "$VS_ENV" = 'dev' ]; then
 #  yarn dev
 #else
